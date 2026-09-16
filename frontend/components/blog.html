@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Velora Journal — stories on craft, style, and considered living.">
+    <title>The Velora Journal — Velora</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="./css/blog.css">
+</head>
+
+<body>
+    <!-- Top announcement bar -->
+    <div class="announcement">
+        <span>Complimentary delivery on orders over R800</span>
+        <a href="index.html">Shop the collection <span aria-hidden="true">&#8599;</span></a>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="site-header" id="header">
+        <a class="brand" href="index.html" aria-label="Velora home">VELORA<span>.</span></a>
+
+        <nav class="desktop-nav" aria-label="Primary navigation">
+            <a href="../index.html">Home</a>
+            <a class="active" href="blog.html">Blog</a>
+            <a href="shop.html">Shop</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+            <button class="icon-button search-button" type="button" aria-label="Search">
+                <span></span>
+            </button>
+            <button class="icon-button bag-button" type="button" aria-label="Shopping bag">
+                <span id="cartCount">0</span>
+            </button>
+            <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+                <i></i><i></i>
+            </button>
+        </div>
+
+        <!-- Mobile slide-down nav -->
+        <nav class="mobile-nav" aria-label="Mobile navigation">
+            <a href="../index.html">Home</a>
+            <a href="blog.html">Blog</a>
+            <a href="shop.html">Shop</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main id="top">
+
+        <!-- Blog hero -->
+        <section class="blog-hero">
+            <div class="blog-hero-content">
+                <p class="eyebrow">The Velora Journal</p>
+                <h1>Stories on <em>craft, style,</em><br>and considered living.</h1>
+                <p class="blog-hero-description">Thoughtful reads on the pieces we make, the people behind them, and the rituals that shape everyday life.</p>
+            </div>
+        </section>
+
+        <!-- Category filter -->
+        <section class="blog-categories" aria-label="Filter articles by category">
+            <button class="category-chip active" type="button" data-category="all">All Stories</button>
+            <button class="category-chip" type="button" data-category="style">Style</button>
+            <button class="category-chip" type="button" data-category="craft">Craft</button>
+            <button class="category-chip" type="button" data-category="living">Living</button>
+            <button class="category-chip" type="button" data-category="culture">Culture</button>
+        </section>
+
+        <!-- Featured article -->
+        <section class="featured-article">
+            <article class="featured-card" data-category="craft">
+                <div class="featured-image">
+                    <img src="https://images.pexels.com/photos/7404938/pexels-photo-7404938.jpeg?auto=compress&cs=tinysrgb&h=650&w=1260" alt="Minimalist living room with wooden accents" loading="lazy">
+                </div>
+                <div class="featured-body">
+                    <span class="article-category">Craft</span>
+                    <h2>The slow art of leather: why patience makes a better bag.</h2>
+                    <p>Inside the workshop where every Velora tote is cut, stitched, and finished by hand — and why we wouldn't have it any other way.</p>
+                    <div class="article-meta">
+                        <span class="article-author">By Maya Radebe</span>
+                        <span class="article-date">12 Sep 2026</span>
+                        <span class="article-read">8 min read</span>
+                    </div>
+                    <a class="text-link" href="#">Read the story <span>&#8599;</span></a>
+                </div>
+            </article>
+        </section>
+
+        <!-- Article grid -->
+        <section class="blog-grid-section">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Latest stories</p>
+                    <h2>From the <em>journal.</em></h2>
+                </div>
+            </div>
+
+            <div class="blog-grid" id="blogGrid">
+                <article class="blog-card" data-category="style">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/8217882/pexels-photo-8217882.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Woman in beige outfit wearing sunglasses" loading="lazy">
+                        <span class="article-category">Style</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>Five neutrals worth wearing into autumn.</h3>
+                        <p>The palette that carries you from warm afternoons to cool evenings — and how to layer it without overthinking.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Tash Naidoo</span>
+                            <span class="article-date">08 Sep 2026</span>
+                            <span class="article-read">5 min read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card" data-category="living">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/6209460/pexels-photo-6209460.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Warm bedroom with soft neutral bedding" loading="lazy">
+                        <span class="article-category">Living</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>A calm room: building a space that lets you rest.</h3>
+                        <p>Small changes, big difference. How texture, light, and a single well-made object can shift the feel of a whole room.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Liam Pillay</span>
+                            <span class="article-date">03 Sep 2026</span>
+                            <span class="article-read">6 min read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card" data-category="culture">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/25361524/pexels-photo-25361524.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Flat lay with fashion magazines and accessories" loading="lazy">
+                        <span class="article-category">Culture</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>The objects we keep: what we hold onto says a lot.</h3>
+                        <p>From a worn-in wallet to a favourite mug, the everyday things we refuse to replace tell a quiet story about value.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Maya Radebe</span>
+                            <span class="article-date">28 Aug 2026</span>
+                            <span class="article-read">7 min read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card" data-category="style">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/9968539/pexels-photo-9968539.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Woman in trench coat in autumn light" loading="lazy">
+                        <span class="article-category">Style</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>The trench, revisited: one coat, three ways.</h3>
+                        <p>It's the piece that works from Monday morning to Saturday night. Here's how to style a trench across a full week.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Tash Naidoo</span>
+                            <span class="article-date">22 Aug 2026</span>
+                            <span class="article-read">4 min read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card" data-category="craft">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/4271700/pexels-photo-4271700.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Classic sneakers in a net bag on white background" loading="lazy">
+                        <span class="article-category">Craft</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>Why we chose full-grain leather (and what that means for you).</h3>
+                        <p>Not all leather is equal. A plain-English guide to the grades, what to look for, and why it matters for the things you buy.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Liam Pillay</span>
+                            <span class="article-date">16 Aug 2026</span>
+                            <span class="article-read">6 min read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card" data-category="living">
+                    <div class="blog-card-image">
+                        <img src="https://images.pexels.com/photos/2986445/pexels-photo-2986445.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Flat lay of fashion accessories in neutral tones" loading="lazy">
+                        <span class="article-category">Living</span>
+                    </div>
+                    <div class="blog-card-body">
+                        <h3>The Sunday reset: a small ritual for a better week.</h3>
+                        <p>It's not about productivity hacks. It's about ten quiet minutes, a clean surface, and setting the tone for the days ahead.</p>
+                        <div class="article-meta">
+                            <span class="article-author">By Maya Radebe</span>
+                            <span class="article-date">10 Aug 2026</span>
+                            <span class="article-read">5 min read</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="blog-load-more">
+                <button class="load-more-button" type="button">Load more stories <span>&#8595;</span></button>
+            </div>
+        </section>
+
+        <!-- Newsletter subscription -->
+        <section id="newsletter" class="section-p1">
+            <div class="newsletter-inner">
+                <div class="newsletter-text">
+                    <h2>Join the Velora list</h2>
+                    <p>Be the first to know about new drops, private sales, and members-only offers.</p>
+                </div>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
+                    <button type="submit">Subscribe <span>&#8599;</span></button>
+                </form>
+            </div>
+            <p class="newsletter-feedback" id="newsletterFeedback"></p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a class="brand" href="index.html">VELORA<span>.</span></a>
+                <p>Thoughtful goods for everyday living. Quality you can feel, design that lasts.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Shop</h4>
+                <a href="index.html#shop">New arrivals</a>
+                <a href="index.html#shop">Best sellers</a>
+                <a href="index.html#shop">Accessories</a>
+                <a href="index.html#shop">Sale</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="about.html">About us</a>
+                <a href="blog.html">Our blog</a>
+                <a href="contact.html">Contact</a>
+                <a href="#">Careers</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="#">Shipping &amp; returns</a>
+                <a href="#">Size guide</a>
+                <a href="#">FAQ</a>
+                <a href="#">Track your order</a>
+            </div>
+            <div class="footer-col">
+                <h4>Follow</h4>
+                <a href="#">Instagram</a>
+                <a href="#">Pinterest</a>
+                <a href="#">TikTok</a>
+                <a href="#">Newsletter</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Velora. All rights reserved.</span>
+            <div class="footer-legal">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuButton = document.querySelector('.menu-button');
+        const header = document.querySelector('.site-header');
+        menuButton?.addEventListener('click', () => {
+            const open = header.classList.toggle('menu-open');
+            menuButton.setAttribute('aria-expanded', open);
+        });
+
+        // Category filtering
+        const chips = document.querySelectorAll('.category-chip');
+        const cards = document.querySelectorAll('.blog-card, .featured-card');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const cat = chip.dataset.category;
+                cards.forEach(card => {
+                    const show = cat === 'all' || card.dataset.category === cat;
+                    card.style.display = show ? '' : 'none';
+                });
+            });
+        });
+
+        // Newsletter form
+        const form = document.getElementById('newsletterForm');
+        const feedback = document.getElementById('newsletterFeedback');
+        form?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            feedback.textContent = "Thank you — you're on the list.";
+            form.reset();
+        });
+    </script>
+</body>
+
+</html>

@@ -125,11 +125,15 @@ h1 {
   font-size: clamp(25px, 4vw, 50px);
   font-weight: 500; letter-spacing: -.055em; line-height: .95;
 }
-h1 em, h2 em {
+
+h1 em,
+h2 em {
   color: #e2bd8a;
-  font-family: 'Playfair Display', serif;
-  font-weight: 500;
+  font-family: 'Merriweather', serif; /* or 'Lora', serif */
+  font-weight: 600;
+  font-style: normal;
 }
+
 
 .hero-description {
   max-width: 360px; margin-bottom: 32px;
@@ -186,7 +190,7 @@ h1 em, h2 em {
 .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .product-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 5px;
   overflow: hidden;
   background: #fff;
   transition: box-shadow .3s ease;
@@ -268,7 +272,7 @@ h1 em, h2 em {
   min-height: 50vh;
   padding: 50px 40px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 1px;
 }
 .banner-box-a { background: #3d3a36 url('https://images.pexels.com/photos/2986445/pexels-photo-2986445.jpeg?auto=compress&cs=tinysrgb&h=650&w=940') center/cover no-repeat; }
 .banner-box-b { background: #4a4540 url('https://images.pexels.com/photos/426862/pexels-photo-426862.jpeg?auto=compress&cs=tinysrgb&h=650&w=940') center/cover no-repeat; }
@@ -297,7 +301,7 @@ h1 em, h2 em {
   display: flex; flex-direction: column;
   justify-content: center; align-items: flex-start;
   height: 30vh; min-width: 0; flex: 1;
-  padding: 30px; border-radius: 8px; overflow: hidden;
+  padding: 30px; border-radius: 1px; overflow: hidden;
 }
 .banner-box-1 { background: #5a5550 url('https://images.pexels.com/photos/30055293/pexels-photo-30055293.jpeg?auto=compress&cs=tinysrgb&h=650&w=940') center/cover no-repeat; }
 .banner-box-2 { background: #4a4540 url('https://images.pexels.com/photos/27596491/pexels-photo-27596491.jpeg?auto=compress&cs=tinysrgb&h=650&w=940') center/cover no-repeat; }
@@ -414,7 +418,7 @@ h1 em, h2 em {
 
 /* ---------- Footer ---------- */
 footer {
-   background: rgba(246, 245, 241, .94);
+  background: rgba(246, 245, 241, .94);
   color: #1b1b1a;
 }
 
@@ -498,7 +502,7 @@ footer {
 }
 
 .footer-payments img {
-  height: 32px;
+  height: 17px; 
   width: auto;
   object-fit: contain;
   transition: opacity .25s;
@@ -506,10 +510,6 @@ footer {
 
 .footer-payments img:hover {
   opacity: .8;
-}
-
-.google-pay-logo {
-  height: 40px;
 }
 
 /* ============================== */
