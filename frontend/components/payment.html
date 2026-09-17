@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Payment — Velora. Secure SSL payment verification.">
+  <title>Payment — Velora</title>
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/payment.css">
+</head>
+
+<body id="top">
+
+  <!-- Announcement bar -->
+  <div class="announcement">
+    <span>Complimentary delivery on orders over R800</span>
+    <a href="shop.html">Return to collection <span aria-hidden="true">↗</span></a>
+  </div>
+
+  <!-- Header / navigation -->
+  <header class="site-header">
+    <a class="brand" href="shop.html" aria-label="Velora home">VELORA<span>.</span></a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="shop.html">Home</a>
+      <a class="active" href="shop.html#catalog">Shop</a>
+      <a href="shop.html#story">About</a>
+      <a href="shop.html#newsletter">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button search-button" type="button" aria-label="Search">
+        <span></span>
+      </button>
+      <a class="icon-button bag-button" href="#bag" aria-label="View shopping bag">
+        <span id="cartCount">0</span>
+      </a>
+      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+        <i></i><i></i>
+      </button>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="shop.html">Home</a>
+      <a href="shop.html#catalog">Shop</a>
+      <a href="shop.html#story">About</a>
+      <a href="shop.html#newsletter">Contact</a>
+    </nav>
+  </header>
+
+  <main class="checkout-page-container">
+
+    <!-- Stepper Navigation -->
+    <div class="checkout-page-header">
+      <nav class="checkout-stepper" aria-label="Checkout progress">
+        <a href="shop.html" class="step-item">
+          <span class="step-num">1</span>
+          <span>Shopping Bag</span>
+        </a>
+        <span class="step-divider">/</span>
+        <a href="checkout.html" class="step-item completed">
+          <span class="step-num">✓</span>
+          <span>Information & Shipping</span>
+        </a>
+        <span class="step-divider">/</span>
+        <div class="step-item active" aria-current="step">
+          <span class="step-num">3</span>
+          <span>Payment</span>
+        </div>
+        <span class="step-divider">/</span>
+        <div class="step-item">
+          <span class="step-num">4</span>
+          <span>Confirmation</span>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Container -->
+    <div id="paymentPageMainContainer">
+      <div class="checkout-main-grid">
+
+        <!-- Left Column: Payment & Review -->
+        <div class="checkout-form-column">
+
+          <!-- Shipping Summary Review Card -->
+          <div class="shipping-review-box">
+            <div class="review-item">
+              <span class="review-label">Contact</span>
+              <span class="review-value" id="paymentReviewContact">elena@example.com • +27 82 000 0000</span>
+              <a href="checkout.html" class="review-change">Change</a>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Ship to</span>
+              <span class="review-value" id="paymentReviewAddress">14 Kloof Street, Gardens, Cape Town, 8001</span>
+              <a href="checkout.html" class="review-change">Change</a>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Method</span>
+              <span class="review-value" id="paymentReviewMethod">Velora Courier Express (2–4 days) • Complimentary</span>
+              <a href="checkout.html" class="review-change">Change</a>
+            </div>
+          </div>
+
+          <form id="standalonePaymentForm">
+
+            <!-- Payment Options Card -->
+            <div class="checkout-section-card">
+              <h2>
+                <span>Select Payment Method</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--success); display: flex; align-items: center; gap: 4px;">
+                  🔒 256-bit SSL Encrypted
+                </span>
+              </h2>
+
+              <div class="payment-methods" id="pagePaymentMethods">
+                <label class="payment-option active" data-method="card">
+                  <input type="radio" name="paymentOptionRadio" value="card" checked>
+                  <span>Credit / Debit Card</span>
+                </label>
+                <label class="payment-option" data-method="eft">
+                  <input type="radio" name="paymentOptionRadio" value="eft">
+                  <span>Instant EFT (Ozow)</span>
+                </label>
+                <label class="payment-option" data-method="snapscan">
+                  <input type="radio" name="paymentOptionRadio" value="snapscan">
+                  <span>SnapScan / Zapper</span>
+                </label>
+                <label class="payment-option" data-method="cod">
+                  <input type="radio" name="paymentOptionRadio" value="cod">
+                  <span>Cash on Delivery</span>
+                </label>
+              </div>
+
+              <!-- Card Inputs View -->
+              <div id="pageCardFieldsView" class="card-details-box" style="margin-top: 18px;">
+                <div class="form-group">
+                  <label for="pageCardNumber">Card Number *</label>
+                  <input type="text" id="pageCardNumber" placeholder="4532 •••• •••• 8921" maxlength="19" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="pageCardExpiry">Expiry Date *</label>
+                    <input type="text" id="pageCardExpiry" placeholder="MM/YY" maxlength="5" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="pageCardCvv">Security Code (CVV) *</label>
+                    <input type="password" id="pageCardCvv" placeholder="123" maxlength="4" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="pageCardName">Name on Card *</label>
+                  <input type="text" id="pageCardName" placeholder="Elena Vance" required>
+                </div>
+              </div>
+
+              <!-- Instant EFT View -->
+              <div id="pageEftView" style="display: none; margin-top: 18px;">
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">Select your South African bank for instant, fee-free EFT payment verification:</p>
+                <div class="eft-bank-grid" id="pageEftBankGrid">
+                  <div class="bank-chip selected" data-bank="Capitec">Capitec</div>
+                  <div class="bank-chip" data-bank="FNB">FNB</div>
+                  <div class="bank-chip" data-bank="Standard Bank">Standard Bank</div>
+                  <div class="bank-chip" data-bank="Nedbank">Nedbank</div>
+                  <div class="bank-chip" data-bank="Absa">Absa</div>
+                  <div class="bank-chip" data-bank="Investec">Investec</div>
+                </div>
+              </div>
+
+              <!-- SnapScan View -->
+              <div id="pageSnapscanView" style="display: none; margin-top: 18px;">
+                <div class="snapscan-box">
+                  <div class="snapscan-qr">
+                    <svg viewBox="0 0 100 100" width="100" height="100">
+                      <rect width="100" height="100" fill="#fff"/>
+                      <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" fill="#1b1b1a"/>
+                      <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" fill="#1b1b1a"/>
+                      <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" fill="#1b1b1a"/>
+                      <rect x="45" y="10" width="10" height="10" fill="#1b1b1a"/>
+                      <rect x="45" y="30" width="10" height="20" fill="#1b1b1a"/>
+                      <rect x="60" y="50" width="15" height="15" fill="#1b1b1a"/>
+                      <rect x="80" y="70" width="10" height="15" fill="#1b1b1a"/>
+                      <rect x="45" y="75" width="20" height="15" fill="#1b1b1a"/>
+                    </svg>
+                  </div>
+                  <strong style="display: block; font-size: 13px; color: var(--ink);">Scan with SnapScan or Zapper</strong>
+                  <p style="font-size: 11px; color: var(--muted); margin-top: 6px;">Open your banking or payment app to complete this order instantly.</p>
+                </div>
+              </div>
+
+              <!-- Cash On Delivery View -->
+              <div id="pageCodView" style="display: none; margin-top: 18px;">
+                <div style="background: var(--cream); padding: 18px; border-radius: 4px; border: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6;">
+                  <strong style="color: var(--ink); display: block; margin-bottom: 6px;">Cash on Delivery Terms</strong>
+                  Our courier carries mobile card terminals and exact change. Please ensure someone is available at your delivery address to inspect and receive your Velora goods.
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Billing Address Card -->
+            <div class="checkout-section-card">
+              <h2>Billing Address</h2>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer;">
+                  <input type="radio" name="billingChoice" value="same" checked style="accent-color: var(--ink);">
+                  <span>Same as delivery address</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer;">
+                  <input type="radio" name="billingChoice" value="different" style="accent-color: var(--ink);">
+                  <span>Use a different billing address</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="checkout-btn-row">
+              <button type="submit" class="place-order-btn" style="flex: 1;" id="payNowSubmitBtn">
+                Pay <span id="payButtonAmount">R0</span> Now <span>🔒</span>
+              </button>
+              <a href="checkout.html" class="return-link">← Return to shipping</a>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Right Column: Order Summary (Sticky) -->
+        <aside class="checkout-sidebar-sticky" id="paymentSidebar">
+          <h2>Order Summary</h2>
+          <div class="checkout-items-list" id="paymentPageItemsList"></div>
+
+          <div class="promo-row">
+            <input type="text" id="paymentPagePromoInput" placeholder="Promo code (try VELORA10)">
+            <button type="button" id="paymentPagePromoBtn">Apply</button>
+          </div>
+          <div id="paymentPagePromoFeedback" style="font-size: 11px; min-height: 14px; margin-bottom: 12px;"></div>
+
+          <div class="cart-summary-row">
+            <span>Items Subtotal</span>
+            <strong id="paymentPageSubtotal">R0</strong>
+          </div>
+          <div class="cart-summary-row" id="paymentPageDiscountRow" style="display: none;">
+            <span>Privilege Discount (10%)</span>
+            <strong id="paymentPageDiscount" style="color: var(--success);">-R0</strong>
+          </div>
+          <div class="cart-summary-row">
+            <span>Courier Delivery</span>
+            <strong id="paymentPageDelivery">Complimentary</strong>
+          </div>
+          <div class="cart-summary-row total-row">
+            <span>Total Due</span>
+            <strong id="paymentPageTotal">R0</strong>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); line-height: 1.6;">
+            <p>✓ <strong>Encrypted bank-grade checkout.</strong></p>
+            <p>✓ <strong>Official VAT tax invoice emailed immediately.</strong></p>
+            <p>✓ <strong>Direct workshop support on every order.</strong></p>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="shop.html">VELORA<span>.</span></a>
+        <p>Thoughtful goods for everyday living. Quality you can feel, design that lasts.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Shop</h3>
+        <a href="shop.html#catalog">New arrivals</a>
+        <a href="shop.html#catalog">Best sellers</a>
+        <a href="shop.html#catalog">Accessories</a>
+      </div>
+      <div class="footer-col">
+        <h3>Company</h3>
+        <a href="shop.html#story">About us</a>
+        <a href="shop.html#newsletter">Contact</a>
+        <a href="shop.html#newsletter">Journal</a>
+      </div>
+      <div class="footer-col">
+        <h3>Support</h3>
+        <a href="shop.html#catalog">Shipping & returns</a>
+        <a href="shop.html#catalog">Size guide</a>
+        <a href="shop.html#newsletter">FAQ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Velora. All rights reserved.</span>
+      <span>Thoughtfully made, simply lived.</span>
+    </div>
+  </footer>
+
+  <script type="module" src="../js/shop.js"></script>
+  <script src="./script.js"></script>
+</body>
+
+</html>

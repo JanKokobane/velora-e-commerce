@@ -349,3 +349,109 @@ details p {
   .thumb { width: 60px; height: 60px; }
   .you-may-like .product-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ---------- Newsletter ---------- */
+#newsletter {
+  position: relative;
+  background-image: 
+    linear-gradient(135deg, rgba(27, 27, 26, 0.841) 0%, rgba(14, 14, 13, 0.937) 100%),
+    url("../../images/b2.jpg"); 
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #fff;
+  padding: 60px 80px;
+}
+
+
+.newsletter-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.newsletter-text h2 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.newsletter-text h2 em {
+  font-family: 'Playfair Display', serif;
+  color: #e2bd8a;
+}
+
+.newsletter-text p {
+  margin: 0;
+  color: rgba(255,255,255,.65);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.newsletter-form input {
+  padding: 15px 20px;
+  width: 320px;
+  max-width: 100%;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color .25s;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(255,255,255,.4);
+}
+
+.newsletter-form input:focus {
+  border-color: var(--accent);
+}
+
+.newsletter-form button {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 24px;
+  color: var(--ink);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: gap .25s, background .25s;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.newsletter-form button span {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.newsletter-form button:hover {
+  gap: 30px;
+  background: #e2bd8a;
+}
+
+.newsletter-feedback {
+  max-width: 1200px;
+  margin: 18px auto 0;
+  font-size: 13px;
+  color: #e2bd8a;
+  min-height: 18px;
+}

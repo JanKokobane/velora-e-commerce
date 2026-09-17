@@ -9,8 +9,15 @@
   align-items: center;
   min-height: 380px;
   padding: 80px 9% 60px;
-  background: linear-gradient(180deg, var(--cream) 0%, #efede7 100%);
-  border-bottom: 1px solid var(--line);
+  justify-content: space-between;
+  background-image: 
+    linear-gradient(135deg, rgba(27, 27, 26, 0.798) 0%, rgba(14, 14, 13, 0.417) 100%),
+    url("../../images/blogBanner.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #fff;
+  padding: 60px 80px; 
   overflow: hidden;
 }
 
@@ -34,7 +41,10 @@
 
 .blog-hero-content .eyebrow {
   margin-bottom: 18px;
-  color: var(--accent-dark);
+  color: rgba(255,255,255,.75); /* softer muted tone */
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .blog-hero-content h1 {
@@ -43,13 +53,20 @@
   font-weight: 500;
   letter-spacing: -.055em;
   line-height: 1;
-  color: var(--ink);
+  color: #f4f4f2; /* clean off-white for clarity */
+}
+
+.blog-hero-content h1 em {
+  color: #d4a76a; /* warm gold accent */
+  font-family: 'Merriweather', serif;
+  font-weight: 600;
+  font-style: normal;
 }
 
 .blog-hero-description {
   max-width: 480px;
   margin: 0;
-  color: var(--muted);
+  color: rgba(255,255,255,.85); /* brighter muted tone for readability */
   font-size: 15px;
   line-height: 1.7;
 }
@@ -327,12 +344,14 @@
 
   .blog-hero-content h1 {
     font-size: clamp(30px, 10vw, 44px);
-  line-height: 1.05;
-  margin-bottom: 18px;
+    line-height: 1.05;
+    margin-bottom: 18px;
+    color: #f4f4f2; /* keep off-white for clarity */
   }
 
   .blog-hero-description {
     font-size: 14px;
+    color: rgba(255,255,255,.85);
   }
 
   .blog-categories {
