@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Velora — thoughtful goods for everyday living.">
     <title>Velora — Thoughtful goods for everyday living</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <meta property="og:image" content="https://bolt.new/static/og_default.png">
     <meta name="twitter:card" content="summary_large_image">
@@ -59,7 +62,7 @@
         <!-- Hero section with video on desktop, image on mobile/tablet -->
         <section class="hero" aria-label="Velora featured offers">
             <div class="hero-media" aria-hidden="true">
-                <video autoplay muted loop playsinline id="heroVideo" poster="public/images/mobileHero.png">
+                <video autoplay muted loop playsinline id="heroVideo" poster="./images/mobileHero.png">
                     <source src="./images/heroVideo.mp4" type="video/mp4">
                 </video>
                 <img src="./images/mobileHero.png" alt="" class="mobile-hero-image">
@@ -519,7 +522,8 @@
                 <a href="#">Shipping &amp; returns</a>
                 <a href="#">Size guide</a>
                 <a href="#">FAQ</a>
-                <a href="#">Track your order</a>
+                <a href="./components/account.html#track">Track your order</a>
+                <a href="./components/account.html#orders">My Orders</a>
             </div>
             <div class="footer-col">
                 <h4>Follow</h4>
@@ -548,6 +552,7 @@
         </div>
     </footer>
 
+    <script type="module" src="./js/auth-orders.js"></script>
     <script type="module" src="./js/functions.js"></script>
     <script type="module" src="./js/slide.js"></script>
 </body>

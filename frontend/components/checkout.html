@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Checkout — Velora. Secure contact & delivery details.">
   <title>Checkout — Velora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/common.css">
   <link rel="stylesheet" href="./css/checkout.css">
 </head>
@@ -23,10 +26,10 @@
     <a class="brand" href="shop.html" aria-label="Velora home">VELORA<span>.</span></a>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="shop.html">Home</a>
-      <a class="active" href="shop.html#catalog">Shop</a>
-      <a href="shop.html#story">About</a>
-      <a href="shop.html#newsletter">Contact</a>
+      <a href="../index.html">Home</a>
+      <a class="active" href="shop.html">Shop</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
     </nav>
 
     <div class="header-actions">
@@ -42,10 +45,10 @@
     </div>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <a href="shop.html">Home</a>
-      <a href="shop.html#catalog">Shop</a>
-      <a href="shop.html#story">About</a>
-      <a href="shop.html#newsletter">Contact</a>
+      <a href="../index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
     </nav>
   </header>
 
@@ -87,7 +90,7 @@
           <div class="checkout-section-card">
             <h2>
               <span>1. Contact Information</span>
-              <span style="font-size: 11px; font-weight: normal; color: var(--muted);">Have an account? <a href="shop.html#newsletter" style="text-decoration: underline; color: var(--accent-dark);">Sign in</a></span>
+              <span style="font-size: 11px; font-weight: normal; color: var(--muted);">Have an account? <a href="account.html" id="checkoutSignInLink" style="text-decoration: underline; color: var(--accent-dark);">Sign in</a></span>
             </h2>
 
             <div class="form-row">
@@ -248,7 +251,8 @@
       <div class="footer-col">
         <h3>Support</h3>
         <a href="shop.html#catalog">Shipping & returns</a>
-        <a href="shop.html#catalog">Size guide</a>
+        <a href="./account.html#track">Track Order</a>
+        <a href="./account.html#orders">My Account</a>
         <a href="shop.html#newsletter">FAQ</a>
       </div>
     </div>
@@ -258,7 +262,8 @@
     </div>
   </footer>
 
-  <script type="module" src=".././js/shop.js"></script>
+  <script type="module" src="../js/auth-orders.js"></script>
+  <script type="module" src="../js/shop.js"></script>
 </body>
 
 </html>

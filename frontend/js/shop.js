@@ -1056,9 +1056,33 @@ function submitOrder(e) {
   const total = Math.max(0, subtotal - discount + delivery);
   const purchased = [...cart];
 
+  // Save to separate orders and tracking logic
+  if (window.VeloraOrders && typeof window.VeloraOrders.createOrder === 'function') {
+    window.VeloraOrders.createOrder({
+      orderId: orderNum,
+      customer: {
+        firstName,
+        lastName: '',
+        email,
+        phone: document.getElementById('coPhone')?.value || ''
+      },
+      address: `${address}, ${city}, ${province} (${postal})`,
+      items: purchased,
+      subtotal,
+      discount,
+      delivery,
+      total,
+      paymentMethod: 'Credit / Debit Card',
+      date: orderDate
+    });
+  }
+
   setTimeout(() => {
     const content = document.getElementById('checkoutModalContent');
     if (content) {
+      const isSub = window.location.pathname.includes('/components/');
+      const trackUrl = isSub ? `account.html?track=${orderNum}` : `./components/account.html?track=${orderNum}`;
+
       content.innerHTML = `
         <div class="order-success-view">
           <div class="order-success-icon">✓</div>
@@ -1101,7 +1125,14 @@ function submitOrder(e) {
             </div>
           </div>
 
-          <button class="cart-empty-btn" id="finishShoppingBtn" type="button">Continue Shopping</button>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+            <a href="${trackUrl}" class="place-order-btn" style="display: inline-block; width: auto; padding: 14px 28px; text-decoration: none; background: var(--accent-dark); color: #fff;">
+              Track Order Live ↗
+            </a>
+            <button class="cart-empty-btn" id="finishShoppingBtn" type="button" style="width: auto; padding: 14px 24px;">
+              Continue Shopping
+            </button>
+          </div>
         </div>
       `;
 
@@ -1984,6 +2015,32 @@ function initPaymentPage() {
       const totalPieces = cart.reduce((sum, item) => sum + item.quantity, 0);
       const finalPaidAmount = formatCurrency(calculatedTotal);
 
+      // Save order to separate auth & order management logic
+      if (window.VeloraOrders && typeof window.VeloraOrders.createOrder === 'function') {
+        const selectedRadio = document.querySelector('input[name="paymentOptionRadio"]:checked')?.value;
+        const payMethod = selectedRadio === 'eft' ? 'Instant EFT (Ozow)' :
+                          selectedRadio === 'snapscan' ? 'SnapScan' :
+                          selectedRadio === 'cod' ? 'Cash on Delivery' : 'Credit / Debit Card';
+
+        window.VeloraOrders.createOrder({
+          orderId: orderRef,
+          customer: {
+            firstName: shipping.firstName || 'Client',
+            lastName: shipping.lastName || '',
+            email: shipping.email || 'customer@example.com',
+            phone: shipping.phone || ''
+          },
+          address: `${shipping.street || ''}, ${shipping.city || 'Cape Town'} (${shipping.postal || '8001'})`,
+          items: [...cart],
+          subtotal: cart.reduce((sum, item) => sum + (item.numericPrice * item.quantity), 0),
+          discount: discountAmount,
+          delivery: deliveryCost,
+          total: calculatedTotal,
+          paymentMethod: payMethod,
+          date: orderDate
+        });
+      }
+
       // Render Order Confirmation Screen
       if (container) {
         container.innerHTML = `
@@ -2031,6 +2088,9 @@ function initPaymentPage() {
             </div>
 
             <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+              <a href="account.html?track=${orderRef}" class="place-order-btn" style="display: inline-block; width: auto; padding: 16px 32px; text-decoration: none; background: var(--accent-dark); color: #fff;">
+                Track Live Delivery ↗
+              </a>
               <a href="shop.html#catalog" class="place-order-btn" style="display: inline-block; width: auto; padding: 16px 36px; text-decoration: none;">
                 Return to Shop
               </a>

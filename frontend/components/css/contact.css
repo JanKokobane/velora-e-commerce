@@ -500,7 +500,7 @@
 #newsletter-contact .eyebrow-contact,
 .newsletter-contact .eyebrow-contact {
   display: inline-block;
-  color: #e2bd8a;
+  color: var(--accent-light, #e5c69a);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .15em;
@@ -522,8 +522,8 @@
 #newsletter-contact h2 em,
 .newsletter-contact h2 em,
 .newsletter-text-contact h2 em {
-  font-family: 'Playfair Display', serif;
-  color: #e2bd8a;
+  font-family: var(--font-serif);
+  color: var(--accent-light, #e5c69a);
   font-style: italic;
   font-weight: 500;
 }
@@ -564,7 +564,7 @@
 }
 
 .newsletter-form-contact input:focus {
-  border-color: #e2bd8a;
+  border-color: var(--accent-light, #e5c69a);
   background: rgba(255, 255, 255, .12);
 }
 
@@ -591,7 +591,7 @@
 }
 
 .newsletter-form-contact button:hover {
-  background: #e2bd8a;
+  background: var(--accent-light, #e5c69a);
 }
 
 .newsletter-feedback-contact {
@@ -599,7 +599,7 @@
   bottom: 20px;
   left: 9%;
   margin: 0;
-  color: #e2bd8a;
+  color: var(--accent-light, #e5c69a);
   font-size: 12px;
 }
 

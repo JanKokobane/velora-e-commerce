@@ -15,9 +15,7 @@
     <!-- Google Fonts: DM Sans & Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="./css/common.css">
@@ -38,8 +36,8 @@
 
         <nav class="desktop-nav" aria-label="Primary navigation" id="desktopNav">
             <a href="../index.html">Home</a>
-            <a href="../components/shop.html">Shop</a>
-            <a href="../components/about.html">About</a>
+            <a href="./shop.html">Shop</a>
+            <a href="./about.html">About</a>
             <a class="active" href="contact.html">Contact</a>
         </nav>
 
@@ -58,8 +56,8 @@
         <!-- Mobile Nav -->
         <nav class="mobile-nav" aria-label="Mobile navigation" id="mobileNav">
             <a href="../index.html">Home</a>
-            <a href="../components/shop.html">Shop</a>
-            <a href="../components/about.html">About</a>
+            <a href="./shop.html">Shop</a>
+            <a href="./about.html">About</a>
             <a class="active" href="contact.html">Contact</a>
         </nav>
     </header>
@@ -320,7 +318,8 @@
             <div class="footer-col">
                 <h3>Support</h3>
                 <a href="#faqSection">Shipping & returns</a>
-                <a href="mailto:concierge@velorastore.com">Concierge care</a>
+                <a href="./account.html#track">Track Order</a>
+                <a href="./account.html#orders">My Account</a>
                 <a href="#faqSection">FAQ</a>
             </div>
         </div>
@@ -331,8 +330,8 @@
     </footer>
 
     <!-- Store scripts for live cart drawer, search overlay, and mobile nav -->
-    <script src="./shop.js" defer></script>
-    <script src="./script.js" defer></script>
+    <script type="module" src="../js/auth-orders.js"></script>
+    <script type="module" src="../js/shop.js"></script>
 
     <script>
         // FAQ Accordion interactivity

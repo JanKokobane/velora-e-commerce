@@ -8,16 +8,15 @@
   display: flex;
   align-items: center;
   min-height: 380px;
-  padding: 80px 9% 60px;
+  padding: 70px 9% 50px;
   justify-content: space-between;
   background-image: 
-    linear-gradient(135deg, rgba(27, 27, 26, 0.798) 0%, rgba(14, 14, 13, 0.417) 100%),
+    linear-gradient(135deg, rgba(21, 21, 19, 0.44) 0%, rgba(21, 21, 19, 0.18) 100%),
     url("../../images/blogBanner.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   color: #fff;
-  padding: 60px 80px; 
   overflow: hidden;
 }
 
@@ -40,35 +39,42 @@
 }
 
 .blog-hero-content .eyebrow {
-  margin-bottom: 18px;
-  color: rgba(255,255,255,.75); /* softer muted tone */
-  font-weight: 600;
-  letter-spacing: .08em;
+  margin: 0 0 16px;
+  color: var(--accent-light, #e5c69a);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
 .blog-hero-content h1 {
-  margin: 0 0 22px;
-  font-size: clamp(32px, 5vw, 58px);
+  margin: 0 0 18px;
+  font-family: var(--font-sans);
+  font-size: clamp(36px, 4.8vw, 58px);
   font-weight: 500;
-  letter-spacing: -.055em;
-  line-height: 1;
-  color: #f4f4f2; /* clean off-white for clarity */
+  letter-spacing: -.035em;
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
 }
 
 .blog-hero-content h1 em {
-  color: #d4a76a; /* warm gold accent */
-  font-family: 'Merriweather', serif;
-  font-weight: 600;
-  font-style: normal;
+  font-family: var(--font-serif);
+  color: var(--accent-light, #e5c69a);
+  font-style: italic;
+  font-weight: 500;
 }
 
 .blog-hero-description {
   max-width: 480px;
   margin: 0;
-  color: rgba(255,255,255,.85); /* brighter muted tone for readability */
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.65;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* ---------- Category filter ---------- */
@@ -150,6 +156,7 @@
 
 .featured-body h2 {
   margin: 14px 0 16px;
+  font-family: var(--font-serif);
   font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 500;
   letter-spacing: -.03em;
@@ -178,7 +185,7 @@
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent-dark);
-  background: rgba(201, 165, 122, .14);
+  background: var(--accent-soft);
   border-radius: 4px;
   white-space: nowrap;
 }
@@ -272,7 +279,8 @@
 
 .blog-card-body h3 {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-family: var(--font-serif);
+  font-size: 19px;
   font-weight: 600;
   letter-spacing: -.02em;
   line-height: 1.25;
@@ -343,15 +351,15 @@
   }
 
   .blog-hero-content h1 {
-    font-size: clamp(30px, 10vw, 44px);
+    font-size: clamp(34px, 10vw, 46px);
     line-height: 1.05;
     margin-bottom: 18px;
-    color: #f4f4f2; /* keep off-white for clarity */
+    color: #ffffff;
   }
 
   .blog-hero-description {
     font-size: 14px;
-    color: rgba(255,255,255,.85);
+    color: rgba(255, 255, 255, 0.88);
   }
 
   .blog-categories {

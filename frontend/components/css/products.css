@@ -383,8 +383,9 @@ details p {
 }
 
 .newsletter-text h2 em {
-  font-family: 'Playfair Display', serif;
-  color: #e2bd8a;
+  font-family: var(--font-serif);
+  color: var(--accent-light, #e5c69a);
+  font-style: italic;
 }
 
 .newsletter-text p {
@@ -419,7 +420,7 @@ details p {
 }
 
 .newsletter-form input:focus {
-  border-color: var(--accent);
+  border-color: var(--accent-light, #e5c69a);
 }
 
 .newsletter-form button {
@@ -445,13 +446,13 @@ details p {
 
 .newsletter-form button:hover {
   gap: 30px;
-  background: #e2bd8a;
+  background: var(--accent-light, #e5c69a);
 }
 
 .newsletter-feedback {
   max-width: 1200px;
   margin: 18px auto 0;
   font-size: 13px;
-  color: #e2bd8a;
+  color: var(--accent-light, #e5c69a);
   min-height: 18px;
 }
