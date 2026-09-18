@@ -1,6 +1,6 @@
 /* ==========================================================================
    Velora Order Processing & Parcel Tracking (orders.css)
-   Powered by CodeAlpha Logistics (www.codealpha.tech)
+   Powered by Velora Logistics (www.velora.co.za)
    Exclusively uses Ubuntu font typography system
    ========================================================================== */
 
@@ -30,7 +30,7 @@
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.02);
 }
 
-.codealpha-tag {
+.velora-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -45,7 +45,7 @@
   margin-bottom: 12px;
 }
 
-.codealpha-tag a {
+.velora-tag a {
   color: inherit;
   text-decoration: underline;
 }
@@ -485,8 +485,8 @@
   line-height: 1.5;
 }
 
-/* CodeAlpha Seal */
-.codealpha-seal {
+/* Velora Seal */
+.velora-seal {
   margin-top: 28px;
   padding: 16px 20px;
   background: var(--cream, #f6f5f1);
@@ -502,19 +502,19 @@
   font-size: 20px;
 }
 
-.codealpha-seal strong {
+.velora-seal strong {
   display: block;
   color: var(--ink, #1b1b1a);
   margin-bottom: 2px;
 }
 
-.codealpha-seal p {
+.velora-seal p {
   margin: 0;
   color: var(--muted, #6b6b66);
   line-height: 1.4;
 }
 
-.codealpha-seal a {
+.velora-seal a {
   color: var(--ink, #1b1b1a);
   text-decoration: underline;
   font-weight: 600;

@@ -94,8 +94,8 @@ export function getUserOrders(userEmail) {
         estimatedDelivery: '19 Sep 2026 (14:00 - 17:00)',
         status: 'Out for Express Delivery',
         trackingNumber: 'TRK-ZA-8492019',
-        processingPartner: 'CodeAlpha Logistics (www.codealpha.tech)',
-        courier: 'CodeAlpha Express Courier — Driver: Sipho K.',
+        processingPartner: 'Velora Logistics (www.velora.co.za)',
+        courier: 'Velora Express Courier — Driver: Sipho K.',
         total: 1290,
         items: [
           {
@@ -249,7 +249,7 @@ function renderAuthForms(initialTab = 'signin') {
             <div class="form-options">
               <label class="checkbox-label">
                 <input type="checkbox" id="regConsent" checked required>
-                <span>I agree to receive SMS and email parcel dispatch updates via CodeAlpha Logistics</span>
+                <span>I agree to receive SMS and email parcel dispatch updates via Velora Logistics</span>
               </label>
             </div>
 
@@ -470,14 +470,14 @@ function renderUserDashboard(user) {
           </div>
           <div class="detail-row">
             <span class="detail-label">Fulfillment:</span>
-            <span class="detail-val" style="color: var(--accent-dark);">CodeAlpha Logistics (www.codealpha.tech)</span>
+            <span class="detail-val" style="color: var(--accent-dark);">Velora Logistics (www.velora.co.za)</span>
           </div>
         </div>
 
         <!-- Quick Track Box -->
         <div class="quick-track-box">
           <h4>Have a Tracking Code?</h4>
-          <p>Track any parcel directly via CodeAlpha Logistics:</p>
+          <p>Track any parcel directly via Velora Logistics:</p>
           <form id="sidebarTrackForm" class="sidebar-track-form">
             <input type="text" id="sidebarTrackInput" placeholder="e.g. VEL-84920" required>
             <button type="submit">Track ↗</button>
@@ -500,7 +500,7 @@ function renderUserDashboard(user) {
             Live Courier Dispatch
           </div>
           <h2>Active Parcel Shipments</h2>
-          <p>Orders are dispatched from our Cape Town workshop and routed via <strong>CodeAlpha Logistics (<a href="https://www.codealpha.tech" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">www.codealpha.tech</a>)</strong>.</p>
+          <p>Orders are dispatched from our Cape Town workshop and routed via <strong>Velora Logistics (<a href="./orders.html" style="color: inherit; text-decoration: underline;">www.velora.co.za</a>)</strong>.</p>
         </div>
 
         <!-- Orders & Parcel Cards List -->
@@ -568,7 +568,7 @@ function renderOrderCard(order) {
       <!-- Live Tracking Progress Bar -->
       <div class="tracking-progress-wrapper">
         <div class="tracking-meta-row">
-          <span>Courier: <strong>CodeAlpha Express (${order.trackingNumber || 'TRK-ZA-8492019'})</strong></span>
+          <span>Courier: <strong>Velora Express (${order.trackingNumber || 'TRK-ZA-8492019'})</strong></span>
           <span>Est. Delivery: <strong>${order.estimatedDelivery || 'In 2 business days'}</strong></span>
         </div>
         <div class="progress-track-bar">
@@ -598,9 +598,9 @@ function renderOrderCard(order) {
       <!-- Card Actions -->
       <div class="order-card-actions">
         <a href="orders.html?orderId=${order.id}" class="track-btn">
-          Track Live in CodeAlpha Logistics ↗
+          Track Live in Velora Logistics ↗
         </a>
-        <span class="logistics-partner-note">Audited by www.codealpha.tech</span>
+        <span class="logistics-partner-note">Audited by www.velora.co.za</span>
       </div>
     </div>
   `;

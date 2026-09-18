@@ -432,7 +432,7 @@ export function initPaymentPage() {
         paymentMethod: paymentMethodName,
         status: 'Confirmed & Processing',
         trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`,
-        processingPartner: 'CodeAlpha Logistics (www.codealpha.tech)'
+        processingPartner: 'Velora Logistics (www.velora.co.za)'
       };
 
       // Record completed order
@@ -632,7 +632,7 @@ export function renderOrderConfirmation(order) {
       <!-- Action Buttons -->
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 28px;">
         <a href="orders.html?orderId=${order.id}" style="padding: 13px 26px; background: var(--ink, #1b1b1a); color: #fff; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; display: inline-flex; align-items: center; gap: 8px;">
-          Track Parcel in CodeAlpha Logistics ↗
+          Track Parcel in Velora Logistics ↗
         </a>
         <a href="auth.html" style="padding: 13px 22px; background: #fff; border: 1px solid var(--ink); color: var(--ink); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; display: inline-flex; align-items: center; gap: 6px;">
           View Account ↗
@@ -659,4 +659,23 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
   initCheckoutPage();
   initPaymentPage();
+
+  const newsletterForm = document.getElementById('newsletterForm');
+  const newsletterFeedback = document.getElementById('newsletterFeedback');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const emailInput = document.getElementById('newsletterEmail');
+      if (emailInput && emailInput.value.trim()) {
+        if (newsletterFeedback) {
+          newsletterFeedback.textContent = "Thank you for subscribing to Velora.";
+          newsletterFeedback.style.color = 'var(--accent-light, #e5c69a)';
+          setTimeout(() => {
+            newsletterFeedback.textContent = '';
+          }, 4000);
+        }
+        newsletterForm.reset();
+      }
+    });
+  }
 });

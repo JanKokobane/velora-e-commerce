@@ -1,10 +1,10 @@
 /**
  * Velora E-Commerce — Order Processing & Parcel Tracking (orders.js)
- * Powered by CodeAlpha Logistics (www.codealpha.tech)
+ * Powered by Velora Logistics (www.velora.co.za)
  * Features:
  * 1. Real-time Order Processing lifecycle verification
  * 2. Parcel Tracking lookup by Order ID or Courier Tracking Number
- * 3. Milestone timeline: Atelier -> CodeAlpha Logistics Hub -> Courier -> Delivery
+ * 3. Milestone timeline: Atelier -> Velora Logistics Hub -> Courier -> Delivery
  * 4. Interactive visual logistics route preview
  * 5. Waybill generation & delivery note printing
  */
@@ -21,7 +21,7 @@ const DEFAULT_PARCEL = {
   estimatedDelivery: 'Tomorrow, 19 Sep (14:00 – 17:00)',
   status: 'In Transit — Out for Express Delivery',
   currentStageIndex: 3, // 0: Placed, 1: Processed, 2: Dispatched, 3: Out for Delivery, 4: Delivered
-  carrier: 'CodeAlpha Express Courier (www.codealpha.tech)',
+  carrier: 'Velora Express Courier (www.velora.co.za)',
   driver: {
     name: 'Sipho Khumalo',
     vehicle: 'Toyota Hilux Van (CA 892 411)',
@@ -35,7 +35,7 @@ const DEFAULT_PARCEL = {
     address: '14 Kloof Street, Gardens, Cape Town, 8001'
   },
   paymentMethod: 'Instant EFT (Capitec Bank) — Verified',
-  processingPartner: 'CodeAlpha Tech Infrastructure (www.codealpha.tech)',
+  processingPartner: 'Velora Logistics Infrastructure (www.velora.co.za)',
   items: [
     {
       title: 'Cloud-step sneakers',
@@ -54,18 +54,18 @@ const DEFAULT_PARCEL = {
       description: 'Transaction authorized via Ozow SSL gateway. Digital invoice generated.'
     },
     {
-      title: 'CodeAlpha Order Processing & Atelier Allocation',
+      title: 'Velora Order Processing & Atelier Allocation',
       location: 'Woodstock Studio, Cape Town',
       time: '18 Sep 2026, 11:30',
       completed: true,
       description: 'Handcrafted goods inspected by master artisan. Packed in biodegradable raw cotton dust bag.'
     },
     {
-      title: 'Dispatched to CodeAlpha Logistics Hub',
+      title: 'Dispatched to Velora Logistics Hub',
       location: 'Airport Industria Dispatch Hub, Western Cape',
       time: '18 Sep 2026, 16:45',
       completed: true,
-      description: 'Waybill scanned and audited by CodeAlpha Tech logistics system (www.codealpha.tech).'
+      description: 'Waybill scanned and audited by Velora logistics system (www.velora.co.za).'
     },
     {
       title: 'Out for Express Delivery',
@@ -150,14 +150,14 @@ function renderOrdersInterface(order) {
     <!-- Top Search & Verification Header -->
     <div class="orders-search-section">
       <div class="search-box-card">
-        <span class="codealpha-tag">
+        <span class="velora-tag">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          Audited by CodeAlpha Tech • <a href="https://www.codealpha.tech" target="_blank" rel="noopener">www.codealpha.tech</a>
+          Audited by Velora Logistics • <a href="./orders.html">www.velora.co.za</a>
         </span>
         <h2>Track Parcel & Order Processing</h2>
-        <p>Enter your Velora Order ID or CodeAlpha Tracking Waybill to monitor real-time fulfillment status.</p>
+        <p>Enter your Velora Order ID or Velora Tracking Waybill to monitor real-time fulfillment status.</p>
 
         <form id="orderSearchForm" class="order-search-bar">
           <div class="search-input-wrapper">
@@ -182,7 +182,7 @@ function renderOrdersInterface(order) {
           <span>Quick Lookup:</span>
           <button type="button" class="quick-chip" data-code="${order.id}">${order.id} (Current)</button>
           <button type="button" class="quick-chip" data-code="VEL-84920">VEL-84920 (Sneakers)</button>
-          <button type="button" class="quick-chip" data-code="TRK-ZA-8492019">CodeAlpha Waybill</button>
+          <button type="button" class="quick-chip" data-code="TRK-ZA-8492019">Velora Waybill</button>
         </div>
       </div>
     </div>
@@ -197,7 +197,7 @@ function renderOrdersInterface(order) {
           </div>
           <h1 class="order-heading">${order.status || 'In Transit — Out for Express Delivery'}</h1>
           <p class="order-partner-note">
-            Order Reference: <strong>${order.id}</strong> • Processed via <strong>CodeAlpha Logistics (<a href="https://www.codealpha.tech" target="_blank" rel="noopener">www.codealpha.tech</a>)</strong>
+            Order Reference: <strong>${order.id}</strong> • Processed via <strong>Velora Logistics (<a href="./orders.html">www.velora.co.za</a>)</strong>
           </p>
         </div>
         
@@ -227,7 +227,7 @@ function renderOrdersInterface(order) {
         </div>
         <div class="route-point hub">
           <div class="point-dot"></div>
-          <span class="point-name">CodeAlpha Logistics Hub</span>
+          <span class="point-name">Velora Logistics Hub</span>
           <span class="point-city">Airport Industria</span>
         </div>
         <div class="route-line active"></div>
@@ -271,12 +271,12 @@ function renderOrdersInterface(order) {
             `).join('')}
           </div>
 
-          <!-- CodeAlpha Tech Audit Seal -->
-          <div class="codealpha-seal">
+          <!-- Velora Audit Seal -->
+          <div class="velora-seal">
             <div class="seal-icon">🔒</div>
             <div>
-              <strong>Cryptographically Verified by CodeAlpha Tech</strong>
-              <p>Supply chain telemetry authenticated at each physical checkpoint via <a href="https://www.codealpha.tech" target="_blank" rel="noopener">www.codealpha.tech</a>.</p>
+              <strong>Cryptographically Verified by Velora</strong>
+              <p>Supply chain telemetry authenticated at each physical checkpoint via <a href="./orders.html">www.velora.co.za</a>.</p>
             </div>
           </div>
         </div>
@@ -292,7 +292,7 @@ function renderOrdersInterface(order) {
             <div class="driver-avatar">SK</div>
             <div class="driver-details">
               <strong>Sipho Khumalo</strong>
-              <span class="driver-rating">CodeAlpha Senior Courier • 4.9 ★ (1,420 deliveries)</span>
+              <span class="driver-rating">Velora Senior Courier • 4.9 ★ (1,420 deliveries)</span>
               <span class="driver-vehicle">Vehicle: Toyota Hilux Van (CA 892 411)</span>
             </div>
           </div>
@@ -319,7 +319,7 @@ function renderOrdersInterface(order) {
           </div>
           <div class="dest-row">
             <span class="dest-label">Logistics Partner:</span>
-            <span style="color: var(--accent-dark); font-weight: 600;">CodeAlpha Tech (www.codealpha.tech)</span>
+            <span style="color: var(--accent-dark); font-weight: 600;">Velora Logistics (www.velora.co.za)</span>
           </div>
         </div>
 
