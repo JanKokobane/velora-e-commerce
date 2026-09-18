@@ -206,7 +206,7 @@ img { max-width: 100%; display: block; }
 }
 
 .hero-shade { 
-  background: linear-gradient(90deg, rgba(21, 21, 19, 0.915) 0%, rgba(21, 21, 19, 0.776) 45%, rgba(21, 21, 19, 0.649) 100%); 
+  background: linear-gradient(90deg, rgba(21, 21, 19, 0.44) 0%, rgba(21, 21, 19, 0.18) 45%, rgba(21, 21, 19, 0.02) 100%); 
 }
 
 .mobile-hero-image { 

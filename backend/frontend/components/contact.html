@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Get in touch with the Velora studio. Client concierge, product inquiries, bespoke orders, and showroom visiting hours.">
+    <meta property="og:title" content="Contact Us — Velora Online Store">
+    <meta property="og:description"
+        content="Reach our concierge team for order support, bespoke inquiries, or private studio appointments in Cape Town.">
+    <meta property="og:type" content="website">
+    <title>Contact Us — Velora Online Store</title>
+
+    <!-- Google Fonts: DM Sans & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/contact.css">
+</head>
+
+<body id="top">
+
+    <!-- Announcement bar -->
+    <div class="announcement" id="announcementBar">
+        <span>Complimentary delivery on orders over R800</span>
+        <a href="shop.html#catalog">Shop the collection <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <!-- Header / navigation -->
+    <header class="site-header" id="siteHeader">
+        <a class="brand" href="shop.html" aria-label="Velora home" id="brandLogo">VELORA<span>.</span></a>
+
+        <nav class="desktop-nav" aria-label="Primary navigation" id="desktopNav">
+            <a href="../index.html">Home</a>
+            <a href="./shop.html">Shop</a>
+            <a href="./about.html">About</a>
+            <a class="active" href="contact.html">Contact</a>
+        </nav>
+
+        <div class="header-actions" id="headerActions">
+            <button class="icon-button search-button" type="button" aria-label="Search collection" id="searchButton">
+                <span></span>
+            </button>
+            <a class="icon-button bag-button" href="#cart" aria-label="View shopping bag" id="bagButton">
+                <span id="cartCount">0</span>
+            </a>
+            <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" id="menuButton">
+                <i></i><i></i>
+            </button>
+        </div>
+
+        <!-- Mobile Nav -->
+        <nav class="mobile-nav" aria-label="Mobile navigation" id="mobileNav">
+            <a href="../index.html">Home</a>
+            <a href="./shop.html">Shop</a>
+            <a href="./about.html">About</a>
+            <a class="active" href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main id="mainContent">
+
+        <!-- Contact Hero -->
+
+        <!-- Main Contact Container -->
+        <div class="contact-container">
+            <div class="contact-grid">
+
+                <!-- Left Form Column -->
+                <div class="contact-form-card" id="contactFormCard">
+                    <div class="contact-form-header">
+                        <h2>Send a <em>message.</em></h2>
+                        <p>Fill out the form below. We read and respond to every note within 24 business hours.</p>
+                    </div>
+
+                    <form id="contactForm">
+                        <div class="contact-form-fields">
+
+                            <div class="contact-form-group">
+                                <label for="contactName">Full Name <span>*</span></label>
+                                <input type="text" id="contactName" name="name" placeholder="E.g. Elena Rostova"
+                                    required>
+                            </div>
+
+                            <div class="contact-form-group">
+                                <label for="contactEmail">Email Address <span>*</span></label>
+                                <input type="email" id="contactEmail" name="email" placeholder="elena@example.com"
+                                    required>
+                            </div>
+
+                            <div class="contact-form-group">
+                                <label for="contactTopic">Inquiry Topic <span>*</span></label>
+                                <select id="contactTopic" name="topic" required>
+                                    <option value="order">Order Status & Tracking</option>
+                                    <option value="sizing">Product Sizing & Fit Guidance</option>
+                                    <option value="returns">Returns & Exchanges</option>
+                                    <option value="bespoke">Bespoke & Studio Appointments</option>
+                                    <option value="press">Press & Wholesale Partnerships</option>
+                                    <option value="other">Other Inquiries</option>
+                                </select>
+                            </div>
+
+                            <div class="contact-form-group">
+                                <label for="contactOrderNumber">Order Number (Optional)</label>
+                                <input type="text" id="contactOrderNumber" name="orderNumber"
+                                    placeholder="E.g. VEL-2026-891">
+                            </div>
+
+                            <div class="contact-form-group full-width">
+                                <label for="contactSubject">Subject <span>*</span></label>
+                                <input type="text" id="contactSubject" name="subject"
+                                    placeholder="How can we assist you today?" required>
+                            </div>
+
+                            <div class="contact-form-group full-width">
+                                <label for="contactMessage">Your Message <span>*</span></label>
+                                <textarea id="contactMessage" name="message"
+                                    placeholder="Provide details regarding your inquiry..." required></textarea>
+                            </div>
+
+                            <button class="contact-submit-btn" type="submit" id="contactSubmitBtn">
+                                <span>Send Message</span>
+                                <span aria-hidden="true">↗</span>
+                            </button>
+
+                        </div>
+
+                        <!-- Realistic Feedback Banner -->
+                        <div class="contact-feedback-banner" id="contactFeedback" role="alert">
+                            <span style="font-size: 18px; font-weight: bold; line-height: 1;">✓</span>
+                            <div>
+                                <strong>Thank you for contacting Velora.</strong>
+                                <span>Your message has been received. Our concierge team will reply directly to your
+                                    email within 24 business hours.</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Sidebar Info Column -->
+                <aside class="contact-sidebar" id="contactSidebar">
+
+                    <!-- Direct Concierge Channels -->
+                    <div class="contact-info-card" id="directChannelsCard">
+                        <h3>Direct Concierge</h3>
+                        <ul class="channel-list">
+                            <li class="channel-item">
+                                <span class="channel-label">Client Services</span>
+                                <a class="channel-value"
+                                    href="mailto:concierge@velorastore.com">concierge@velorastore.com</a>
+                                <span class="channel-sub">Typically responds in under 4 hours</span>
+                            </li>
+                            <li class="channel-item">
+                                <span class="channel-label">Telephone & WhatsApp</span>
+                                <a class="channel-value" href="tel:+27214248890">+27 (0)21 424 8890</a>
+                                <span class="channel-sub">Mon – Fri, 09:00 – 17:30 SAST</span>
+                            </li>
+                            <li class="channel-item">
+                                <span class="channel-label">Press & Partnerships</span>
+                                <a class="channel-value" href="mailto:press@velorastore.com">press@velorastore.com</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Studio Flagship Location & Hours -->
+                    <div class="contact-info-card" id="studioLocationCard">
+                        <h3>Flagship Showroom</h3>
+                        <p style="font-size: 13.5px; color: var(--ink); font-weight: 600; margin-bottom: 4px;">Velora
+                            Cape Town</p>
+                        <p style="font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 16px;">
+                            42 Kloof Street, Gardens<br>
+                            Cape Town, 8001, South Africa
+                        </p>
+
+                        <table class="hours-table">
+                            <tbody>
+                                <tr>
+                                    <td>Monday – Friday</td>
+                                    <td>09:30 – 18:00</td>
+                                </tr>
+                                <tr>
+                                    <td>Saturday</td>
+                                    <td>10:00 – 16:30</td>
+                                </tr>
+                                <tr>
+                                    <td>Sunday & Holidays</td>
+                                    <td>10:00 – 14:00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </aside>
+
+            </div>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <section class="faq-section" id="faqSection">
+            <div class="faq-inner">
+                <div class="faq-header">
+                    <p class="eyebrow">Frequently Asked</p>
+                    <h2>Quick <em>answers.</em></h2>
+                    <p>Common inquiries regarding delivery times, sizing guidance, and atelier care.</p>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item active" id="faq-1">
+                        <button class="faq-question" type="button" aria-expanded="true">
+                            <span>What are your domestic and international delivery times?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We deliver nationwide across South Africa within 2–4 business days via tracked
+                                carbon-neutral couriers. Complimentary shipping is provided for orders over R800. For
+                                international destinations, transit takes between 5–8 business days via DHL Express.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-2">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span>What is your return and exchange policy?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We offer 30-day complimentary returns on all unworn items in their original packaging.
+                                Simply contact our concierge or initiate a return through the portal to receive a
+                                prepaid courier pickup label.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-3">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span>Can I visit the studio for private fitting or custom consultation?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes. We welcome private appointments at our Kloof Street atelier. Select "Bespoke &
+                                Studio Appointments" on the contact form above, and our studio concierge will coordinate
+                                a private consultation session.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-4">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span>How should I care for my Velora vegetable-tanned leather goods?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Vegetable-tanned leather develops a rich, individualized patina over time. We recommend
+                                applying a light natural beeswax-based leather conditioner every 4–6 months and avoiding
+                                prolonged exposure to direct heavy moisture.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Studio Showroom Visual Banner -->
+        <div class="studio-banner-section" id="studioBannerSection">
+            <div class="studio-banner-card">
+                <img src="../images/aboutCTA3.png"
+                    onerror="this.onerror=null;this.src='https://images.pexels.com/photos/6625907/pexels-photo-6625907.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';"
+                    alt="Velora Kloof Street Showroom Interior" loading="lazy">
+                <div class="studio-banner-overlay">
+                    <h3>The Cape Town Showroom</h3>
+                    <p>Experience the textures, weights, and finishes in person. Private fitting consultations available
+                        by appointment.</p>
+                    <a href="shop.html#catalog">Explore The Collection <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Section (Contact Page Standalone) -->
+        <section class="newsletter-contact" id="newsletter-contact">
+            <div class="newsletter-inner-contact">
+                <div class="newsletter-text-contact">
+                    <p class="eyebrow-contact">STAY IN THE KNOW</p>
+                    <h2>Good things, <em>occasionally.</em></h2>
+                    <p>Join the Velora list for new arrivals, considered stories, and private offers.</p>
+                </div>
+                <form class="newsletter-form-contact" id="newsletterForm-contact">
+                    <input type="email" placeholder="Your email address" aria-label="Your email address" required
+                        id="newsletterEmail-contact">
+                    <button type="submit" id="newsletterSubmitBtn-contact">SUBSCRIBE <span
+                            aria-hidden="true">↗</span></button>
+                </form>
+                <p class="newsletter-feedback-contact" id="newsletterFeedback-contact"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Site Footer (Matching Site-wide Velora UI) -->
+    <footer id="siteFooter">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a class="brand" href="shop.html">VELORA<span>.</span></a>
+                <p>Thoughtful goods for everyday living. Quality you can feel, design that lasts.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Shop</h3>
+                <a href="shop.html#catalog">New arrivals</a>
+                <a href="shop.html#catalog">Best sellers</a>
+                <a href="shop.html#catalog">Carry & Bags</a>
+                <a href="shop.html#catalog">Footwear</a>
+            </div>
+            <div class="footer-col">
+                <h3>Company</h3>
+                <a href="./about.html">About us</a>
+                <a href="contact.html">Contact</a>
+                <a href="about.html#philosophySection">Philosophy</a>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <a href="#faqSection">Shipping & returns</a>
+                <a href="./account.html#track">Track Order</a>
+                <a href="./account.html#orders">My Account</a>
+                <a href="#faqSection">FAQ</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Velora. All rights reserved.</span>
+            <span>Thoughtfully made, simply lived.</span>
+        </div>
+    </footer>
+
+    <!-- Store scripts for live cart drawer, search overlay, and mobile nav -->
+    <script type="module" src="../js/auth-orders.js"></script>
+    <script type="module" src="../js/shop.js"></script>
+
+    <script>
+        // FAQ Accordion interactivity
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const questionBtn = item.querySelector('.faq-question');
+            if (questionBtn) {
+                questionBtn.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    // Close other items
+                    faqItems.forEach(i => {
+                        i.classList.remove('active');
+                        const btn = i.querySelector('.faq-question');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    });
+                    // Toggle current
+                    if (!isActive) {
+                        item.classList.add('active');
+                        questionBtn.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            }
+        });
+
+        // Contact form submission handling
+        const contactForm = document.getElementById('contactForm');
+        const feedbackBanner = document.getElementById('contactFeedback');
+        const submitBtn = document.getElementById('contactSubmitBtn');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Sending note...';
+                }
+
+                setTimeout(() => {
+                    if (feedbackBanner) {
+                        feedbackBanner.classList.add('show');
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>Message Sent</span> <span aria-hidden="true">✓</span>';
+                        submitBtn.style.background = 'var(--accent-dark)';
+                    }
+                    contactForm.reset();
+                }, 500);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
