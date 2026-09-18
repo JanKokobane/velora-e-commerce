@@ -64,23 +64,23 @@
     <!-- Stepper Navigation -->
     <div class="checkout-page-header">
       <nav class="checkout-stepper" aria-label="Checkout progress">
-        <a href="shop.html" class="step-item">
+        <a href="shop.html" class="step-item" id="stepperStep1">
           <span class="step-num">1</span>
           <span>Shopping Bag</span>
         </a>
         <span class="step-divider">/</span>
-        <a href="checkout.html" class="step-item completed">
+        <a href="checkout.html" class="step-item completed" id="stepperStep2">
           <span class="step-num">✓</span>
           <span>Information & Shipping</span>
         </a>
         <span class="step-divider">/</span>
-        <div class="step-item active" aria-current="step">
-          <span class="step-num">3</span>
+        <div class="step-item active" id="stepperStep3" aria-current="step">
+          <span class="step-num" id="stepperStep3Num">3</span>
           <span>Payment</span>
         </div>
         <span class="step-divider">/</span>
-        <div class="step-item">
-          <span class="step-num">4</span>
+        <div class="step-item" id="stepperStep4">
+          <span class="step-num" id="stepperStep4Num">4</span>
           <span>Confirmation</span>
         </div>
       </nav>
@@ -88,7 +88,7 @@
 
     <!-- Main Container -->
     <div id="paymentPageMainContainer">
-      <div class="checkout-main-grid">
+      <div class="checkout-main-grid" id="checkoutGridSection">
 
         <!-- Left Column: Payment & Review -->
         <div class="checkout-form-column">
@@ -226,7 +226,8 @@
             <!-- Buttons -->
             <div class="checkout-btn-row">
               <button type="submit" class="place-order-btn" style="flex: 1;" id="payNowSubmitBtn">
-                Pay <span id="payButtonAmount">R0</span> Now <span>🔒</span>
+                <span class="btn-spinner" id="payBtnSpinner" style="display: none;"></span>
+                <span id="payBtnLabel">Pay <span id="payButtonAmount">R0</span> Now &#128274;</span>
               </button>
               <a href="checkout.html" class="return-link">← Return to shipping</a>
             </div>
@@ -270,7 +271,156 @@
         </aside>
 
       </div>
+
+      <!-- Dedicated Order Confirmation View -->
+      <div class="order-success-view" id="orderConfirmationSuccessView" style="display: none;">
+        <!-- Top banner -->
+        <div class="confirm-top-banner">
+          <div class="order-success-icon">✓</div>
+          <span class="confirm-status-badge">
+            Payment Confirmed & Verified
+          </span>
+          <h1 class="confirm-title" id="confirmCustomerGreeting">
+            Thank you, Elena!
+          </h1>
+          <p class="confirm-message">
+            Your order <strong id="confirmOrderId">VEL-84920</strong> has been received and is now being handcrafted and packed at our atelier. We've emailed an official VAT invoice to <strong id="confirmCustomerEmail">customer@example.com</strong>.
+          </p>
+        </div>
+
+        <!-- Quick Delivery Timeline Tracker -->
+        <div class="confirm-delivery-box">
+          <div class="confirm-eta-row">
+            <div>
+              <span class="confirm-box-label">Estimated Delivery</span>
+              <strong class="confirm-box-val" id="confirmEstimatedDelivery">20 Sep – 22 Sep 2026</strong>
+            </div>
+            <div style="text-align: right;">
+              <span class="confirm-box-label">Tracking Reference</span>
+              <code class="confirm-tracking-code" id="confirmTrackingNumber">TRK-ZA-8492019</code>
+            </div>
+          </div>
+
+          <div class="confirm-progress-steps">
+            <div class="step-done">
+              <div class="step-dot done"></div>
+              Order Placed
+            </div>
+            <div class="step-current">
+              <div class="step-dot active"></div>
+              In Production
+            </div>
+            <div class="step-upcoming">
+              <div class="step-dot"></div>
+              With Courier
+            </div>
+            <div class="step-upcoming">
+              <div class="step-dot"></div>
+              Delivered
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Details Grid (Items & Summary) -->
+        <div class="confirm-details-grid">
+          
+          <!-- Left: Items Ordered -->
+          <div>
+            <h3 class="confirm-col-title" id="confirmItemsHeading">
+              Purchased Essentials (1)
+            </h3>
+            <div class="confirm-items-list" id="confirmItemsListContainer">
+              <!-- Rendered cleanly using <template id="confirmItemRowTemplate"> -->
+            </div>
+          </div>
+
+          <!-- Right: Delivery & Payment Details -->
+          <div>
+            <h3 class="confirm-col-title">
+              Destination & Payment
+            </h3>
+
+            <div class="confirm-info-block">
+              <span class="confirm-block-label">Shipping Address</span>
+              <strong id="confirmAddressFullName">Elena Vance</strong><br>
+              <span id="confirmAddressFullText">14 Kloof Street, Gardens, Cape Town, 8001, Western Cape</span><br>
+              <span id="confirmAddressPhone">Phone: +27 82 000 0000</span>
+            </div>
+
+            <div class="confirm-info-block">
+              <span class="confirm-block-label">Payment Method</span>
+              <span id="confirmPaymentMethodText">&#128274; Credit / Debit Card</span><br>
+              <span style="color: var(--muted); font-size: 11px;">Authorisation status: Approved</span>
+            </div>
+
+            <!-- Totals Receipt -->
+            <div class="confirm-totals-receipt">
+              <div class="confirm-total-line">
+                <span>Subtotal</span>
+                <strong id="confirmReceiptSubtotal">R0</strong>
+              </div>
+              <div class="confirm-total-line confirm-discount-line" id="confirmReceiptDiscountRow" style="display: none;">
+                <span>Privilege Discount</span>
+                <strong id="confirmReceiptDiscount">-R0</strong>
+              </div>
+              <div class="confirm-total-line">
+                <span>Delivery</span>
+                <strong id="confirmReceiptDelivery">Complimentary</strong>
+              </div>
+              <div class="confirm-total-line total-paid-line">
+                <span>Total Paid</span>
+                <span id="confirmReceiptTotal">R0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="confirm-actions-row">
+          <a href="orders.html" class="confirm-btn-primary" id="confirmTrackParcelLink">
+            Track Parcel in Velora Logistics &#8599;
+          </a>
+          <a href="auth.html" class="confirm-btn-secondary">
+            View Account &#8599;
+          </a>
+          <button type="button" class="confirm-btn-secondary" id="confirmPrintInvoiceBtn">
+            Download Tax Invoice &#128424;
+          </button>
+          <a href="shop.html" class="confirm-btn-secondary">
+            Continue Shopping &#8599;
+          </a>
+        </div>
+
+      </div>
+
     </div>
+
+    <!-- Template for Checkout Summary Item -->
+    <template id="checkoutItemRowTemplate">
+      <div class="checkout-summary-item">
+        <div class="checkout-item-thumb-wrap">
+          <img class="checkout-item-thumb" src="" alt="">
+        </div>
+        <div class="checkout-item-details">
+          <h4 class="checkout-item-title"></h4>
+          <div class="checkout-item-meta"></div>
+        </div>
+        <strong class="checkout-item-price"></strong>
+      </div>
+    </template>
+
+    <!-- Template for Confirmation Item -->
+    <template id="confirmItemRowTemplate">
+      <div class="confirm-item-row">
+        <img class="confirm-item-thumb" src="" alt="">
+        <div class="confirm-item-details">
+          <h4 class="confirm-item-title"></h4>
+          <span class="confirm-item-meta"></span>
+        </div>
+        <strong class="confirm-item-price"></strong>
+      </div>
+    </template>
 
     <!-- Newsletter subscription -->
     <section id="newsletter" class="section-p1">

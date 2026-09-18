@@ -1,5 +1,6 @@
 import {
   getCart,
+  saveCart,
   clearCart,
   getCartSubtotal,
   formatCurrency,
@@ -208,25 +209,33 @@ export function initPaymentPage() {
     }
     const subtotal = getCartSubtotal();
 
+    // Render items using <template id="checkoutItemRowTemplate">
     if (itemsList) {
-      itemsList.innerHTML = cart
-        .map((item) => {
-          const unitPrice = typeof item.price === 'number' ? item.price : parseCurrency(item.price);
-          const lineTotal = unitPrice * item.quantity;
-          return `
-            <div class="checkout-item" style="display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line);">
-              <div style="width: 52px; height: 52px; border-radius: 4px; overflow: hidden; background: var(--cream); flex-shrink: 0; border: 1px solid var(--line);">
-                <img src="${item.image}" alt="${item.title}" style="width: 100%; height: 100%; object-fit: cover;">
-              </div>
-              <div style="flex: 1; min-width: 0;">
-                <h4 style="margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</h4>
-                <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">Size: ${item.size || 'Standard'} &times; ${item.quantity}</div>
-              </div>
-              <strong style="font-size: 13px; color: var(--ink);">${formatCurrency(lineTotal)}</strong>
-            </div>
-          `;
-        })
-        .join('');
+      itemsList.replaceChildren();
+      const template = document.getElementById('checkoutItemRowTemplate');
+
+      cart.forEach((item) => {
+        const unitPrice = typeof item.price === 'number' ? item.price : parseCurrency(item.price);
+        const lineTotal = unitPrice * item.quantity;
+
+        if (template) {
+          const clone = template.content.cloneNode(true);
+          const thumb = clone.querySelector('.checkout-item-thumb');
+          const title = clone.querySelector('.checkout-item-title');
+          const meta = clone.querySelector('.checkout-item-meta');
+          const price = clone.querySelector('.checkout-item-price');
+
+          if (thumb) {
+            thumb.src = item.image;
+            thumb.alt = item.title;
+          }
+          if (title) title.textContent = item.title;
+          if (meta) meta.textContent = `Size: ${item.size || 'Standard'} × ${item.quantity}`;
+          if (price) price.textContent = formatCurrency(lineTotal);
+
+          itemsList.appendChild(clone);
+        }
+      });
     }
 
     const discountAmount = promoDiscountPercent > 0 ? Math.round(subtotal * (promoDiscountPercent / 100)) : 0;
@@ -369,22 +378,15 @@ export function initPaymentPage() {
     }
 
     const submitBtn = document.getElementById('payNowSubmitBtn');
+    const spinner = document.getElementById('payBtnSpinner');
+    const label = document.getElementById('payBtnLabel');
+
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.style.opacity = '0.75';
       submitBtn.style.cursor = 'wait';
-      submitBtn.innerHTML = `
-        <span style="display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle;"></span>
-        Verifying & Processing Payment... 🔒
-      `;
-    }
-
-    // Add inline keyframe for spinner if not present
-    if (!document.getElementById('velora-spinner-keyframes')) {
-      const style = document.createElement('style');
-      style.id = 'velora-spinner-keyframes';
-      style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
-      document.head.appendChild(style);
+      if (spinner) spinner.style.display = 'inline-block';
+      if (label) label.textContent = 'Verifying & Processing Payment... 🔒';
     }
 
     // Simulate secure bank authentication response
@@ -452,7 +454,6 @@ export function initPaymentPage() {
   const payBtnDirect = document.getElementById('payNowSubmitBtn');
   if (payBtnDirect) {
     payBtnDirect.addEventListener('click', (e) => {
-      // If inside form, let submit handle, but if click wasn't caught by submit:
       if (paymentForm.checkValidity ? paymentForm.checkValidity() : true) {
         processPaymentExecution(e);
       }
@@ -465,188 +466,126 @@ export function initPaymentPage() {
 
 /**
  * Render the Order Confirmation View
- * Replaces the payment form and summary with a dedicated confirmation interface.
+ * Displays dedicated confirmation view without innerHTML.
  * @param {Object} order
  */
 export function renderOrderConfirmation(order) {
-  const mainContainer = document.getElementById('paymentPageMainContainer');
-  if (!mainContainer) return;
+  // 1. Update Stepper navigation using DOM properties
+  const step3 = document.getElementById('stepperStep3');
+  const step3Num = document.getElementById('stepperStep3Num');
+  const step4 = document.getElementById('stepperStep4');
 
-  // 1. Update the Header Stepper: Mark Step 1, 2, 3 as completed, Step 4 as active
-  const stepper = document.querySelector('.checkout-stepper');
-  if (stepper) {
-    stepper.innerHTML = `
-      <div class="step-item completed">
-        <span class="step-num">✓</span>
-        <span>Shopping Bag</span>
-      </div>
-      <span class="step-divider">/</span>
-      <div class="step-item completed">
-        <span class="step-num">✓</span>
-        <span>Information & Shipping</span>
-      </div>
-      <span class="step-divider">/</span>
-      <div class="step-item completed">
-        <span class="step-num">✓</span>
-        <span>Payment</span>
-      </div>
-      <span class="step-divider">/</span>
-      <div class="step-item active" aria-current="step">
-        <span class="step-num">4</span>
-        <span>Confirmation</span>
-      </div>
-    `;
+  if (step3) {
+    step3.classList.remove('active');
+    step3.classList.add('completed');
+    step3.removeAttribute('aria-current');
+  }
+  if (step3Num) {
+    step3Num.textContent = '✓';
+  }
+  if (step4) {
+    step4.classList.add('active');
+    step4.setAttribute('aria-current', 'step');
   }
 
-  // 2. Build the Confirmation UI
+  // 2. Hide checkout form and display confirmation view
+  const checkoutGrid = document.getElementById('checkoutGridSection');
+  const confirmationView = document.getElementById('orderConfirmationSuccessView');
+
+  if (checkoutGrid) checkoutGrid.style.display = 'none';
+  if (confirmationView) confirmationView.style.display = 'block';
+
+  // 3. Populate confirmation details safely with textContent
   const customer = order.customer || {};
   const fullStreet = customer.apartment ? `${customer.street}, ${customer.apartment}` : (customer.street || '14 Kloof Street');
   const fullAddress = `${fullStreet}, ${customer.city || 'Cape Town'}, ${customer.postal || '8001'}, ${customer.province || 'Western Cape'}`;
 
-  mainContainer.innerHTML = `
-    <div class="order-success-view" id="orderConfirmationSuccessView" style="max-width: 820px; margin: 0 auto; text-align: left; background: var(--paper, #fff); border: 1px solid var(--line); border-radius: 4px; padding: 48px 40px;">
-      
-      <!-- Top banner -->
-      <div style="text-align: center; margin-bottom: 36px;">
-        <div class="order-success-icon" style="width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: var(--success, #55755b); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 20px rgba(85, 117, 91, 0.25);">
-          ✓
-        </div>
-        <span style="display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--success, #55755b); margin-bottom: 8px;">
-          Payment Confirmed & Verified
-        </span>
-        <h1 style="font-size: clamp(28px, 4vw, 38px); font-weight: 600; margin: 0 0 10px; color: var(--ink);">
-          Thank you, ${customer.firstName || 'Elena'}!
-        </h1>
-        <p style="color: var(--muted); font-size: 14px; max-width: 520px; margin: 0 auto; line-height: 1.6;">
-          Your order <strong>${order.id}</strong> has been received and is now being handcrafted and packed at our atelier. We've emailed an official VAT invoice to <strong>${customer.email || 'customer@example.com'}</strong>.
-        </p>
-      </div>
+  const greetingEl = document.getElementById('confirmCustomerGreeting');
+  const orderIdEl = document.getElementById('confirmOrderId');
+  const emailEl = document.getElementById('confirmCustomerEmail');
+  const estDeliveryEl = document.getElementById('confirmEstimatedDelivery');
+  const trackingNumberEl = document.getElementById('confirmTrackingNumber');
+  const itemsHeadingEl = document.getElementById('confirmItemsHeading');
 
-      <!-- Quick Delivery Timeline Tracker -->
-      <div style="background: var(--cream, #f6f5f1); border: 1px solid var(--line); border-radius: 4px; padding: 24px; margin-bottom: 36px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-          <div>
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: block;">Estimated Delivery</span>
-            <strong style="font-size: 15px; color: var(--ink);">${order.estimatedDelivery}</strong>
-          </div>
-          <div style="text-align: right;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: block;">Tracking Reference</span>
-            <code style="font-size: 12px; font-weight: 700; color: var(--ink); background: #fff; padding: 4px 8px; border-radius: 3px; border: 1px solid var(--line);">${order.trackingNumber}</code>
-          </div>
-        </div>
+  if (greetingEl) greetingEl.textContent = `Thank you, ${customer.firstName || 'Elena'}!`;
+  if (orderIdEl) orderIdEl.textContent = order.id;
+  if (emailEl) emailEl.textContent = customer.email || 'customer@example.com';
+  if (estDeliveryEl) estDeliveryEl.textContent = order.estimatedDelivery;
+  if (trackingNumberEl) trackingNumberEl.textContent = order.trackingNumber;
+  if (itemsHeadingEl) itemsHeadingEl.textContent = `Purchased Essentials (${order.items.length})`;
 
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; font-size: 11px; position: relative;">
-          <div style="color: var(--success, #55755b); font-weight: 700;">
-            <div style="width: 14px; height: 14px; border-radius: 50%; background: var(--success, #55755b); margin: 0 auto 6px;"></div>
-            Order Placed
-          </div>
-          <div style="color: var(--ink); font-weight: 600;">
-            <div style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent-dark, #9c7951); margin: 0 auto 6px;"></div>
-            In Production
-          </div>
-          <div style="color: var(--muted);">
-            <div style="width: 14px; height: 14px; border-radius: 50%; background: #dcd8d0; margin: 0 auto 6px;"></div>
-            With Courier
-          </div>
-          <div style="color: var(--muted);">
-            <div style="width: 14px; height: 14px; border-radius: 50%; background: #dcd8d0; margin: 0 auto 6px;"></div>
-            Delivered
-          </div>
-        </div>
-      </div>
+  // Render Purchased Items with <template id="confirmItemRowTemplate">
+  const itemsContainer = document.getElementById('confirmItemsListContainer');
+  const confirmTemplate = document.getElementById('confirmItemRowTemplate');
 
-      <!-- Order Details Grid (Items & Summary) -->
-      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; margin-bottom: 36px;">
-        
-        <!-- Left: Items Ordered -->
-        <div>
-          <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 16px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
-            Purchased Essentials (${order.items.length})
-          </h3>
-          <div style="display: flex; flex-direction: column; gap: 14px;">
-            ${order.items
-              .map((item) => {
-                const price = typeof item.price === 'number' ? item.price : parseCurrency(item.price);
-                const lineTotal = price * item.quantity;
-                return `
-                  <div style="display: flex; gap: 14px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(27,27,26,0.08);">
-                    <img src="${item.image}" alt="${item.title}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line);">
-                    <div style="flex: 1; min-width: 0;">
-                      <h4 style="margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</h4>
-                      <span style="font-size: 11px; color: var(--muted);">Size: ${item.size || 'Standard'} &times; Qty ${item.quantity}</span>
-                    </div>
-                    <strong style="font-size: 13px; color: var(--ink);">${formatCurrency(lineTotal)}</strong>
-                  </div>
-                `;
-              })
-              .join('')}
-          </div>
-        </div>
+  if (itemsContainer && confirmTemplate) {
+    itemsContainer.replaceChildren();
 
-        <!-- Right: Delivery & Payment Details -->
-        <div>
-          <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 16px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
-            Destination & Payment
-          </h3>
+    order.items.forEach((item) => {
+      const clone = confirmTemplate.content.cloneNode(true);
+      const thumb = clone.querySelector('.confirm-item-thumb');
+      const title = clone.querySelector('.confirm-item-title');
+      const meta = clone.querySelector('.confirm-item-meta');
+      const price = clone.querySelector('.confirm-item-price');
 
-          <div style="font-size: 12px; line-height: 1.7; color: var(--ink); margin-bottom: 20px;">
-            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: block;">Shipping Address</span>
-            <strong>${customer.fullName || 'Elena Vance'}</strong><br>
-            ${fullAddress}<br>
-            Phone: ${customer.phone || '+27 82 000 0000'}
-          </div>
+      const itemPrice = typeof item.price === 'number' ? item.price : parseCurrency(item.price);
+      const lineTotal = itemPrice * item.quantity;
 
-          <div style="font-size: 12px; line-height: 1.7; color: var(--ink); margin-bottom: 20px;">
-            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: block;">Payment Method</span>
-            <span>🔒 ${order.paymentMethod}</span><br>
-            <span style="color: var(--muted); font-size: 11px;">Authorisation status: Approved</span>
-          </div>
+      if (thumb) {
+        thumb.src = item.image;
+        thumb.alt = item.title;
+      }
+      if (title) title.textContent = item.title;
+      if (meta) meta.textContent = `Size: ${item.size || 'Standard'} × Qty ${item.quantity}`;
+      if (price) price.textContent = formatCurrency(lineTotal);
 
-          <!-- Totals Receipt -->
-          <div style="background: var(--cream, #f6f5f1); padding: 14px 18px; border-radius: 4px; border: 1px solid var(--line); font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <span style="color: var(--muted);">Subtotal</span>
-              <strong>${formatCurrency(order.subtotal)}</strong>
-            </div>
-            ${
-              order.discount > 0
-                ? `<div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--success, #55755b);">
-                     <span>Privilege Discount</span>
-                     <strong>-${formatCurrency(order.discount)}</strong>
-                   </div>`
-                : ''
-            }
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span style="color: var(--muted);">Delivery</span>
-              <strong>${order.deliveryFee === 0 ? 'Complimentary' : formatCurrency(order.deliveryFee)}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px; font-size: 14px; font-weight: 700; color: var(--ink);">
-              <span>Total Paid</span>
-              <span>${formatCurrency(order.total)}</span>
-            </div>
-          </div>
-        </div>
+      itemsContainer.appendChild(clone);
+    });
+  }
 
-      </div>
+  // Address and payment method
+  const addrFullNameEl = document.getElementById('confirmAddressFullName');
+  const addrTextEl = document.getElementById('confirmAddressFullText');
+  const addrPhoneEl = document.getElementById('confirmAddressPhone');
+  const paymentMethodEl = document.getElementById('confirmPaymentMethodText');
 
-      <!-- Action Buttons -->
-      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 28px;">
-        <a href="orders.html?orderId=${order.id}" style="padding: 13px 26px; background: var(--ink, #1b1b1a); color: #fff; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; display: inline-flex; align-items: center; gap: 8px;">
-          Track Parcel in Velora Logistics ↗
-        </a>
-        <a href="auth.html" style="padding: 13px 22px; background: #fff; border: 1px solid var(--ink); color: var(--ink); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; display: inline-flex; align-items: center; gap: 6px;">
-          View Account ↗
-        </a>
-        <button type="button" onclick="window.print()" style="padding: 13px 24px; background: transparent; border: 1px solid var(--line); color: var(--ink); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px; cursor: pointer;">
-          Download Tax Invoice 🖨️
-        </button>
-        <a href="shop.html" style="padding: 13px 24px; background: transparent; border: 1px solid var(--line); color: var(--ink); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; border-radius: 3px;">
-          Continue Shopping ↗
-        </a>
-      </div>
+  if (addrFullNameEl) addrFullNameEl.textContent = customer.fullName || 'Elena Vance';
+  if (addrTextEl) addrTextEl.textContent = fullAddress;
+  if (addrPhoneEl) addrPhoneEl.textContent = `Phone: ${customer.phone || '+27 82 000 0000'}`;
+  if (paymentMethodEl) paymentMethodEl.textContent = `🔒 ${order.paymentMethod}`;
 
-    </div>
-  `;
+  // Totals receipt
+  const subtotalEl = document.getElementById('confirmReceiptSubtotal');
+  const discountRow = document.getElementById('confirmReceiptDiscountRow');
+  const discountEl = document.getElementById('confirmReceiptDiscount');
+  const deliveryEl = document.getElementById('confirmReceiptDelivery');
+  const totalEl = document.getElementById('confirmReceiptTotal');
+
+  if (subtotalEl) subtotalEl.textContent = formatCurrency(order.subtotal);
+
+  if (discountRow && discountEl) {
+    if (order.discount > 0) {
+      discountRow.style.display = 'flex';
+      discountEl.textContent = `-${formatCurrency(order.discount)}`;
+    } else {
+      discountRow.style.display = 'none';
+    }
+  }
+
+  if (deliveryEl) {
+    deliveryEl.textContent = order.deliveryFee === 0 ? 'Complimentary' : formatCurrency(order.deliveryFee);
+  }
+
+  if (totalEl) totalEl.textContent = formatCurrency(order.total);
+
+  // Configure action buttons
+  const trackLink = document.getElementById('confirmTrackParcelLink');
+  if (trackLink) trackLink.href = `orders.html?orderId=${order.id}`;
+
+  const printBtn = document.getElementById('confirmPrintInvoiceBtn');
+  if (printBtn) {
+    printBtn.onclick = () => window.print();
+  }
 
   // Scroll smoothly to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -655,27 +594,29 @@ export function renderOrderConfirmation(order) {
 // --------------------------------------------------------------------------
 // 3. Auto-boot on DOM ready
 // --------------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-  updateCartBadge();
-  initCheckoutPage();
-  initPaymentPage();
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    updateCartBadge();
+    initCheckoutPage();
+    initPaymentPage();
 
-  const newsletterForm = document.getElementById('newsletterForm');
-  const newsletterFeedback = document.getElementById('newsletterFeedback');
-  if (newsletterForm) {
-    newsletterForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const emailInput = document.getElementById('newsletterEmail');
-      if (emailInput && emailInput.value.trim()) {
-        if (newsletterFeedback) {
-          newsletterFeedback.textContent = "Thank you for subscribing to Velora.";
-          newsletterFeedback.style.color = 'var(--accent-light, #e5c69a)';
-          setTimeout(() => {
-            newsletterFeedback.textContent = '';
-          }, 4000);
+    const newsletterForm = document.getElementById('newsletterForm');
+    const newsletterFeedback = document.getElementById('newsletterFeedback');
+    if (newsletterForm) {
+      newsletterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('newsletterEmail');
+        if (emailInput && emailInput.value.trim()) {
+          if (newsletterFeedback) {
+            newsletterFeedback.textContent = 'Thank you for subscribing to Velora.';
+            newsletterFeedback.style.color = 'var(--accent-light, #e5c69a)';
+            setTimeout(() => {
+              newsletterFeedback.textContent = '';
+            }, 4000);
+          }
+          newsletterForm.reset();
         }
-        newsletterForm.reset();
-      }
-    });
-  }
-});
+      });
+    }
+  });
+}

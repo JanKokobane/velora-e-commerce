@@ -1,18 +1,9 @@
-/**
- * Velora E-Commerce — User Registration & Authentication (auth.js)
- * Features:
- * 1. User Registration with name, email, phone, and secure credentials
- * 2. User Sign-In with remember-me session persistence
- * 3. Client Account Dashboard with active parcel tracking integration
- * 4. Synchronization with Order Processing (orders.html) and Checkout
- */
-
 const USERS_STORAGE_KEY = 'velora_users_db';
 const CURRENT_USER_KEY = 'velora_current_user';
 const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
 // Pre-seeded demo user
-const DEMO_USER = {
+export const DEMO_USER = {
   id: 'usr_elena_vance',
   fullName: 'Elena Vance',
   email: 'elena@example.com',
@@ -71,6 +62,16 @@ export function updateGlobalHeaderUser() {
       el.textContent = 'Account';
     }
   });
+
+  const accountLinks = document.querySelectorAll('.header-account-link, #headerAccountBtn');
+  accountLinks.forEach((link) => {
+    const isComponent = window.location.pathname.includes('/components/');
+    if (user) {
+      link.href = isComponent ? './account.html' : './components/account.html';
+    } else {
+      link.href = isComponent ? './auth.html' : './components/auth.html';
+    }
+  });
 }
 
 // Get user orders
@@ -114,173 +115,68 @@ export function getUserOrders(userEmail) {
 
 // Initialize Auth Page
 export function initAuthPage() {
-  const authContainer = document.getElementById('authAppContainer');
-  if (!authContainer) return;
+  const authCard = document.getElementById('authCard');
+  const alreadySignedInCard = document.getElementById('alreadySignedInCard');
+  if (!authCard && !alreadySignedInCard) return;
 
   const currentUser = getCurrentUser();
 
   if (currentUser) {
-    renderUserDashboard(currentUser);
+    if (alreadySignedInCard) {
+      alreadySignedInCard.style.display = 'block';
+      const avatarEl = document.getElementById('signedInAvatar');
+      const greetingEl = document.getElementById('signedInGreeting');
+      const emailEl = document.getElementById('signedInEmail');
+      const tierEl = document.getElementById('signedInTier');
+
+      if (avatarEl) {
+        avatarEl.textContent = currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'V';
+      }
+      if (greetingEl) {
+        greetingEl.textContent = `You are signed in as ${currentUser.fullName || 'Client'}`;
+      }
+      if (emailEl) {
+        emailEl.textContent = currentUser.email || '';
+      }
+      if (tierEl) {
+        tierEl.textContent = currentUser.memberTier || 'Velora Privilege Client';
+      }
+    }
+    if (authCard) {
+      authCard.style.display = 'none';
+    }
   } else {
-    renderAuthForms();
+    if (alreadySignedInCard) {
+      alreadySignedInCard.style.display = 'none';
+    }
+    if (authCard) {
+      authCard.style.display = 'block';
+    }
   }
-}
 
-// Render Sign-In / Register Form
-function renderAuthForms(initialTab = 'signin') {
-  const authContainer = document.getElementById('authAppContainer');
-  if (!authContainer) return;
-
-  authContainer.innerHTML = `
-    <div class="auth-card">
-      
-      <!-- Tab Navigation -->
-      <div class="auth-tabs" role="tablist">
-        <button type="button" class="auth-tab ${initialTab === 'signin' ? 'active' : ''}" id="tabSignInBtn">
-          Sign In
-        </button>
-        <button type="button" class="auth-tab ${initialTab === 'register' ? 'active' : ''}" id="tabRegisterBtn">
-          Create Account
-        </button>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="auth-content">
-        
-        <!-- SIGN IN FORM -->
-        <div class="auth-panel ${initialTab === 'signin' ? 'active' : ''}" id="panelSignIn">
-          <div class="auth-intro">
-            <h2>Welcome to Velora</h2>
-            <p>Sign in to track your parcels in real-time, view order history, and manage your delivery addresses.</p>
-          </div>
-
-          <form id="signInForm" class="auth-form" novalidate>
-            <div id="signInAlert" class="auth-alert" style="display: none;"></div>
-
-            <div class="form-group">
-              <label for="loginEmail">Email Address</label>
-              <input type="email" id="loginEmail" placeholder="e.g. elena@example.com" value="elena@example.com" required autocomplete="email">
-            </div>
-
-            <div class="form-group">
-              <div class="form-label-row">
-                <label for="loginPassword">Password</label>
-                <a href="#forgot" class="forgot-link" id="forgotPasswordBtn">Forgot password?</a>
-              </div>
-              <input type="password" id="loginPassword" placeholder="••••••••" value="password123" required autocomplete="current-password">
-            </div>
-
-            <div class="form-options">
-              <label class="checkbox-label">
-                <input type="checkbox" id="rememberMe" checked>
-                <span>Remember this device</span>
-              </label>
-            </div>
-
-            <button type="submit" class="auth-submit-btn" id="signInSubmitBtn">
-              Sign In to Account ↗
-            </button>
-
-            <!-- Quick Demo Login Hint -->
-            <div class="demo-login-box">
-              <span class="demo-tag">One-Click Demo Sign-In</span>
-              <p>Click below to test with a pre-configured member account with active parcel tracking:</p>
-              <button type="button" class="demo-login-btn" id="quickDemoLoginBtn">
-                Sign In as Elena Vance (elena@example.com)
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- REGISTER FORM -->
-        <div class="auth-panel ${initialTab === 'register' ? 'active' : ''}" id="panelRegister">
-          <div class="auth-intro">
-            <h2>Create Your Account</h2>
-            <p>Join Velora to receive seamless order tracking, express delivery dispatch notifications, and bespoke concierge care.</p>
-          </div>
-
-          <form id="registerForm" class="auth-form" novalidate>
-            <div id="registerAlert" class="auth-alert" style="display: none;"></div>
-
-            <div class="form-group">
-              <label for="regFullName">Full Name *</label>
-              <input type="text" id="regFullName" placeholder="e.g. Marcus Dlamini" required>
-            </div>
-
-            <div class="form-group">
-              <label for="regEmail">Email Address *</label>
-              <input type="email" id="regEmail" placeholder="e.g. marcus@example.co.za" required>
-            </div>
-
-            <div class="form-group">
-              <label for="regPhone">Mobile Phone (For Courier Parcel SMS) *</label>
-              <input type="tel" id="regPhone" placeholder="+27 82 123 4567" required>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regCity">City</label>
-                <input type="text" id="regCity" placeholder="Cape Town" value="Cape Town">
-              </div>
-              <div class="form-group">
-                <label for="regProvince">Province</label>
-                <select id="regProvince" class="auth-select">
-                  <option value="Western Cape" selected>Western Cape</option>
-                  <option value="Gauteng">Gauteng</option>
-                  <option value="KwaZulu-Natal">KwaZulu-Natal</option>
-                  <option value="Eastern Cape">Eastern Cape</option>
-                  <option value="Free State">Free State</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regPassword">Password *</label>
-                <input type="password" id="regPassword" placeholder="Minimum 6 characters" required>
-              </div>
-              <div class="form-group">
-                <label for="regConfirmPassword">Confirm Password *</label>
-                <input type="password" id="regConfirmPassword" placeholder="Repeat password" required>
-              </div>
-            </div>
-
-            <div class="form-options">
-              <label class="checkbox-label">
-                <input type="checkbox" id="regConsent" checked required>
-                <span>I agree to receive SMS and email parcel dispatch updates via Velora Logistics</span>
-              </label>
-            </div>
-
-            <button type="submit" class="auth-submit-btn" id="registerSubmitBtn">
-              Create Client Account ↗
-            </button>
-          </form>
-        </div>
-
-      </div>
-
-    </div>
-  `;
-
-  // Attach tab switching events
+  // Tab Navigation
   const tabSignInBtn = document.getElementById('tabSignInBtn');
   const tabRegisterBtn = document.getElementById('tabRegisterBtn');
   const panelSignIn = document.getElementById('panelSignIn');
   const panelRegister = document.getElementById('panelRegister');
 
-  if (tabSignInBtn && tabRegisterBtn) {
+  if (tabSignInBtn && tabRegisterBtn && panelSignIn && panelRegister) {
     tabSignInBtn.addEventListener('click', () => {
       tabSignInBtn.classList.add('active');
+      tabSignInBtn.setAttribute('aria-selected', 'true');
       tabRegisterBtn.classList.remove('active');
+      tabRegisterBtn.setAttribute('aria-selected', 'false');
+
       panelSignIn.classList.add('active');
       panelRegister.classList.remove('active');
     });
 
     tabRegisterBtn.addEventListener('click', () => {
       tabRegisterBtn.classList.add('active');
+      tabRegisterBtn.setAttribute('aria-selected', 'true');
       tabSignInBtn.classList.remove('active');
+      tabSignInBtn.setAttribute('aria-selected', 'false');
+
       panelRegister.classList.add('active');
       panelSignIn.classList.remove('active');
     });
@@ -291,7 +187,17 @@ function renderAuthForms(initialTab = 'signin') {
   if (demoBtn) {
     demoBtn.addEventListener('click', () => {
       setCurrentUser(DEMO_USER);
-      renderUserDashboard(DEMO_USER);
+      window.location.href = 'account.html';
+    });
+  }
+
+  // Sign out button on already-signed-in card
+  const authSignOutBtn = document.getElementById('authSignOutBtn');
+  if (authSignOutBtn) {
+    authSignOutBtn.addEventListener('click', () => {
+      setCurrentUser(null);
+      if (alreadySignedInCard) alreadySignedInCard.style.display = 'none';
+      if (authCard) authCard.style.display = 'block';
     });
   }
 
@@ -301,10 +207,12 @@ function renderAuthForms(initialTab = 'signin') {
     forgotBtn.addEventListener('click', (e) => {
       e.preventDefault();
       const alert = document.getElementById('signInAlert');
+      const emailInput = document.getElementById('loginEmail');
+      const email = emailInput ? emailInput.value.trim() : 'your email';
       if (alert) {
         alert.style.display = 'block';
         alert.className = 'auth-alert info';
-        alert.innerHTML = `Demo reset instruction sent to <strong>${document.getElementById('loginEmail')?.value || 'your email'}</strong>. (Use password <code>password123</code> for testing).`;
+        alert.textContent = `Demo reset instruction sent to ${email || 'your email'}. (Use password password123 for testing).`;
       }
     });
   }
@@ -314,9 +222,12 @@ function renderAuthForms(initialTab = 'signin') {
   if (signInForm) {
     signInForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail')?.value.trim();
-      const password = document.getElementById('loginPassword')?.value.trim();
+      const emailInput = document.getElementById('loginEmail');
+      const passwordInput = document.getElementById('loginPassword');
       const alert = document.getElementById('signInAlert');
+
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value.trim() : '';
 
       if (!email || !password) {
         if (alert) {
@@ -333,7 +244,7 @@ function renderAuthForms(initialTab = 'signin') {
       if (match) {
         if (match.password === password || password === 'password123') {
           setCurrentUser(match);
-          renderUserDashboard(match);
+          window.location.href = 'account.html';
           return;
         }
       }
@@ -353,7 +264,7 @@ function renderAuthForms(initialTab = 'signin') {
       users.push(newUser);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       setCurrentUser(newUser);
-      renderUserDashboard(newUser);
+      window.location.href = 'account.html';
     });
   }
 
@@ -362,14 +273,22 @@ function renderAuthForms(initialTab = 'signin') {
   if (registerForm) {
     registerForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const fullName = document.getElementById('regFullName')?.value.trim();
-      const email = document.getElementById('regEmail')?.value.trim();
-      const phone = document.getElementById('regPhone')?.value.trim();
-      const city = document.getElementById('regCity')?.value.trim() || 'Cape Town';
-      const province = document.getElementById('regProvince')?.value || 'Western Cape';
-      const password = document.getElementById('regPassword')?.value;
-      const confirmPassword = document.getElementById('regConfirmPassword')?.value;
+      const fullNameInput = document.getElementById('regFullName');
+      const emailInput = document.getElementById('regEmail');
+      const phoneInput = document.getElementById('regPhone');
+      const cityInput = document.getElementById('regCity');
+      const provinceInput = document.getElementById('regProvince');
+      const passwordInput = document.getElementById('regPassword');
+      const confirmPasswordInput = document.getElementById('regConfirmPassword');
       const alert = document.getElementById('registerAlert');
+
+      const fullName = fullNameInput ? fullNameInput.value.trim() : '';
+      const email = emailInput ? emailInput.value.trim() : '';
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const city = cityInput ? cityInput.value.trim() || 'Cape Town' : 'Cape Town';
+      const province = provinceInput ? provinceInput.value || 'Western Cape' : 'Western Cape';
+      const password = passwordInput ? passwordInput.value : '';
+      const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
       if (!fullName || !email || !phone || !password) {
         if (alert) {
@@ -415,195 +334,9 @@ function renderAuthForms(initialTab = 'signin') {
       users.push(newUser);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       setCurrentUser(newUser);
-      renderUserDashboard(newUser);
+      window.location.href = 'account.html';
     });
   }
-}
-
-// Render User Dashboard with Parcel Tracking
-function renderUserDashboard(user) {
-  const authContainer = document.getElementById('authAppContainer');
-  if (!authContainer) return;
-
-  const orders = getUserOrders(user.email);
-  const activeParcels = orders.filter(o => o.status !== 'Delivered');
-
-  authContainer.innerHTML = `
-    <div class="user-dashboard-grid">
-      
-      <!-- Left Sidebar: Profile & Controls -->
-      <div class="dashboard-sidebar">
-        
-        <div class="profile-card">
-          <div class="profile-avatar">
-            ${user.fullName ? user.fullName.charAt(0).toUpperCase() : 'V'}
-          </div>
-          <h3 class="profile-name">${user.fullName || 'Client'}</h3>
-          <p class="profile-email">${user.email}</p>
-          <span class="profile-badge">${user.memberTier || 'Velora Privilege Client'}</span>
-          
-          <div class="profile-stats">
-            <div class="stat-item">
-              <span class="stat-val">${orders.length}</span>
-              <span class="stat-lbl">Total Orders</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-val" style="color: var(--accent-dark, #8b6b43); font-weight: 700;">${activeParcels.length}</span>
-              <span class="stat-lbl">In Transit</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-details-card">
-          <h4 class="card-subtitle">Default Shipping Details</h4>
-          <div class="detail-row">
-            <span class="detail-label">Full Name:</span>
-            <span class="detail-val">${user.fullName}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Phone:</span>
-            <span class="detail-val">${user.phone || '+27 82 492 8102'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Location:</span>
-            <span class="detail-val">${user.city || 'Cape Town'}, ${user.province || 'Western Cape'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Fulfillment:</span>
-            <span class="detail-val" style="color: var(--accent-dark);">Velora Logistics (www.velora.co.za)</span>
-          </div>
-        </div>
-
-        <!-- Quick Track Box -->
-        <div class="quick-track-box">
-          <h4>Have a Tracking Code?</h4>
-          <p>Track any parcel directly via Velora Logistics:</p>
-          <form id="sidebarTrackForm" class="sidebar-track-form">
-            <input type="text" id="sidebarTrackInput" placeholder="e.g. VEL-84920" required>
-            <button type="submit">Track ↗</button>
-          </form>
-        </div>
-
-        <button type="button" class="sign-out-btn" id="signOutBtn">
-          Sign Out of Account
-        </button>
-
-      </div>
-
-      <!-- Right Main: Live Parcel Tracking & Order Processing -->
-      <div class="dashboard-main">
-        
-        <!-- Live Parcel Banner -->
-        <div class="parcel-status-banner">
-          <div class="banner-badge">
-            <span class="live-pulse"></span>
-            Live Courier Dispatch
-          </div>
-          <h2>Active Parcel Shipments</h2>
-          <p>Orders are dispatched from our Cape Town workshop and routed via <strong>Velora Logistics (<a href="./orders.html" style="color: inherit; text-decoration: underline;">www.velora.co.za</a>)</strong>.</p>
-        </div>
-
-        <!-- Orders & Parcel Cards List -->
-        <div class="orders-list" id="dashboardOrdersList">
-          ${orders.map(order => renderOrderCard(order)).join('')}
-        </div>
-
-        <!-- Secondary CTA -->
-        <div class="dashboard-footer-banner">
-          <div>
-            <h3>Need bespoke packaging or expedited routing?</h3>
-            <p>Our Cape Town atelier concierges are available 7 days a week.</p>
-          </div>
-          <div class="banner-actions">
-            <a href="orders.html" class="cta-primary">Full Order Processing System ↗</a>
-            <a href="shop.html" class="cta-secondary">Browse Shop ↗</a>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  `;
-
-  // Attach Sign Out Handler
-  const signOutBtn = document.getElementById('signOutBtn');
-  if (signOutBtn) {
-    signOutBtn.addEventListener('click', () => {
-      setCurrentUser(null);
-      renderAuthForms('signin');
-    });
-  }
-
-  // Sidebar Track Form
-  const sidebarTrackForm = document.getElementById('sidebarTrackForm');
-  if (sidebarTrackForm) {
-    sidebarTrackForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const code = document.getElementById('sidebarTrackInput')?.value.trim();
-      if (code) {
-        window.location.href = `orders.html?orderId=${encodeURIComponent(code)}`;
-      }
-    });
-  }
-}
-
-// Render Individual Order Card with Parcel Tracking
-function renderOrderCard(order) {
-  const items = order.items || [];
-  const totalDisplay = typeof order.total === 'number' ? `R${order.total.toLocaleString('en-ZA')}` : order.total;
-
-  return `
-    <div class="dashboard-order-card">
-      <div class="order-card-header">
-        <div>
-          <span class="order-id-tag">${order.id}</span>
-          <span class="order-date-tag">Placed on ${order.date}</span>
-        </div>
-        <div class="order-header-right">
-          <span class="order-status-pill in-transit">${order.status || 'In Transit'}</span>
-          <strong class="order-total-amount">${totalDisplay}</strong>
-        </div>
-      </div>
-
-      <!-- Live Tracking Progress Bar -->
-      <div class="tracking-progress-wrapper">
-        <div class="tracking-meta-row">
-          <span>Courier: <strong>Velora Express (${order.trackingNumber || 'TRK-ZA-8492019'})</strong></span>
-          <span>Est. Delivery: <strong>${order.estimatedDelivery || 'In 2 business days'}</strong></span>
-        </div>
-        <div class="progress-track-bar">
-          <div class="progress-track-fill" style="width: 75%;"></div>
-        </div>
-        <div class="tracking-steps-row">
-          <span class="step-lbl done">1. Order Placed</span>
-          <span class="step-lbl done">2. Workshop Packaged</span>
-          <span class="step-lbl active">3. Courier In Transit</span>
-          <span class="step-lbl">4. Delivered</span>
-        </div>
-      </div>
-
-      <!-- Item Preview -->
-      <div class="order-items-preview">
-        ${items.map(item => `
-          <div class="preview-item">
-            <img src="${item.image || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg'}" alt="${item.title}">
-            <div class="preview-details">
-              <strong>${item.title}</strong>
-              <span>Size: ${item.size || 'Standard'} &times; ${item.quantity || 1}</span>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-
-      <!-- Card Actions -->
-      <div class="order-card-actions">
-        <a href="orders.html?orderId=${order.id}" class="track-btn">
-          Track Live in Velora Logistics ↗
-        </a>
-        <span class="logistics-partner-note">Audited by www.velora.co.za</span>
-      </div>
-    </div>
-  `;
 }
 
 // Auto-run on DOMContentLoaded

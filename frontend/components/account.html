@@ -74,13 +74,226 @@
             <div id="quickHeaderActions"></div>
         </div>
 
-        <!-- DYNAMIC ACCOUNT ROOT: Populated via JavaScript based on Auth status -->
-        <div id="accountAppRoot">
-            <!-- Loading placeholder -->
-            <div style="text-align: center; padding: 60px 0; color: var(--muted); font-size: 13px;">
-                Loading client profile...
+        <!-- Guest / Not Logged In View -->
+        <div id="accountGuestView" class="auth-guest-grid" style="display: none;">
+            <div class="guest-card">
+                <h2>Client Sign In</h2>
+                <p>Sign in to view your complete purchase history, manage delivery addresses, and view live parcel tracking.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="auth.html" class="primary-button" style="text-align: center;">Sign In or Register &#8599;</a>
+                    <button type="button" class="order-btn-outline" id="guestDemoLoginBtn" style="width: 100%; padding: 12px;">
+                        Quick Demo Sign-In (Elena Vance)
+                    </button>
+                </div>
+            </div>
+            <div class="guest-card">
+                <h2>Track Courier Parcel</h2>
+                <p>Have a parcel tracking number? Enter your code below for instant dispatch updates from Velora Logistics.</p>
+                <form id="guestTrackForm" style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="guestTrackInput" placeholder="e.g. VEL-84920" style="padding: 12px 14px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px;" required>
+                    <button type="submit" class="primary-button" style="text-align: center;">Track Parcel &#8599;</button>
+                </form>
             </div>
         </div>
+
+        <!-- Authenticated Dashboard View -->
+        <div id="accountDashboardView" class="account-grid-layout" style="display: none;">
+            <!-- Left Sidebar -->
+            <aside class="account-sidebar">
+                <div class="account-user-card">
+                    <div class="user-avatar-large" id="sidebarAvatar">E</div>
+                    <h3 id="sidebarFullName">Elena Vance</h3>
+                    <p class="user-email" id="sidebarEmail">elena@example.com</p>
+                    <span class="member-tag" id="sidebarMemberTier">Velora Privilege Client</span>
+                </div>
+
+                <div class="account-nav-list">
+                    <button type="button" class="account-nav-item active" id="navOrdersTab">
+                        <span>Orders & Deliveries</span>
+                        <span class="badge" id="navOrdersBadge">1</span>
+                    </button>
+                    <button type="button" class="account-nav-item" id="navProfileTab">
+                        <span>Delivery Address</span>
+                    </button>
+                    <button type="button" class="account-nav-item logout" id="dashboardSignOutBtn">
+                        Sign Out
+                    </button>
+                </div>
+
+                <!-- Default Address Info Box -->
+                <div style="padding: 20px 24px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6;">
+                    <strong style="display: block; color: var(--ink); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; margin-bottom: 8px;">Delivery Details</strong>
+                    <div id="sidebarAddressName" style="font-weight: 600; color: var(--ink);">Elena Vance</div>
+                    <div id="sidebarAddressPhone">+27 82 492 8102</div>
+                    <div id="sidebarAddressStreet">14 Kloof Street, Gardens</div>
+                    <div id="sidebarAddressCity">Cape Town, Western Cape</div>
+                    <div style="margin-top: 10px; font-size: 11px; color: var(--accent-dark);">Dispatched via Velora Logistics</div>
+                </div>
+
+                <!-- Quick Track Widget -->
+                <div style="padding: 20px 24px; border-top: 1px solid var(--line); background: var(--cream);">
+                    <strong style="display: block; color: var(--ink); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; margin-bottom: 8px;">Track Any Parcel</strong>
+                    <form id="sidebarQuickTrackForm" style="display: flex; gap: 6px;">
+                        <input type="text" id="sidebarQuickTrackInput" placeholder="VEL-84920" style="flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px;">
+                        <button type="submit" class="order-btn-outline" style="padding: 8px 12px; font-size: 11px;">Track</button>
+                    </form>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="account-main-content">
+                <!-- Orders Tab Pane -->
+                <div id="paneOrders">
+                    <div class="tab-pane-title">
+                        <h2>Client Orders & Live Tracking</h2>
+                        <span id="ordersSummaryCount" style="font-size: 13px; color: var(--muted);">1 active parcel</span>
+                    </div>
+
+                    <!-- Empty orders placeholder -->
+                    <div id="ordersEmptyState" class="orders-empty-state" style="display: none;">
+                        <div class="orders-empty-icon">&#128722;</div>
+                        <h3>No Orders Placed Yet</h3>
+                        <p>When you complete a purchase, your order history and live express tracking will appear here.</p>
+                        <a href="shop.html" class="primary-button">Browse Collection &#8599;</a>
+                    </div>
+
+                    <!-- Orders List -->
+                    <div class="orders-list-container" id="ordersListContainer">
+                        <!-- Cloned cleanly from templates via account.js -->
+                    </div>
+                </div>
+
+                <!-- Address Tab Pane -->
+                <div id="paneProfile" style="display: none;">
+                    <div class="tab-pane-title">
+                        <h2>Delivery Address & Concierge Details</h2>
+                    </div>
+                    <form id="updateProfileForm" class="profile-form-grid" novalidate>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Full Name</label>
+                            <input type="text" id="profFullName" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Email Address</label>
+                            <input type="email" id="profEmail" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;" readonly>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Phone (Courier SMS)</label>
+                            <input type="tel" id="profPhone" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Street Address</label>
+                            <input type="text" id="profStreet" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">City</label>
+                            <input type="text" id="profCity" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Province</label>
+                            <input type="text" id="profProvince" style="width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px;">
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <button type="submit" class="primary-button" style="padding: 12px 24px;">Save Delivery Details</button>
+                            <span id="saveProfileMsg" style="margin-left: 14px; font-size: 12px; color: #1e6b37; display: none;">Saved successfully!</span>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Template for Order Cards: allows cloning cleanly without innerHTML -->
+        <template id="orderCardTemplate">
+            <article class="order-card">
+                <header class="order-card-header">
+                    <div class="order-meta-group">
+                        <div class="order-meta-item">
+                            <span>Order Reference</span>
+                            <strong class="card-order-id"></strong>
+                        </div>
+                        <div class="order-meta-item">
+                            <span>Placed On</span>
+                            <strong class="card-order-date"></strong>
+                        </div>
+                        <div class="order-meta-item">
+                            <span>Tracking Number</span>
+                            <strong class="card-order-tracking"></strong>
+                        </div>
+                    </div>
+                    <div class="order-status-badge in-transit">
+                        <span class="status-dot"></span>
+                        <span class="card-status-text">In Transit</span>
+                    </div>
+                </header>
+
+                <div class="order-card-body">
+                    <div class="order-items-grid card-items-list">
+                        <!-- item rows cloned from orderItemRowTemplate -->
+                    </div>
+                </div>
+
+                <div class="order-tracking-collapse open">
+                    <div class="tracking-header-info">
+                        <div class="carrier-pill">
+                            Courier Partner: <strong class="card-courier-name">Velora Express Courier</strong>
+                        </div>
+                        <div class="carrier-pill">
+                            Estimated Delivery: <strong class="card-est-delivery"></strong>
+                        </div>
+                    </div>
+
+                    <div class="tracking-stepper">
+                        <div class="tracking-step completed">
+                            <div class="step-marker">&#10003;</div>
+                            <div class="step-title">Order Placed</div>
+                            <div class="step-time">Confirmed</div>
+                        </div>
+                        <div class="tracking-step completed">
+                            <div class="step-marker">&#10003;</div>
+                            <div class="step-title">Atelier Packaging</div>
+                            <div class="step-time">Quality Verified</div>
+                        </div>
+                        <div class="tracking-step current">
+                            <div class="step-marker">3</div>
+                            <div class="step-title">In Express Transit</div>
+                            <div class="step-time">Cape Town Hub</div>
+                        </div>
+                        <div class="tracking-step">
+                            <div class="step-marker">4</div>
+                            <div class="step-title">Delivered</div>
+                            <div class="step-time">Destination</div>
+                        </div>
+                    </div>
+
+                    <div class="delivery-address-summary">
+                        <strong>Live Dispatch Milestone:</strong> Parcel departed Cape Town fulfillment atelier. Routed via <a href="./orders.html" style="color: var(--ink); text-decoration: underline;">Velora Logistics</a>.
+                    </div>
+                </div>
+
+                <footer class="order-card-footer">
+                    <div class="order-total-display">
+                        Total Amount: <strong class="card-order-total"></strong>
+                    </div>
+                    <div class="order-actions-group">
+                        <a href="" class="order-btn-outline card-track-btn">Track in Velora Logistics &#8599;</a>
+                    </div>
+                </footer>
+            </article>
+        </template>
+
+        <!-- Template for Order Item Row -->
+        <template id="orderItemRowTemplate">
+            <div class="order-item-row">
+                <div class="order-item-visual">
+                    <img src="" alt="" class="order-item-thumb">
+                    <div class="order-item-desc">
+                        <h4 class="card-item-title"></h4>
+                        <span class="card-item-meta"></span>
+                    </div>
+                </div>
+                <div class="order-item-price card-item-price"></div>
+            </div>
+        </template>
 
     </main>
 
@@ -122,6 +335,7 @@
 
     <script type="module" src="../js/cart.js"></script>
     <script type="module" src="../js/auth.js"></script>
+    <script type="module" src="../js/account.js"></script>
 </body>
 
 </html>

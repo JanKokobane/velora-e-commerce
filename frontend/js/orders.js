@@ -1,15 +1,4 @@
-/**
- * Velora E-Commerce — Order Processing & Parcel Tracking (orders.js)
- * Powered by Velora Logistics (www.velora.co.za)
- * Features:
- * 1. Real-time Order Processing lifecycle verification
- * 2. Parcel Tracking lookup by Order ID or Courier Tracking Number
- * 3. Milestone timeline: Atelier -> Velora Logistics Hub -> Courier -> Delivery
- * 4. Interactive visual logistics route preview
- * 5. Waybill generation & delivery note printing
- */
-
-import { updateGlobalHeaderUser } from './auth.js';
+mport { updateGlobalHeaderUser } from './auth.js';
 
 const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
@@ -20,7 +9,7 @@ const DEFAULT_PARCEL = {
   date: '18 Sep 2026',
   estimatedDelivery: 'Tomorrow, 19 Sep (14:00 – 17:00)',
   status: 'In Transit — Out for Express Delivery',
-  currentStageIndex: 3, // 0: Placed, 1: Processed, 2: Dispatched, 3: Out for Delivery, 4: Delivered
+  currentStageIndex: 3,
   carrier: 'Velora Express Courier (www.velora.co.za)',
   driver: {
     name: 'Sipho Khumalo',
@@ -90,7 +79,7 @@ function getAllOrders() {
   if (!raw) return [DEFAULT_PARCEL];
   try {
     const parsed = JSON.parse(raw);
-    return parsed.length > 0 ? parsed : [DEFAULT_PARCEL];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [DEFAULT_PARCEL];
   } catch (e) {
     return [DEFAULT_PARCEL];
   }
@@ -111,9 +100,6 @@ function findOrder(query) {
 
 // Initialize Order Processing Page
 export function initOrdersPage() {
-  const root = document.getElementById('ordersAppRoot');
-  if (!root) return;
-
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = urlParams.get('orderId') || urlParams.get('tracking');
 
@@ -133,236 +119,158 @@ export function initOrdersPage() {
   updateGlobalHeaderUser();
 }
 
-// Render the main tracking interface
+// Render the main tracking interface using safe DOM manipulation
 function renderOrdersInterface(order) {
-  const root = document.getElementById('ordersAppRoot');
-  if (!root) return;
-
   const customerName = order.customer?.fullName || 'Elena Vance';
   const deliveryAddress = order.customer?.street 
     ? `${order.customer.street}, ${order.customer.city || 'Cape Town'}`
     : (order.customer?.address || '14 Kloof Street, Gardens, Cape Town');
   const items = order.items || [];
   const milestones = order.milestones || DEFAULT_PARCEL.milestones;
-  const totalDisplay = typeof order.total === 'number' ? `R${order.total.toLocaleString('en-ZA')}` : (order.total || 'R1,290');
+  const totalDisplay = typeof order.total === 'number' 
+    ? `R${order.total.toLocaleString('en-ZA')}` 
+    : (order.total || 'R1,290');
 
-  root.innerHTML = `
-    <!-- Top Search & Verification Header -->
-    <div class="orders-search-section">
-      <div class="search-box-card">
-        <span class="velora-tag">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          Audited by Velora Logistics • <a href="./orders.html">www.velora.co.za</a>
-        </span>
-        <h2>Track Parcel & Order Processing</h2>
-        <p>Enter your Velora Order ID or Velora Tracking Waybill to monitor real-time fulfillment status.</p>
+  // Search input and chips
+  const searchInput = document.getElementById('orderSearchInput');
+  if (searchInput) searchInput.value = order.id || '';
 
-        <form id="orderSearchForm" class="order-search-bar">
-          <div class="search-input-wrapper">
-            <svg class="search-lens" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input 
-              type="text" 
-              id="orderSearchInput" 
-              placeholder="e.g. ${order.id || 'VEL-84920'} or ${order.trackingNumber || 'TRK-ZA-8492019'}" 
-              value="${order.id || ''}"
-              required
-            >
-          </div>
-          <button type="submit" class="search-submit-btn">
-            Track Parcel ↗
-          </button>
-        </form>
+  const chipCurrent = document.getElementById('chipCurrentOrder');
+  if (chipCurrent) {
+    chipCurrent.textContent = `${order.id || 'VEL-84920'} (Current)`;
+    chipCurrent.dataset.code = order.id || 'VEL-84920';
+  }
 
-        <div class="demo-chips-row">
-          <span>Quick Lookup:</span>
-          <button type="button" class="quick-chip" data-code="${order.id}">${order.id} (Current)</button>
-          <button type="button" class="quick-chip" data-code="VEL-84920">VEL-84920 (Sneakers)</button>
-          <button type="button" class="quick-chip" data-code="TRK-ZA-8492019">Velora Waybill</button>
-        </div>
-      </div>
-    </div>
+  // Hero Status
+  const trackingCodeEl = document.getElementById('trackingNumberCode');
+  if (trackingCodeEl) trackingCodeEl.textContent = order.trackingNumber || 'TRK-ZA-8492019';
 
-    <!-- Active Parcel Status Hero -->
-    <div class="order-overview-card">
-      <div class="overview-header">
-        <div class="overview-title-block">
-          <div class="parcel-id-row">
-            <span class="badge-accent">Express Courier</span>
-            <span class="tracking-number-code">Waybill: <strong>${order.trackingNumber || 'TRK-ZA-8492019'}</strong></span>
-          </div>
-          <h1 class="order-heading">${order.status || 'In Transit — Out for Express Delivery'}</h1>
-          <p class="order-partner-note">
-            Order Reference: <strong>${order.id}</strong> • Processed via <strong>Velora Logistics (<a href="./orders.html">www.velora.co.za</a>)</strong>
-          </p>
-        </div>
-        
-        <div class="overview-eta-box">
-          <span class="eta-label">Estimated Delivery</span>
-          <strong class="eta-time">${order.estimatedDelivery || 'Tomorrow (14:00 – 17:00)'}</strong>
-          <span class="eta-sub">Cape Town Metropolitan Area</span>
-        </div>
-      </div>
+  const orderStatusEl = document.getElementById('orderStatusHeading');
+  if (orderStatusEl) orderStatusEl.textContent = order.status || 'In Transit — Out for Express Delivery';
 
-      <!-- Graphical Logistics Route Diagram -->
-      <div class="logistics-route-map">
-        <div class="route-point start">
-          <div class="point-dot"></div>
-          <span class="point-name">Atelier Workshop</span>
-          <span class="point-city">Cape Town</span>
-        </div>
-        <div class="route-line active">
-          <div class="van-indicator">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="1" y="3" width="15" height="13"></rect>
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-              <circle cx="5.5" cy="18.5" r="2.5"></circle>
-              <circle cx="18.5" cy="18.5" r="2.5"></circle>
-            </svg>
-          </div>
-        </div>
-        <div class="route-point hub">
-          <div class="point-dot"></div>
-          <span class="point-name">Velora Logistics Hub</span>
-          <span class="point-city">Airport Industria</span>
-        </div>
-        <div class="route-line active"></div>
-        <div class="route-point dest">
-          <div class="point-dot pulse"></div>
-          <span class="point-name">Destination</span>
-          <span class="point-city">${customerName}</span>
-        </div>
-      </div>
-    </div>
+  const orderRefEl = document.getElementById('orderReferenceDisplay');
+  if (orderRefEl) orderRefEl.textContent = order.id || 'VEL-84920';
 
-    <!-- 2-Column Details: Timeline & Manifest -->
-    <div class="tracking-grid">
-      
-      <!-- Left: Milestone Processing Timeline -->
-      <div class="tracking-left-col">
-        <div class="timeline-card">
-          <div class="timeline-header">
-            <h3>Order Processing Stages</h3>
-            <span class="live-pill"><span class="pulse-dot"></span> Live Updates</span>
-          </div>
+  const etaTimeEl = document.getElementById('etaTimeDisplay');
+  if (etaTimeEl) etaTimeEl.textContent = order.estimatedDelivery || 'Tomorrow, 19 Sep (14:00 – 17:00)';
 
-          <div class="timeline-list">
-            ${milestones.map((ms, idx) => `
-              <div class="timeline-item ${ms.completed ? 'completed' : 'pending'} ${idx === 3 ? 'current' : ''}">
-                <div class="timeline-marker">
-                  <div class="marker-circle">
-                    ${ms.completed ? '✓' : idx + 1}
-                  </div>
-                  <div class="marker-line"></div>
-                </div>
-                <div class="timeline-content">
-                  <div class="timeline-title-row">
-                    <h4>${ms.title}</h4>
-                    <span class="timeline-time">${ms.time}</span>
-                  </div>
-                  <span class="timeline-location">📍 ${ms.location}</span>
-                  <p class="timeline-desc">${ms.description}</p>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+  const routeDestCity = document.getElementById('routeCustomerCity');
+  if (routeDestCity) routeDestCity.textContent = customerName;
 
-          <!-- Velora Audit Seal -->
-          <div class="velora-seal">
-            <div class="seal-icon">🔒</div>
-            <div>
-              <strong>Cryptographically Verified by Velora</strong>
-              <p>Supply chain telemetry authenticated at each physical checkpoint via <a href="./orders.html">www.velora.co.za</a>.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+  // Render Milestones using <template id="timelineItemTemplate">
+  const timelineContainer = document.getElementById('timelineListContainer');
+  const timelineTemplate = document.getElementById('timelineItemTemplate');
 
-      <!-- Right: Courier Details, Address & Goods Manifest -->
-      <div class="tracking-right-col">
-        
-        <!-- Courier Card -->
-        <div class="courier-card">
-          <h4>Designated Courier Driver</h4>
-          <div class="courier-info">
-            <div class="driver-avatar">SK</div>
-            <div class="driver-details">
-              <strong>Sipho Khumalo</strong>
-              <span class="driver-rating">Velora Senior Courier • 4.9 ★ (1,420 deliveries)</span>
-              <span class="driver-vehicle">Vehicle: Toyota Hilux Van (CA 892 411)</span>
-            </div>
-          </div>
-          <div class="driver-actions">
-            <button type="button" class="btn-driver-call" id="callCourierBtn">📞 Contact Courier</button>
-            <button type="button" class="btn-driver-note" id="addDeliveryNoteBtn">📝 Delivery Instructions</button>
-          </div>
-        </div>
+  if (timelineContainer && timelineTemplate) {
+    timelineContainer.replaceChildren();
 
-        <!-- Recipient & Delivery Details -->
-        <div class="destination-card">
-          <h4>Delivery Destination</h4>
-          <div class="dest-row">
-            <span class="dest-label">Recipient:</span>
-            <strong>${customerName}</strong>
-          </div>
-          <div class="dest-row">
-            <span class="dest-label">Address:</span>
-            <span>${deliveryAddress}</span>
-          </div>
-          <div class="dest-row">
-            <span class="dest-label">Service:</span>
-            <span>Velora Priority Express (Complimentary)</span>
-          </div>
-          <div class="dest-row">
-            <span class="dest-label">Logistics Partner:</span>
-            <span style="color: var(--accent-dark); font-weight: 600;">Velora Logistics (www.velora.co.za)</span>
-          </div>
-        </div>
+    milestones.forEach((ms, idx) => {
+      const clone = timelineTemplate.content.cloneNode(true);
+      const itemEl = clone.querySelector('.timeline-item');
+      const markerCircle = clone.querySelector('.marker-circle');
+      const titleEl = clone.querySelector('.timeline-title');
+      const timeEl = clone.querySelector('.timeline-time');
+      const locEl = clone.querySelector('.timeline-location');
+      const descEl = clone.querySelector('.timeline-desc');
 
-        <!-- Items Manifest -->
-        <div class="manifest-card">
-          <h4>Parcel Contents (${items.length} ${items.length === 1 ? 'item' : 'items'})</h4>
-          <div class="manifest-items-list">
-            ${items.map(item => `
-              <div class="manifest-item">
-                <img src="${item.image || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg'}" alt="${item.title}">
-                <div class="manifest-item-info">
-                  <strong>${item.title}</strong>
-                  <span>Size: ${item.size || 'Standard'} &times; ${item.quantity || 1}</span>
-                </div>
-                <span class="manifest-item-price">R${(item.price * (item.quantity || 1)).toLocaleString('en-ZA')}</span>
-              </div>
-            `).join('')}
-          </div>
+      if (itemEl) {
+        if (ms.completed) {
+          itemEl.classList.add('completed');
+        } else {
+          itemEl.classList.add('pending');
+        }
+        if (idx === 3) {
+          itemEl.classList.add('current');
+        }
+      }
 
-          <div class="manifest-total-row">
-            <span>Total Parcel Value:</span>
-            <strong>${totalDisplay}</strong>
-          </div>
-        </div>
+      if (markerCircle) {
+        markerCircle.textContent = ms.completed ? '✓' : String(idx + 1);
+      }
+      if (titleEl) titleEl.textContent = ms.title;
+      if (timeEl) timeEl.textContent = ms.time;
+      if (locEl) locEl.textContent = `📍 ${ms.location}`;
+      if (descEl) descEl.textContent = ms.description;
 
-        <!-- Action Links -->
-        <div class="tracking-action-buttons">
-          <button type="button" class="btn-print-waybill" onclick="window.print()">
-            Print Waybill & Tax Invoice 🖨️
-          </button>
-          <a href="auth.html" class="btn-account-link">
-            View My Account ↗
-          </a>
-        </div>
+      timelineContainer.appendChild(clone);
+    });
+  }
 
-      </div>
+  // Courier Info
+  const driverNameEl = document.getElementById('driverName');
+  const driverRatingEl = document.getElementById('driverRating');
+  const driverVehicleEl = document.getElementById('driverVehicle');
+  const driverAvatarEl = document.getElementById('driverAvatar');
 
-    </div>
-  `;
+  if (driverNameEl) driverNameEl.textContent = order.driver?.name || 'Sipho Khumalo';
+  if (driverRatingEl) {
+    driverRatingEl.textContent = `Velora Senior Courier • ${order.driver?.rating || '4.9 ★'} (1,420 deliveries)`;
+  }
+  if (driverVehicleEl) {
+    driverVehicleEl.textContent = `Vehicle: ${order.driver?.vehicle || 'Toyota Hilux Van (CA 892 411)'}`;
+  }
+  if (driverAvatarEl) {
+    const initials = (order.driver?.name || 'Sipho Khumalo')
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+    driverAvatarEl.textContent = initials || 'SK';
+  }
+
+  // Delivery Destination
+  const destCustomer = document.getElementById('destCustomerName');
+  const destAddress = document.getElementById('destDeliveryAddress');
+
+  if (destCustomer) destCustomer.textContent = customerName;
+  if (destAddress) destAddress.textContent = deliveryAddress;
+
+  // Items Manifest
+  const manifestHeading = document.getElementById('manifestCardHeading');
+  if (manifestHeading) {
+    manifestHeading.textContent = `Parcel Contents (${items.length} ${items.length === 1 ? 'item' : 'items'})`;
+  }
+
+  const manifestContainer = document.getElementById('manifestItemsListContainer');
+  const manifestTemplate = document.getElementById('manifestItemTemplate');
+
+  if (manifestContainer && manifestTemplate) {
+    manifestContainer.replaceChildren();
+
+    items.forEach((item) => {
+      const clone = manifestTemplate.content.cloneNode(true);
+      const thumb = clone.querySelector('.manifest-thumb');
+      const title = clone.querySelector('.manifest-title');
+      const meta = clone.querySelector('.manifest-meta');
+      const price = clone.querySelector('.manifest-item-price');
+
+      if (thumb) {
+        thumb.src = item.image || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg';
+        thumb.alt = item.title || 'Product item';
+      }
+      if (title) title.textContent = item.title || 'Velora item';
+      if (meta) meta.textContent = `Size: ${item.size || 'Standard'} × ${item.quantity || 1}`;
+      if (price) {
+        const itemLineTotal = (item.price || 0) * (item.quantity || 1);
+        price.textContent = `R${itemLineTotal.toLocaleString('en-ZA')}`;
+      }
+
+      manifestContainer.appendChild(clone);
+    });
+  }
+
+  const manifestTotalEl = document.getElementById('manifestTotalDisplay');
+  if (manifestTotalEl) manifestTotalEl.textContent = totalDisplay;
 }
+
+let eventsBound = false;
 
 // Bind search and interaction events
 function bindEvents() {
+  if (eventsBound) return;
+  eventsBound = true;
+
   const form = document.getElementById('orderSearchForm');
   if (form) {
     form.addEventListener('submit', (e) => {
@@ -374,7 +282,6 @@ function bindEvents() {
       const found = findOrder(val);
       if (found) {
         renderOrdersInterface(found);
-        bindEvents();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         // Create custom tracking preview for the entered code
@@ -384,7 +291,6 @@ function bindEvents() {
           trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`
         };
         renderOrdersInterface(customOrder);
-        bindEvents();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
@@ -398,7 +304,6 @@ function bindEvents() {
       const found = findOrder(code);
       if (found) {
         renderOrdersInterface(found);
-        bindEvents();
       }
     });
   });
@@ -417,8 +322,16 @@ function bindEvents() {
     noteBtn.addEventListener('click', () => {
       const note = prompt('Enter special delivery instructions (e.g. Gate code, concierge drop-off):', 'Please leave with reception concierge if unavailable.');
       if (note) {
-        alert('Delivery instruction updated successfully: "' + note + '" has been transmitted to the driver.');
+        alert(`Delivery instruction updated successfully: "${note}" has been transmitted to the driver.`);
       }
+    });
+  }
+
+  // Print button
+  const printBtn = document.getElementById('printWaybillBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      window.print();
     });
   }
 }
