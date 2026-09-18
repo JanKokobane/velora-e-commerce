@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Velora Client Account & Parcel Tracking — Sign in or register to track your parcels live via CodeAlpha Logistics.">
+  <title>Client Account & Parcel Tracking — Velora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/auth.css">
+</head>
+
+<body id="top">
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement">
+    <span>Complimentary courier delivery on orders over R800</span>
+    <a href="shop.html">Shop the collection <span aria-hidden="true">&#8599;</span></a>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="site-header" id="header">
+    <a class="brand" href="../index.html" aria-label="Velora home">VELORA<span>.</span></a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="../index.html">Home</a>
+      <a href="./blog.html">Blog</a>
+      <a href="./shop.html">Shop</a>
+      <a href="./about.html">About</a>
+      <a href="./contact.html">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button search-button" type="button" aria-label="Search collection">
+        <span></span>
+      </button>
+
+      <!-- User icon next to search with Account text -->
+      <a class="header-account-link active" href="auth.html" id="headerAccountBtn" aria-label="Account">
+        <svg class="account-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span class="account-btn-label" id="headerAccountText">Account</span>
+      </a>
+
+      <a class="icon-button bag-button" href="cart.html" aria-label="Shopping bag">
+        <span id="cartCount">0</span>
+      </a>
+
+      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+        <i></i><i></i>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="../index.html">Home</a>
+      <a href="./blog.html">Blog</a>
+      <a href="./shop.html">Shop</a>
+      <a href="./about.html">About</a>
+      <a href="./contact.html">Contact</a>
+      <a href="./orders.html">Order Processing & Tracking</a>
+    </nav>
+  </header>
+
+  <main class="auth-page-container">
+    
+    <!-- Hero Header -->
+    <div class="auth-hero-header">
+      <p class="eyebrow">Client Services & Logistics</p>
+      <h1>Client Account & Parcel Tracking</h1>
+      <p>Sign in or register your account to monitor active parcels, view express courier milestones, and manage delivery addresses.</p>
+    </div>
+
+    <!-- Auth / Dashboard Dynamic Root -->
+    <div id="authAppContainer">
+      <!-- Injected via /frontend/js/auth.js -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="../index.html">VELORA<span>.</span></a>
+        <p>Thoughtful essentials crafted for modern living. Designed in Cape Town, made to endure.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Order & Tracking</h4>
+        <a href="./orders.html">Track Parcel Dispatch</a>
+        <a href="./orders.html">CodeAlpha Logistics (www.codealpha.tech)</a>
+        <a href="./contact.html">Shipping & Returns</a>
+        <a href="./contact.html#faq">Concierge Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Collections</h4>
+        <a href="./shop.html">Apparel & Linens</a>
+        <a href="./shop.html">Leather Goods</a>
+        <a href="./shop.html">Footwear & Basics</a>
+        <a href="./shop.html">Limited Editions</a>
+      </div>
+      <div class="footer-col">
+        <h4>The House</h4>
+        <a href="./about.html">Our Philosophy</a>
+        <a href="./blog.html">Journal & Stories</a>
+        <a href="./contact.html">Cape Town Studio</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Velora Goods (Pty) Ltd. In partnership with <a href="https://www.codealpha.tech" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">CodeAlpha Tech</a>. All rights reserved.</p>
+      <div class="footer-payments">
+        <span>Secure Payments via Ozow, Visa, Mastercard & SnapScan</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="../js/cart.js"></script>
+  <script type="module" src="../js/auth.js"></script>
+</body>
+
+</html>

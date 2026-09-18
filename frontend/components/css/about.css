@@ -43,7 +43,7 @@
   border-left: 3px solid var(--accent);
 }
 .editorial-quote-badge p {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-style: italic;
   font-size: 14px;
   line-height: 1.5;
@@ -68,7 +68,7 @@
   color: var(--ink);
 }
 .editorial-copy h2 em {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   color: var(--accent-dark);
   font-weight: 500;
   font-style: italic;
@@ -142,7 +142,7 @@
   padding: 0 12px;
 }
 .metric-item strong {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
   font-size: clamp(32px, 3.5vw, 44px);
   font-weight: 700;
   color: var(--ink);
@@ -176,7 +176,7 @@
   margin-bottom: 12px;
 }
 .section-header h2 em {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   color: var(--accent-dark);
   font-weight: 500;
   font-style: italic;
@@ -268,7 +268,7 @@
   color: var(--ink);
 }
 .narrative-content h2 em {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   color: var(--accent-dark);
   font-weight: 500;
   font-style: italic;
@@ -341,7 +341,7 @@
   color: #fff;
 }
 .about-cta-card h2 em {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-style: italic;
   color: #e5c69a;
   font-weight: 500;

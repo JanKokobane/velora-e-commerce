@@ -12,10 +12,10 @@
     <meta property="og:type" content="website">
     <title>Contact Us — Velora Online Store</title>
 
-    <!-- Google Fonts: DM Sans & Playfair Display -->
+    <!-- Google Fonts: Ubuntu -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="./css/common.css">
@@ -45,7 +45,14 @@
             <button class="icon-button search-button" type="button" aria-label="Search collection" id="searchButton">
                 <span></span>
             </button>
-            <a class="icon-button bag-button" href="#cart" aria-label="View shopping bag" id="bagButton">
+            <a class="header-account-link" href="auth.html" id="headerAccountBtn" aria-label="Account">
+                <svg class="account-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span class="account-btn-label" id="headerAccountText">Account</span>
+            </a>
+            <a class="icon-button bag-button" href="cart.html" aria-label="View shopping bag" id="bagButton">
                 <span id="cartCount">0</span>
             </a>
             <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" id="menuButton">

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shopping Bag — Velora. Considered essentials for everyday living.">
+  <title>Shopping Bag — Velora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/cart.css">
+</head>
+
+<body>
+
+  <!-- Announcement bar -->
+  <div class="announcement">
+    <span>Complimentary delivery on orders over R800</span>
+    <a href="shop.html">Continue shopping <span aria-hidden="true">↗</span></a>
+  </div>
+
+  <!-- Header / navigation -->
+  <header class="site-header">
+    <a class="brand" href="shop.html">VELORA<span>.</span></a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="../index.html">Home</a>
+      <a href="shop.html#catalog">Shop</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button search-button" type="button" aria-label="Search">
+        <span></span>
+      </button>
+      <a class="header-account-link" href="auth.html" id="headerAccountBtn" aria-label="Account">
+        <svg class="account-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span class="account-btn-label" id="headerAccountText">Account</span>
+      </a>
+      <a class="icon-button bag-button active" href="cart.html" aria-label="View shopping bag">
+        <span id="cartCount">0</span>
+      </a>
+      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+        <i></i><i></i>
+      </button>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="../index.html">Home</a>
+      <a href="shop.html#catalog">Shop</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main class="cart-page-main">
+
+    <!-- Stepper Navigation -->
+    <div class="cart-header-section">
+      <nav class="cart-stepper" aria-label="Checkout progress">
+        <div class="step-item active" aria-current="step">
+          <span class="step-num">1</span>
+          <span>Shopping Bag</span>
+        </div>
+        <span class="step-divider">/</span>
+        <a href="checkout.html" class="step-item">
+          <span class="step-num">2</span>
+          <span>Information & Shipping</span>
+        </a>
+        <span class="step-divider">/</span>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <span>Payment</span>
+        </div>
+        <span class="step-divider">/</span>
+        <div class="step-item">
+          <span class="step-num">4</span>
+          <span>Confirmation</span>
+        </div>
+      </nav>
+    </div>
+
+    <!-- 1. EMPTY CART STATE (Displayed when bag has 0 items) -->
+    <section class="empty-cart-view" id="emptyCartView" style="display: none;">
+      <div class="empty-cart-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      </div>
+      <h2>Your shopping bag is empty</h2>
+      <p>You haven't added any items to your bag yet. Explore our curated selection of thoughtful goods made for everyday living.</p>
+      <a href="shop.html#catalog" class="empty-cart-cta">
+        Explore Collection <span>↗</span>
+      </a>
+    </section>
+
+    <!-- 2. POPULATED CART STATE (Displayed when bag contains items) -->
+    <section class="cart-content-grid" id="cartContentView" style="display: none;">
+
+      <!-- Left Column: Cart Items List -->
+      <div class="cart-items-column">
+        <div class="cart-items-header">
+          <div>
+            <h1>Shopping Bag <span class="bag-count-tag" id="bagHeadingCount">0 items</span></h1>
+          </div>
+          <button type="button" class="clear-cart-btn" id="clearCartBtn">Clear bag</button>
+        </div>
+
+        <div class="cart-items-list" id="cartItemsContainer">
+          <!-- Dynamically populated by cart.js -->
+        </div>
+
+        <div class="cart-items-actions">
+          <a href="shop.html#catalog" class="cart-continue-link">
+            ← Continue shopping
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary (Sticky) -->
+      <aside class="cart-summary-column">
+        <div class="order-summary-card">
+          <h2>Order Summary</h2>
+
+          <!-- Promo Box -->
+          <div class="cart-promo-box">
+            <div class="promo-input-row">
+              <input type="text" id="cartPromoInput" placeholder="Promo code (try VELORA10)">
+              <button type="button" id="cartPromoBtn">Apply</button>
+            </div>
+            <div class="promo-feedback" id="cartPromoFeedback"></div>
+          </div>
+
+          <!-- Summary Breakdown -->
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>Items Subtotal</span>
+              <strong id="cartSubtotal">R0</strong>
+            </div>
+            <div class="summary-row discount-row" id="cartDiscountRow" style="display: none;">
+              <span>Privilege Discount</span>
+              <strong id="cartDiscountAmount">-R0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Courier Delivery</span>
+              <strong id="cartDelivery">Complimentary</strong>
+            </div>
+          </div>
+
+          <div class="summary-total-row">
+            <span>Total Due</span>
+            <strong id="cartTotal">R0</strong>
+          </div>
+
+          <!-- Checkout CTA -->
+          <a href="checkout.html" class="proceed-checkout-btn">
+            Proceed to Checkout <span>🔒</span>
+          </a>
+
+          <!-- Trust Guarantees -->
+          <div class="summary-guarantees">
+            <div class="guarantee-item">
+              <span>✓</span>
+              <span><strong>Complimentary courier</strong> on all orders over R800.</span>
+            </div>
+            <div class="guarantee-item">
+              <span>✓</span>
+              <span><strong>Quiet 30-day returns</strong> in original pristine condition.</span>
+            </div>
+            <div class="guarantee-item">
+              <span>✓</span>
+              <span><strong>All duties & 15% VAT included.</strong> No surprise fees.</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </section>
+
+  </main>
+
+  <!-- Newsletter subscription -->
+  <section id="newsletter" class="section-p1">
+    <div class="newsletter-inner">
+      <div class="newsletter-text">
+        <h2>Join the Velora list</h2>
+        <p>Be the first to know about new drops, private sales, and members-only offers.</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
+        <button type="submit">Subscribe <span>&#8599;</span></button>
+      </form>
+    </div>
+    <p class="newsletter-feedback" id="newsletterFeedback"></p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="shop.html">VELORA<span>.</span></a>
+        <p>Thoughtful goods for everyday living. Quality you can feel, design that lasts.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Shop</h3>
+        <a href="shop.html#catalog">New arrivals</a>
+        <a href="shop.html#catalog">Best sellers</a>
+        <a href="shop.html#catalog">Accessories</a>
+      </div>
+      <div class="footer-col">
+        <h3>Company</h3>
+        <a href="shop.html#story">About us</a>
+        <a href="shop.html#newsletter">Contact</a>
+        <a href="shop.html#newsletter">Journal</a>
+      </div>
+      <div class="footer-col">
+        <h3>Support</h3>
+        <a href="shop.html#catalog">Shipping & returns</a>
+        <a href="./account.html#track">Track Order</a>
+        <a href="./account.html#orders">My Account</a>
+        <a href="shop.html#newsletter">FAQ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Velora. All rights reserved.</span>
+      <span>Thoughtfully made, simply lived.</span>
+    </div>
+  </footer>
+
+  <script type="module" src="../js/cart.js"></script>
+  <script>
+    // Mobile menu toggle
+    const menuButton = document.querySelector('.menu-button');
+    const header = document.querySelector('.site-header');
+    menuButton?.addEventListener('click', () => {
+      const open = header.classList.toggle('menu-open');
+      menuButton.setAttribute('aria-expanded', open);
+    });
+
+    // Newsletter subscription
+    const newsletterForm = document.getElementById('newsletterForm');
+    const newsletterFeedback = document.getElementById('newsletterFeedback');
+    newsletterForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      newsletterFeedback.textContent = "Thank you — you're on the list.";
+      newsletterForm.reset();
+      setTimeout(() => { newsletterFeedback.textContent = ''; }, 4000);
+    });
+  </script>
+</body>
+
+</html>

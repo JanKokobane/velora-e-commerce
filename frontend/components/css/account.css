@@ -21,7 +21,7 @@
 }
 
 .account-hero-header h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-size: clamp(32px, 4.5vw, 44px);
   margin: 0 0 6px;
   font-weight: 500;
@@ -69,7 +69,7 @@
   border-radius: 50%;
   background: var(--ink);
   color: #fff;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-size: 24px;
   font-weight: 600;
   display: flex;
@@ -545,7 +545,7 @@
 }
 
 .orders-empty-state h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-size: 24px;
   margin: 0 0 8px;
 }
@@ -578,7 +578,7 @@
 }
 
 .guest-card h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Ubuntu', sans-serif;
   font-size: 24px;
   margin: 0 0 10px;
 }
