@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Velora Store Management Dashboard — Real-time order fulfillment, revenue analytics, customer tracking, and stock inventory.">
+  <title>Velora Operations — Store Management Dashboard</title>
+
+  <!-- Typography: Ubuntu font suite -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+  <!-- Shared tokens and dashboard stylesheet -->
+  <link rel="stylesheet" href="../components/css/common.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+
+<body>
+
+  <div class="dashboard-viewport">
+    <div class="dashboard-shell">
+
+      <!-- ====================================================================
+           1. Left Dark Sidebar
+           ==================================================================== -->
+      <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div>
+          <!-- Brand Logo (Exact signature logo used across project) -->
+          <a href="../index.html" class="sidebar-brand" aria-label="Velora home">
+            <span class="brand">VELORA<span>.</span></span>
+            <span class="brand-subtitle">Dashboard</span>
+          </a>
+
+          <!-- Primary Navigation Navigation -->
+          <nav class="sidebar-nav">
+            <button type="button" class="nav-item" data-tab="dashboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Dashboard</span>
+            </button>
+
+            <button type="button" class="nav-item active" data-tab="orders">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>Orders</span>
+              <span class="nav-badge" id="sidebarOrdersBadge">13</span>
+            </button>
+
+            <button type="button" class="nav-item" data-tab="returns">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              <span>Returns</span>
+              <span class="nav-badge" id="sidebarReturnsBadge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">2</span>
+            </button>
+
+            <button type="button" class="nav-item" data-tab="inventory">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              <span>Products & Stock</span>
+            </button>
+
+            <button type="button" class="nav-item" data-tab="payments">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+              <span>Payments</span>
+            </button>
+
+            <button type="button" class="nav-item" data-tab="customers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Customers</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Secondary Footer Navigation -->
+        <div class="sidebar-footer-nav">
+          <button type="button" class="nav-item" onclick="window.alert('Notifications: 3 new express orders pending pickup.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span>Notification</span>
+          </button>
+
+          <a href="../components/contact.html" target="_blank" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Help</span>
+          </a>
+
+          <button type="button" class="nav-item" onclick="window.openNewProductModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Settings</span>
+          </button>
+
+          <a href="../components/shop.html" class="nav-item" style="color: #d17575;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Return to Store</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- ====================================================================
+           2. Center Main Workspace
+           ==================================================================== -->
+      <main class="dashboard-main">
+
+        <!-- Top Header Toolbar -->
+        <header class="dashboard-topbar">
+          <div class="topbar-left">
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <h1 class="topbar-title" id="currentViewTitle">Orders</h1>
+          </div>
+
+          <div class="topbar-right">
+            <!-- Messages button -->
+            <button type="button" class="action-icon-btn" title="Messages" onclick="window.alert('Client concierge chat: All client messages resolved.')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </button>
+
+            <!-- Search Quick Button -->
+            <button type="button" class="action-icon-btn" title="Quick Search" onclick="document.getElementById('orderSearchInput').focus()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <div class="notification-dot"></div>
+            </button>
+
+            <!-- Admin Profile Pill (matching screenshot: Kristina Evans) -->
+            <div class="admin-profile-pill" title="Current Store Admin">
+              <img class="admin-avatar" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Kristina Evans">
+              <div class="admin-info">
+                <span class="admin-name">Kristina Evans</span>
+                <span class="admin-role">kris.evans@velora.co.za</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Secondary Filter Controls (matches reference image: Any status, $100-$1500, Sort by Date) -->
+        <div class="filter-bar" id="mainFilterBar">
+          <div class="filter-left-group">
+            <select class="filter-select" id="statusFilterSelect">
+              <option value="all">Any status</option>
+              <option value="paid">Paid</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="transit">In Transit</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+
+            <select class="filter-select" id="priceFilterSelect">
+              <option value="all">Any amount</option>
+              <option value="100-1500">$100 – $1,500</option>
+              <option value="under-500">Under $500</option>
+              <option value="above-1500">Above $1,500</option>
+            </select>
+
+            <div class="quick-search-input">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="orderSearchInput" placeholder="Search order, customer...">
+            </div>
+          </div>
+
+          <div class="filter-right-group">
+            <select class="filter-select" id="sortFilterSelect">
+              <option value="date-desc">Sort by Date (Newest)</option>
+              <option value="date-asc">Sort by Date (Oldest)</option>
+              <option value="total-desc">Sort by Amount (Highest)</option>
+              <option value="total-asc">Sort by Amount (Lowest)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Container Views -->
+        <div class="view-container">
+
+          <!-- 0. Dashboard Overview View -->
+          <div id="overviewMainView" style="display: none;">
+            <div class="kpi-grid" id="dashOverviewKPISection"></div>
+            
+            <div class="overview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+              <!-- Quick Operations Card -->
+              <div class="orders-table-card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Live Operations Queue</h3>
+                  <span class="status-pill status-paid">Store Active</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                    <div>
+                      <div style="font-weight: 600; font-size: 13.5px;">Pending Fulfillment</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">Ready for courier pickup</div>
+                    </div>
+                    <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.filterToStatus('paid')">Review (4)</button>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                    <div>
+                      <div style="font-weight: 600; font-size: 13.5px;">In-Transit Shipments</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">En route via Velora Courier</div>
+                    </div>
+                    <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.filterToStatus('transit')">Track (2)</button>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                    <div>
+                      <div style="font-weight: 600; font-size: 13.5px;">Return Authorizations</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">Returns awaiting studio inspection</div>
+                    </div>
+                    <button type="button" class="drawer-btn drawer-btn-accent" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('returns')">Inspect (2)</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Products Card -->
+              <div class="orders-table-card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Trending Goods</h3>
+                  <button type="button" class="action-icon-btn" onclick="window.switchTab('inventory')" title="View Inventory">↗</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://images.pexels.com/photos/8839887/pexels-photo-8839887.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Drill">
+                    <div style="flex: 1;">
+                      <div style="font-size: 13px; font-weight: 600;">Ryobi ONE drill/driver kit</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">Hardware • 18 units sold</div>
+                    </div>
+                    <div style="font-weight: 700; font-size: 13.5px;">$409.00</div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Tote">
+                    <div style="flex: 1;">
+                      <div style="font-size: 13px; font-weight: 600;">Everyday leather tote</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">Bags • 24 units sold</div>
+                    </div>
+                    <div style="font-weight: 700; font-size: 13.5px;">$1,250.00</div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://images.pexels.com/photos/32677219/pexels-photo-32677219.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Socket">
+                    <div style="flex: 1;">
+                      <div style="font-size: 13px; font-weight: 600;">Socket Systeme Electric Pack</div>
+                      <div style="font-size: 11.5px; color: var(--muted);">Electrical • 14 units sold</div>
+                    </div>
+                    <div style="font-weight: 700; font-size: 13.5px;">$238.00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Orders preview in overview -->
+            <div class="orders-table-card">
+              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700;">Recent Store Activity</h3>
+                <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('orders')">View All Orders ↗</button>
+              </div>
+              <div class="table-responsive">
+                <table class="dash-table">
+                  <thead>
+                    <tr>
+                      <th class="select-col"></th>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overviewRecentOrdersBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. Orders View (Default) -->
+          <div id="ordersMainView">
+            <!-- KPI Section -->
+            <div class="kpi-grid" id="dashKPISection"></div>
+
+            <!-- Orders Table Container -->
+            <div class="orders-table-card">
+              <div class="table-responsive">
+                <table class="dash-table">
+                  <thead>
+                    <tr>
+                      <th class="select-col">
+                        <input type="checkbox" class="dash-checkbox" id="selectAllOrders" title="Select All">
+                      </th>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Date</th>
+                      <th style="width: 40px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTableBody">
+                    <!-- Populated reactively by dashboard.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Returns Section View -->
+          <div id="returnsMainView" style="display: none;">
+            <div class="kpi-grid" id="returnsKPISection"></div>
+
+            <div class="orders-table-card">
+              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Returns & Refund Management</h3>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track incoming return parcels, return authorizations, and customer refund statuses.</p>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="dash-table">
+                  <thead>
+                    <tr>
+                      <th>Return ID</th>
+                      <th>Order Ref</th>
+                      <th>Customer</th>
+                      <th>Reason</th>
+                      <th>Refund Amount</th>
+                      <th>Return Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="returnsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Inventory / Products View -->
+          <div id="inventoryMainView" style="display: none;">
+            <div id="inventoryContentContainer"></div>
+          </div>
+
+        </div>
+
+      </main>
+
+      <!-- Overlay backdrop for order inspection drawer -->
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+      <!-- ====================================================================
+           3. Right Order Inspection Drawer (Opens ONLY when an order is clicked)
+           ==================================================================== -->
+      <aside class="dashboard-drawer" id="orderDetailDrawer" aria-label="Order Details Drawer">
+        <!-- Rendered reactively in dashboard.js -->
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Modal for Creating New Product -->
+  <div class="dash-modal-backdrop" id="newProductModal">
+    <div class="dash-modal">
+      <div class="dash-modal-header">
+        <h3>Add New Studio Product</h3>
+        <button type="button" class="drawer-close-btn" onclick="window.closeNewProductModal()">✕</button>
+      </div>
+      <form id="newProductForm">
+        <div class="dash-modal-body">
+          <div class="form-group">
+            <label for="newProdTitle">Product Title</label>
+            <input type="text" id="newProdTitle" class="form-control" placeholder="e.g. Minimalist cardholder" required>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdPrice">Price ($ / R)</label>
+              <input type="number" id="newProdPrice" class="form-control" placeholder="450" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdCategory">Category</label>
+              <select id="newProdCategory" class="form-control">
+                <option value="Bags">Bags</option>
+                <option value="Apparel">Apparel</option>
+                <option value="Footwear">Footwear</option>
+                <option value="Objects">Objects</option>
+                <option value="Hardware">Hardware</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="newProdStock">Initial Stock Quantity</label>
+            <input type="number" id="newProdStock" class="form-control" value="15" required>
+          </div>
+          <div class="form-group">
+            <label for="newProdImage">Image URL</label>
+            <input type="url" id="newProdImage" class="form-control" placeholder="https://images.pexels.com/..." value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
+          </div>
+        </div>
+        <div class="dash-modal-footer">
+          <button type="button" class="drawer-btn" style="background: #eee;" onclick="window.closeNewProductModal()">Cancel</button>
+          <button type="submit" class="drawer-btn drawer-btn-dark">Save to Catalog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./dashboard.js"></script>
+</body>
+
+</html>
