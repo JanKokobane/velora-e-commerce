@@ -1,0 +1,97 @@
+<!-- Returns & Refunds Component (components/returns.html) -->
+<section class="returns-section" id="returnsComponent">
+  <!-- Returns KPI Grid -->
+  <div class="kpi-grid" id="returnsKPISection">
+    <div class="kpi-card" id="kpiReturnsPending">
+      <div class="kpi-header">
+        <span class="kpi-title">Pending Return Requests</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="returnsKpiPendingCount">0</div>
+      <div class="kpi-trend neutral">
+        <span>In review queue</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiReturnsValue">
+      <div class="kpi-header">
+        <span class="kpi-title">Estimated Return Value</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="returnsKpiTotalValue">R0.00</div>
+      <div class="kpi-trend neutral">
+        <span>Potential refunds</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiReturnsResolution">
+      <div class="kpi-header">
+        <span class="kpi-title">Return Resolution Rate</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">98.4%</div>
+      <div class="kpi-trend positive">
+        <span>Within 24h SLA</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiReturnsBenchmark">
+      <div class="kpi-header">
+        <span class="kpi-title">Store Return Rate</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M16 12l-4-4-4 4"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">0.8%</div>
+      <div class="kpi-trend positive">
+        <span>Low industry benchmark</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Returns Table Card -->
+  <div class="orders-table-card">
+    <div class="returns-table-header">
+      <div>
+        <h3 class="returns-title">Returns & Refund Management</h3>
+        <p class="returns-subtitle">Track incoming return parcels, return authorizations, and customer refund statuses.</p>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Return ID</th>
+            <th>Order Ref</th>
+            <th>Customer</th>
+            <th>Reason</th>
+            <th>Refund Amount</th>
+            <th>Return Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="returnsTableBody">
+          <!-- Populated by js/returns.js using DOM APIs -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

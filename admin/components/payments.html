@@ -1,0 +1,122 @@
+<!-- Payments Component (components/payments.html) -->
+<section class="payments-section" id="paymentsComponent">
+  <!-- Payments KPI Grid -->
+  <div class="kpi-grid" id="paymentsKPISection">
+    <div class="kpi-card" id="kpiPayGross">
+      <div class="kpi-header">
+        <span class="kpi-title">Gross Settled Volume</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="paymentsKpiGross">R0.00</div>
+      <div class="kpi-trend positive">
+        <span>↑ +22.8%</span>
+        <span class="kpi-trend-note">cleared in ZAR</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiPayNet">
+      <div class="kpi-header">
+        <span class="kpi-title">Available Net Payout</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="paymentsKpiNet">R0.00</div>
+      <div class="kpi-trend positive">
+        <span>Ready for Standard Bank dispatch</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiPayEftShare">
+      <div class="kpi-header">
+        <span class="kpi-title">Instant EFT & SnapScan</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="paymentsKpiEftShare">0%</div>
+      <div class="kpi-trend positive">
+        <span>Zero-chargeback gateway</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiPaySettledRate">
+      <div class="kpi-header">
+        <span class="kpi-title">Settlement Rate</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="paymentsKpiSettledRate">99.4%</div>
+      <div class="kpi-trend positive" id="paymentsKpiSettledNote">
+        <span>Cleared transactions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payments Table Card -->
+  <div class="orders-table-card">
+    <div class="payments-table-header">
+      <div>
+        <h3 class="payments-title">Financial Transactions & Payouts</h3>
+        <p class="payments-subtitle">Real-time settlement status for Ozow Instant EFT, SnapScan, and card gateways in South African Rands (ZAR).</p>
+      </div>
+      <div class="payments-toolbar-controls">
+        <div class="quick-search-input payments-search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="paymentSearchInput" placeholder="Search ref, order...">
+        </div>
+        <select class="filter-select" id="paymentGatewayFilter">
+          <option value="all">All Gateways</option>
+          <option value="Ozow Instant EFT">Ozow Instant EFT</option>
+          <option value="SnapScan">SnapScan</option>
+          <option value="Visa / Mastercard">Visa / Mastercard</option>
+          <option value="Apple Pay">Apple Pay</option>
+        </select>
+        <select class="filter-select" id="paymentStatusFilter">
+          <option value="all">All Statuses</option>
+          <option value="Settled">Settled</option>
+          <option value="Authorized">Authorized</option>
+          <option value="Processing">Processing</option>
+          <option value="Refunded">Refunded</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Payment Ref</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Gateway</th>
+            <th>Gross Amount</th>
+            <th>Net Settlement</th>
+            <th>Timestamp</th>
+            <th>Status</th>
+            <th style="width: 70px;">Receipt</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsTableBody">
+          <!-- Populated by js/payments.js using safe DOM APIs -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

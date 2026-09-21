@@ -1,0 +1,102 @@
+<!-- Notifications Page Component (admin/components/notifications.html) -->
+<section class="notifications-section" id="notificationsPageComponent">
+  <!-- Notifications Top Header -->
+  <div class="notifications-header-bar">
+    <div>
+      <h3 class="notifications-page-title">Notifications & Activity Alerts</h3>
+      <p class="notifications-page-subtitle">Real-time studio updates across order fulfillment, inventory warnings, client actions, and settlements.</p>
+    </div>
+    <div class="notifications-header-actions">
+      <button type="button" class="notif-btn notif-btn-outline" id="btnPageMarkAllRead" onclick="window.markAllNotificationsRead()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Mark All Read</span>
+      </button>
+      <button type="button" class="notif-btn notif-btn-dark" id="btnPageClearAll" onclick="window.clearAllNotifications()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        <span>Clear Alerts</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications KPI Grid -->
+  <div class="kpi-grid" id="notificationsKPISection">
+    <div class="kpi-card" id="kpiNotifsTotal">
+      <div class="kpi-header">
+        <span class="kpi-title">Total Active Notices</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="notifsKpiTotalCount">0</div>
+      <div class="kpi-trend neutral">
+        <span>Logged in session</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiNotifsUnread">
+      <div class="kpi-header">
+        <span class="kpi-title">Unread Alerts</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="notifsKpiUnreadCount">0</div>
+      <div class="kpi-trend positive" id="notifsKpiUnreadTrend">
+        <span>Pending review</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiNotifsActionable">
+      <div class="kpi-header">
+        <span class="kpi-title">Actionable Items</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="notifsKpiActionableCount">0</div>
+      <div class="kpi-trend neutral">
+        <span>Order & stock dispatches</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Filter Bar -->
+  <div class="notifications-filter-card">
+    <div class="notif-filter-pills" id="notifCategoryFilterGroup">
+      <button type="button" class="notif-pill active" data-category="all" onclick="window.filterNotificationsCategory('all')">
+        All Alerts (<span id="pillCountAll">0</span>)
+      </button>
+      <button type="button" class="notif-pill" data-category="unread" onclick="window.filterNotificationsCategory('unread')">
+        Unread (<span id="pillCountUnread">0</span>)
+      </button>
+      <button type="button" class="notif-pill" data-category="order" onclick="window.filterNotificationsCategory('order')">
+        Orders (<span id="pillCountOrders">0</span>)
+      </button>
+      <button type="button" class="notif-pill" data-category="inventory" onclick="window.filterNotificationsCategory('inventory')">
+        Stock (<span id="pillCountInventory">0</span>)
+      </button>
+      <button type="button" class="notif-pill" data-category="payment" onclick="window.filterNotificationsCategory('payment')">
+        Finance (<span id="pillCountPayment">0</span>)
+      </button>
+    </div>
+
+    <!-- Notification Feed List -->
+    <div class="notifications-feed-list" id="notificationsFeedList">
+      <!-- Dynamically populated by js/notifications.js via safe DOM APIs -->
+    </div>
+  </div>
+</section>

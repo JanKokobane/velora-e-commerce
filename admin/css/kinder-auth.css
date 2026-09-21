@@ -1,0 +1,489 @@
+.admin-auth-screen.kinder-auth-theme {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100vw;
+  background:
+    linear-gradient(135deg, rgba(16, 12, 28, 0.72) 0%, rgba(28, 18, 48, 0.62) 45%, rgba(12, 8, 22, 0.88) 100%),
+    url('../images/authBackground.png') center center / cover no-repeat fixed;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.admin-auth-screen.kinder-auth-theme.auth-hidden,
+.admin-auth-screen.kinder-auth-theme[style*="display: none"],
+.admin-auth-screen.kinder-auth-theme[style*="display:none"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Outer Auth Canvas */
+.kinder-auth-canvas {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Background High-Fashion Editorial Photography Layer */
+.kinder-bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.kinder-fashion-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(to right, rgba(14, 10, 24, 0.45) 0%, rgba(22, 14, 38, 0.28) 42%, rgba(13, 8, 22, 0.78) 100%),
+    url('../images/authBackground.png') center center / cover no-repeat;
+  background-size: cover;
+  background-position: center center;
+  opacity: 1;
+}
+
+/* Main Workspace: Center-Right Positioning for Frosted Glass Card */
+.kinder-main-container {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 40px 80px;
+}
+
+/* Luxury Frosted Card */
+.kinder-form-card {
+  width: 100%;
+  max-width: 470px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 26px;
+  padding: 38px 36px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 30px 70px -15px rgba(12, 6, 24, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Top Brand Row */
+.kinder-card-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.kinder-back-btn {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4b5563;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kinder-back-btn:hover {
+  background: #15181b;
+  color: #ffffff;
+  border-color: #15181b;
+}
+
+.kinder-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(201, 165, 122, 0.18);
+  color: #8c6738;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kinder-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.kinder-portal-mode {
+  font-size: 11.5px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Segmented Mode Tabs: Sign In / Sign Up */
+.kinder-mode-tabs {
+  display: flex;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 22px;
+  border: 1px solid #e5e7eb;
+}
+
+.kinder-tab-btn {
+  flex: 1;
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #4b5563;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kinder-tab-btn:hover {
+  color: #111827;
+}
+
+.kinder-tab-btn.active {
+  background: #15181b;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Titles */
+.kinder-form-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #111827;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.kinder-form-subtitle {
+  font-size: 13.5px;
+  color: #6b7280;
+  margin: 0 0 20px;
+  line-height: 1.45;
+}
+
+/* Inline Feedback Alert */
+.kinder-auth-alert {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: kinderFadeIn 0.2s ease-out;
+}
+
+.kinder-auth-alert.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.kinder-auth-alert.success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+/* Form Fields */
+.kinder-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kinder-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.kinder-field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #374151;
+  margin: 0;
+}
+
+.kinder-underline-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #d1d5db;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111827;
+  padding: 8px 0 10px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.kinder-underline-input::placeholder {
+  font-style: normal;
+  color: #9ca3af;
+}
+
+.kinder-underline-input:focus {
+  border-bottom-color: #15181b;
+}
+
+/* Password eye toggle wrapper */
+.kinder-password-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kinder-password-box .kinder-underline-input {
+  padding-right: 36px;
+}
+
+.kinder-eye-toggle {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.kinder-eye-toggle:hover {
+  color: #111827;
+}
+
+/* Checkbox Row */
+.kinder-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kinder-checkbox-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #9ca3af;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  margin: 0;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.kinder-checkbox-input:checked {
+  background: #15181b;
+  border-color: #15181b;
+}
+
+.kinder-checkbox-input:checked::before {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.kinder-checkbox-label-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+/* Action Buttons Stack */
+.kinder-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.kinder-btn-solid {
+  width: 100%;
+  background: #15181b;
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 13px 24px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(21, 24, 27, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kinder-btn-solid:hover {
+  background: #2b3036;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(21, 24, 27, 0.35);
+}
+
+.kinder-btn-solid:active {
+  transform: translateY(0);
+}
+
+.kinder-btn-switch {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 0.15s ease;
+  text-align: center;
+}
+
+.kinder-btn-switch:hover {
+  color: #15181b;
+  text-decoration: underline;
+}
+
+/* Quick Fill Admin Chips */
+.kinder-quick-fill-bar {
+  margin-top: 24px;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kinder-quick-fill-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4b5563;
+}
+
+.kinder-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.kinder-chip-btn {
+  padding: 6px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1f2937;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kinder-chip-btn:hover {
+  background: #15181b;
+  color: #ffffff;
+  border-color: #15181b;
+}
+
+/* Footer Tagline */
+.kinder-footer-text {
+  margin-top: 16px;
+  font-size: 11.5px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* Keyframes */
+@keyframes kinderFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Mobile & Tablet Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+  .kinder-main-container {
+    padding: 24px 32px;
+    justify-content: center;
+  }
+  .kinder-fashion-layer {
+    background:
+      linear-gradient(to bottom, rgba(14, 10, 24, 0.45) 0%, rgba(13, 8, 22, 0.85) 100%),
+      url('../images/authBackground.png') center center / cover no-repeat;
+  }
+}
+
+@media (max-width: 640px) {
+  .kinder-main-container {
+    padding: 16px 16px 28px;
+  }
+  .kinder-form-card {
+    padding: 28px 20px 24px;
+    border-radius: 20px;
+  }
+  .kinder-form-title {
+    font-size: 26px;
+  }
+  .kinder-quick-chips {
+    flex-direction: column;
+  }
+  .kinder-chip-btn {
+    text-align: left;
+    width: 100%;
+  }
+}

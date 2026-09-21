@@ -1,0 +1,95 @@
+/* Orders Section Stylesheet (css/orders.css) */
+.orders-section {
+  display: block;
+}
+
+.orders-filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.filter-left-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.status-tab-pills {
+  display: inline-flex;
+  background: #ece7de;
+  padding: 3px;
+  border-radius: 9px;
+  gap: 2px;
+}
+
+.status-tab-btn {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--ink-secondary);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.status-tab-btn:hover {
+  color: var(--ink);
+}
+
+.status-tab-btn.active {
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.filter-right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-id-cell {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--dash-border);
+}
+
+.customer-name {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.order-total-cell {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.order-date-cell {
+  font-size: 12.5px;
+  color: var(--muted);
+}

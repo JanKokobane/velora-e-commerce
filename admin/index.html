@@ -15,26 +15,47 @@
   <!-- Shared tokens, auth and dashboard stylesheets -->
   <link rel="stylesheet" href="./auth.css">
   <link rel="stylesheet" href="./dashboard.css">
+  <link rel="stylesheet" href="./css/country-picker.css">
+  <link rel="stylesheet" href="./css/notifications.css">
+  <link rel="stylesheet" href="./css/overview.css">
+  <link rel="stylesheet" href="./css/orders.css">
+  <link rel="stylesheet" href="./css/order-drawer.css">
+  <link rel="stylesheet" href="./css/returns.css">
+  <link rel="stylesheet" href="./css/inventory.css">
+  <link rel="stylesheet" href="./css/customers.css">
+  <link rel="stylesheet" href="./css/payments.css">
+  <link rel="stylesheet" href="./css/settings.css">
+  <link rel="stylesheet" href="./css/modals.css">
+  <link rel="stylesheet" href="./css/search.css">
+  <link rel="stylesheet" href="./css/kinder-auth.css">
 </head>
 
 <body>
 
-  <!-- Backdrop for auto-closing mobile/tablet sidebar when tapped -->
-  <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
-
   <div class="dashboard-viewport">
     <div class="dashboard-shell">
+
+      <!-- Backdrop for auto-closing mobile/tablet sidebar when tapped -->
+      <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
 
       <!-- ====================================================================
            1. Left Dark Sidebar
            ==================================================================== -->
       <aside class="dashboard-sidebar" id="dashboardSidebar">
         <div>
-          <!-- Brand Logo (Exact signature logo used across project) -->
-          <a href="./index.html" class="sidebar-brand" aria-label="Velora home">
-            <span class="brand">VELORA<span>.</span></span>
-            <span class="brand-subtitle">Operations Portal</span>
-          </a>
+          <!-- Brand Logo & Mobile Close Button -->
+          <div class="sidebar-header-row" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--dash-sidebar-line); padding-bottom: 16px; margin-bottom: 8px;">
+            <a href="./index.html" class="sidebar-brand" style="border-bottom: none; padding: 0;" aria-label="Velora home">
+              <span class="brand">VELORA<span>.</span></span>
+              <span class="brand-subtitle">Operations Portal</span>
+            </a>
+            <button type="button" class="sidebar-mobile-close-btn" id="sidebarMobileCloseBtn" aria-label="Close navigation" onclick="window.closeMobileSidebar()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
 
           <!-- Primary Navigation Navigation -->
           <nav class="sidebar-nav">
@@ -99,7 +120,7 @@
 
         <!-- Secondary Footer Navigation -->
         <div class="sidebar-footer-nav">
-          <button type="button" class="nav-item" id="sidebarNotificationBtn" onclick="window.toggleNotificationPanel(event)">
+          <button type="button" class="nav-item" id="sidebarNotificationBtn" data-tab="notifications" onclick="window.switchTab('notifications')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -108,7 +129,7 @@
             <span class="nav-badge" id="sidebarNotificationBadge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">4</span>
           </button>
 
-          <button type="button" class="nav-item" onclick="window.openNewProductModal()">
+          <button type="button" class="nav-item" id="sidebarSettingsBtn" data-tab="settings" onclick="window.switchTab('settings')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -135,7 +156,7 @@
         <!-- Top Header Toolbar -->
         <header class="dashboard-topbar">
           <div class="topbar-left">
-            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu" aria-expanded="false">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -143,6 +164,56 @@
               </svg>
             </button>
             <h1 class="topbar-title" id="currentViewTitle">Store Overview</h1>
+          </div>
+
+          <!-- Topbar Center: Unified Global Search Bar & Popover -->
+          <div class="topbar-search-container" id="topbarSearchContainer">
+            <div class="header-search-box" id="headerSearchBox">
+              <svg class="header-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="headerGlobalSearchInput" class="header-search-input" placeholder="Search orders, items, clients, pages... (⌘K)" autocomplete="off" spellcheck="false" aria-label="Global search">
+              <button type="button" class="header-search-clear-btn" id="headerSearchClearBtn" aria-label="Clear search" style="display: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <div class="header-search-badge" id="headerSearchShortcutBadge" title="Press ⌘K or / to search">
+                <span>⌘K</span>
+              </div>
+            </div>
+
+            <!-- Global Search Results Popover -->
+            <div class="header-search-popover" id="headerSearchPopover" style="display: none;" role="dialog" aria-label="Search results" aria-modal="false">
+              <!-- Search Category Tabs -->
+              <div class="search-category-tabs" id="searchCategoryTabs">
+                <button type="button" class="search-tab-pill active" data-search-tab="all">All <span class="tab-count" id="searchCountAll">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="orders">Orders <span class="tab-count" id="searchCountOrders">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="products">Products <span class="tab-count" id="searchCountProducts">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="customers">Customers <span class="tab-count" id="searchCountCustomers">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="payments">Payments <span class="tab-count" id="searchCountPayments">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="pages">Navigation</button>
+              </div>
+
+              <!-- Search Results List / Empty Suggestions -->
+              <div class="search-results-viewport" id="searchResultsViewport">
+                <!-- Dynamically populated by js/search.js -->
+              </div>
+
+              <!-- Footer with keyboard shortcuts -->
+              <div class="search-popover-footer">
+                <div class="search-footer-shortcuts">
+                  <span class="shortcut-item"><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                  <span class="shortcut-item"><kbd>↵</kbd> Select</span>
+                  <span class="shortcut-item"><kbd>ESC</kbd> Close</span>
+                </div>
+                <div class="search-footer-brand">
+                  <span>Velora Operations</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="topbar-right">
@@ -175,52 +246,19 @@
               </div>
             </div>
 
-            <!-- Working Notification Center -->
+            <!-- Notification Center Button (Routes to dedicated Notifications Page) -->
             <div class="notification-center-container" id="notificationCenterContainer">
-              <button type="button" class="action-icon-btn" id="headerNotificationBtn" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" onclick="window.toggleNotificationPanel(event)">
+              <button type="button" class="action-icon-btn" id="headerNotificationBtn" title="Notifications" aria-label="Notifications" onclick="window.switchTab('notifications')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
                 <span class="notification-badge-count" id="headerNotificationCount">4</span>
               </button>
-
-              <!-- Notification Dropdown Panel -->
-              <div class="notification-dropdown-panel" id="notificationDropdownPanel" style="display: none;" role="region" aria-label="Notifications panel">
-                <div class="notification-panel-header">
-                  <div class="notification-panel-title-row">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                      <h3 class="notification-panel-title">Notifications</h3>
-                      <span class="notification-unread-pill" id="notificationUnreadPill">4 New</span>
-                    </div>
-                    <div class="notification-panel-actions">
-                      <button type="button" class="notif-text-btn" id="markAllNotifsReadBtn" title="Mark all notifications as read">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Mark read</span>
-                      </button>
-                      <button type="button" class="notif-text-btn" id="clearAllNotifsBtn" title="Clear all notifications">Clear</button>
-                    </div>
-                  </div>
-                  <!-- Filter tabs -->
-                  <div class="notif-filter-tabs">
-                    <button type="button" class="notif-tab active" data-notif-filter="all" id="notifTabAll">All (<span id="notifCountAll">5</span>)</button>
-                    <button type="button" class="notif-tab" data-notif-filter="unread" id="notifTabUnread">Unread (<span id="notifCountUnread">4</span>)</button>
-                  </div>
-                </div>
-
-                <!-- Notification items -->
-                <div class="notification-items-list" id="notificationItemsList">
-                  <!-- Dynamically populated -->
-                </div>
-
-                <div class="notification-panel-footer">
-                  <button type="button" class="notif-footer-btn" onclick="window.switchTab('orders'); window.toggleNotificationPanel(false);">View Order Dispatch Queue →</button>
-                </div>
-              </div>
             </div>
 
-            <!-- Search Quick Button -->
-            <button type="button" class="action-icon-btn" title="Quick Search" onclick="document.getElementById('orderSearchInput').focus()">
+            <!-- Mobile Search Toggle Button (visible on small viewports) -->
+            <button type="button" class="action-icon-btn mobile-search-toggle-btn" id="mobileSearchToggleBtn" title="Search Orders, Catalog, Clients (⌘K)" aria-label="Open search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -289,7 +327,74 @@
 
           <!-- 0. Dashboard Overview View (Default active view) -->
           <div id="overviewMainView" style="display: block;">
-            <div class="kpi-grid" id="dashOverviewKPISection"></div>
+            <div class="kpi-grid" id="dashOverviewKPISection">
+              <div class="kpi-card" id="kpiOverviewRevenue">
+                <div class="kpi-header">
+                  <span class="kpi-title">Gross Revenue (<span class="current-curr-code">ZAR</span>)</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="overviewKpiTotalRev">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +22.4%</span>
+                  <span class="kpi-trend-note">vs last period</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOverviewOrders">
+                <div class="kpi-header">
+                  <span class="kpi-title">Total Orders</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="overviewKpiTotalOrders">0</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +12 new</span>
+                  <span class="kpi-trend-note">today</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOverviewReturns">
+                <div class="kpi-header">
+                  <span class="kpi-title">Active Returns</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="overviewKpiActiveReturns">0</div>
+                <div class="kpi-trend neutral">
+                  <span>Awaiting inspection</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOverviewBasket">
+                <div class="kpi-header">
+                  <span class="kpi-title">Average Basket</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="overviewKpiAvgBasket">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +6.2%</span>
+                  <span class="kpi-trend-note">conversion</span>
+                </div>
+              </div>
+            </div>
             
             <div class="overview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
               <!-- Quick Operations Card -->
@@ -388,8 +493,108 @@
 
           <!-- 1. Orders View -->
           <div id="ordersMainView" style="display: none;">
+            <!-- Orders Filter Toolbar -->
+            <div class="orders-filter-toolbar" id="ordersFilterToolbar">
+              <div class="filter-left-group">
+                <!-- Status Pills Toggle Filter -->
+                <div class="status-tab-pills" id="ordersStatusTabGroup">
+                  <button type="button" class="status-tab-btn active" data-status="all">All</button>
+                  <button type="button" class="status-tab-btn" data-status="paid">Paid</button>
+                  <button type="button" class="status-tab-btn" data-status="transit">In-Transit</button>
+                  <button type="button" class="status-tab-btn" data-status="delivered">Delivered</button>
+                  <button type="button" class="status-tab-btn" data-status="cancelled">Cancelled</button>
+                </div>
+
+                <!-- Quick Search input -->
+                <div class="quick-search-input">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="orderSearchInput" placeholder="Search order, customer...">
+                </div>
+              </div>
+
+              <div class="filter-right-group">
+                <select class="filter-select" id="sortFilterSelect">
+                  <option value="date-desc">Sort by Date (Newest)</option>
+                  <option value="date-asc">Sort by Date (Oldest)</option>
+                  <option value="total-desc">Sort by Amount (Highest)</option>
+                  <option value="total-asc">Sort by Amount (Lowest)</option>
+                </select>
+              </div>
+            </div>
+
             <!-- KPI Section -->
-            <div class="kpi-grid" id="dashKPISection"></div>
+            <div class="kpi-grid" id="dashKPISection">
+              <div class="kpi-card" id="kpiOrdersRevenue">
+                <div class="kpi-header">
+                  <span class="kpi-title">Total Revenue</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="ordersKpiRevenue">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +18.4%</span>
+                  <span class="kpi-trend-note">vs last month</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOrdersCount">
+                <div class="kpi-header">
+                  <span class="kpi-title">Total Orders</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="ordersKpiCount">0</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +12 new</span>
+                  <span class="kpi-trend-note">today</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOrdersPending">
+                <div class="kpi-header">
+                  <span class="kpi-title">Orders to Fulfill</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="ordersKpiPending">0</div>
+                <div class="kpi-trend neutral">
+                  <span>Dispatch ready</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiOrdersAOV">
+                <div class="kpi-header">
+                  <span class="kpi-title">Avg Order Value</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="ordersKpiAOV">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +6.2%</span>
+                  <span class="kpi-trend-note">conversion</span>
+                </div>
+              </div>
+            </div>
 
             <!-- Orders Table Container -->
             <div class="orders-table-card">
@@ -418,7 +623,39 @@
 
           <!-- 2. Returns Section View -->
           <div id="returnsMainView" style="display: none;">
-            <div class="kpi-grid" id="returnsKPISection"></div>
+            <div class="kpi-grid" id="returnsKPISection">
+              <div class="kpi-card" id="kpiReturnsPending">
+                <div class="kpi-header">
+                  <span class="kpi-title">Pending Authorizations</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="returnsKpiPendingCount">0</div>
+                <div class="kpi-trend neutral">
+                  <span>Awaiting studio check</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiReturnsTotalVal">
+                <div class="kpi-header">
+                  <span class="kpi-title">Potential Refund Value</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="returnsKpiTotalValue">R0.00</div>
+                <div class="kpi-trend neutral">
+                  <span>Customer account credits</span>
+                </div>
+              </div>
+            </div>
 
             <div class="orders-table-card">
               <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
@@ -448,12 +685,73 @@
 
           <!-- 3. Inventory / Products View -->
           <div id="inventoryMainView" style="display: none;">
-            <div id="inventoryContentContainer"></div>
+            <div class="inventory-section" id="inventoryComponent">
+              <div class="inventory-header-bar">
+                <div>
+                  <h3 class="inventory-title">Catalog & Stock Inventory</h3>
+                  <p class="inventory-subtitle">Manage real-time product availability across online and studio stock.</p>
+                </div>
+                <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn" onclick="window.openNewProductModal()">
+                  ＋ Add New Product
+                </button>
+              </div>
+
+              <div class="product-inventory-grid" id="productInventoryGrid">
+                <!-- Populated by js/inventory.js using safe DOM element creation -->
+              </div>
+            </div>
           </div>
 
           <!-- 4. Customers Section View -->
           <div id="customersMainView" style="display: none;">
-            <div class="kpi-grid" id="customersKPISection"></div>
+            <div class="kpi-grid" id="customersKPISection">
+              <div class="kpi-card" id="kpiCustomersTotal">
+                <div class="kpi-header">
+                  <span class="kpi-title">Total Registered Clients</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="customersKpiTotalCount">0</div>
+                <div class="kpi-trend positive">
+                  <span>↑ +3 this week</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiCustomersVip">
+                <div class="kpi-header">
+                  <span class="kpi-title">VIP Privilege Members</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="customersKpiVipCount">0</div>
+                <div class="kpi-trend positive">
+                  <span>High tier loyalty</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiCustomersLtv">
+                <div class="kpi-header">
+                  <span class="kpi-title">Average Lifetime Value</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="customersKpiAvgLtv">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>↑ High retention</span>
+                </div>
+              </div>
+            </div>
 
             <div class="orders-table-card">
               <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -500,7 +798,55 @@
 
           <!-- 5. Payments Section View -->
           <div id="paymentsMainView" style="display: none;">
-            <div class="kpi-grid" id="paymentsKPISection"></div>
+            <div class="kpi-grid" id="paymentsKPISection">
+              <div class="kpi-card" id="kpiPaymentsGross">
+                <div class="kpi-header">
+                  <span class="kpi-title">Gross Cleared Settlements</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="paymentsKpiGross">R0.00</div>
+                <div class="kpi-trend positive" id="paymentsKpiSettledNote">
+                  <span>0 cleared transactions</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiPaymentsNet">
+                <div class="kpi-header">
+                  <span class="kpi-title">Net Operating Yield</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                      <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="paymentsKpiNet">R0.00</div>
+                <div class="kpi-trend positive">
+                  <span>After gateway fees</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" id="kpiPaymentsEft">
+                <div class="kpi-header">
+                  <span class="kpi-title">Instant EFT & QR Share</span>
+                  <div class="kpi-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-value" id="paymentsKpiEftShare">0%</div>
+                <div class="kpi-trend neutral">
+                  <span>Ozow & SnapScan</span>
+                </div>
+              </div>
+            </div>
 
             <div class="orders-table-card">
               <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -553,6 +899,394 @@
             </div>
           </div>
 
+          <!-- 6. Notifications Page View -->
+          <div id="notificationsMainView" style="display: none;">
+            <section class="notifications-section" id="notificationsPageComponent">
+              <!-- Notifications Top Header -->
+              <div class="notifications-header-bar">
+                <div>
+                  <h3 class="notifications-page-title">Notifications & Activity Alerts</h3>
+                  <p class="notifications-page-subtitle">Real-time studio updates across order fulfillment, inventory warnings, client actions, and settlements.</p>
+                </div>
+                <div class="notifications-header-actions">
+                  <button type="button" class="notif-btn notif-btn-outline" id="btnPageMarkAllRead" onclick="window.markAllNotificationsRead()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Mark All Read</span>
+                  </button>
+                  <button type="button" class="notif-btn notif-btn-dark" id="btnPageClearAll" onclick="window.clearAllNotifications()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span>Clear Alerts</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Notifications KPI Grid -->
+              <div class="kpi-grid" id="notificationsKPISection">
+                <div class="kpi-card" id="kpiNotifsTotal">
+                  <div class="kpi-header">
+                    <span class="kpi-title">Total Active Notices</span>
+                    <div class="kpi-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="kpi-value" id="notifsKpiTotalCount">0</div>
+                  <div class="kpi-trend neutral">
+                    <span>Logged in session</span>
+                  </div>
+                </div>
+
+                <div class="kpi-card" id="kpiNotifsUnread">
+                  <div class="kpi-header">
+                    <span class="kpi-title">Unread Alerts</span>
+                    <div class="kpi-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="kpi-value" id="notifsKpiUnreadCount">0</div>
+                  <div class="kpi-trend positive" id="notifsKpiUnreadTrend">
+                    <span>Pending review</span>
+                  </div>
+                </div>
+
+                <div class="kpi-card" id="kpiNotifsActionable">
+                  <div class="kpi-header">
+                    <span class="kpi-title">Actionable Items</span>
+                    <div class="kpi-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="kpi-value" id="notifsKpiActionableCount">0</div>
+                  <div class="kpi-trend neutral">
+                    <span>Order & stock dispatches</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notifications Filter Bar & Feed -->
+              <div class="notifications-filter-card">
+                <div class="notif-filter-pills" id="notifCategoryFilterGroup">
+                  <button type="button" class="notif-pill active" data-category="all" onclick="window.filterNotificationsCategory('all')">
+                    All Alerts (<span id="pillCountAll">0</span>)
+                  </button>
+                  <button type="button" class="notif-pill" data-category="unread" onclick="window.filterNotificationsCategory('unread')">
+                    Unread (<span id="pillCountUnread">0</span>)
+                  </button>
+                  <button type="button" class="notif-pill" data-category="order" onclick="window.filterNotificationsCategory('order')">
+                    Orders (<span id="pillCountOrders">0</span>)
+                  </button>
+                  <button type="button" class="notif-pill" data-category="inventory" onclick="window.filterNotificationsCategory('inventory')">
+                    Stock (<span id="pillCountInventory">0</span>)
+                  </button>
+                  <button type="button" class="notif-pill" data-category="payment" onclick="window.filterNotificationsCategory('payment')">
+                    Finance (<span id="pillCountPayment">0</span>)
+                  </button>
+                </div>
+
+                <!-- Notification Feed List -->
+                <div class="notifications-feed-list" id="notificationsFeedList">
+                  <!-- Dynamically populated by js/notifications.js via safe DOM APIs -->
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- 7. Settings Page View -->
+          <div id="settingsMainView" style="display: none;">
+            <section class="settings-section" id="settingsPageComponent">
+              <!-- Settings Header -->
+              <div class="settings-header-bar">
+                <div>
+                  <h3 class="settings-page-title">Operations & Studio Settings</h3>
+                  <p class="settings-page-subtitle">Configure South African retail parameters, currency settlement, courier rates, and security controls.</p>
+                </div>
+                <div class="settings-header-actions">
+                  <button type="button" class="settings-btn settings-btn-outline" onclick="window.resetSettingsDefaults()">Reset Defaults</button>
+                  <button type="button" class="settings-btn settings-btn-dark" id="saveSettingsBtn" onclick="window.saveStudioSettings()">Save Configuration</button>
+                </div>
+              </div>
+
+              <form id="studioSettingsForm" onsubmit="event.preventDefault(); window.saveStudioSettings();">
+                <div class="settings-grid">
+                  <!-- Card 1: Studio Identity & Profile -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Studio Identity & Operations</h4>
+                        <p class="settings-card-desc">Public store details, client support desk, and headquarter address.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-field-group">
+                        <label class="settings-label" for="settingStoreName">Studio Store Name</label>
+                        <input type="text" id="settingStoreName" class="settings-input" value="VELORA E-Commerce Studio">
+                      </div>
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingSupportEmail">Support Desk Email</label>
+                          <input type="email" id="settingSupportEmail" class="settings-input" value="studio@velora.co.za">
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingPhone">Dispatch Hotline</label>
+                          <input type="tel" id="settingPhone" class="settings-input" value="+27 11 883 0000">
+                        </div>
+                      </div>
+                      <div class="settings-field-group">
+                        <label class="settings-label" for="settingAddress">Studio Headquarters (Physical Address)</label>
+                        <input type="text" id="settingAddress" class="settings-input" value="Nelson Mandela Square, Sandton, Johannesburg, 2196, South Africa">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 2: Currency & Tax Compliance (South Africa) -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="1" x2="12" y2="23"></line>
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Currency & Tax Compliance</h4>
+                        <p class="settings-card-desc">SARS Value Added Tax (VAT) rate, base currency, and price display options.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingCurrency">Operational Base Currency</label>
+                          <select id="settingCurrency" class="settings-select">
+                            <option value="ZAR" selected>ZAR - South African Rand (R)</option>
+                            <option value="USD">USD - US Dollar ($)</option>
+                            <option value="GBP">GBP - British Pound (£)</option>
+                            <option value="EUR">EUR - Euro (€)</option>
+                            <option value="NAD">NAD - Namibian Dollar (N$)</option>
+                            <option value="BWP">BWP - Botswana Pula (P)</option>
+                            <option value="AUD">AUD - Australian Dollar (A$)</option>
+                            <option value="AED">AED - UAE Dirham (AED)</option>
+                          </select>
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingVatRate">South Africa VAT Rate (%)</label>
+                          <input type="number" id="settingVatRate" class="settings-input" value="15" min="0" max="30">
+                        </div>
+                      </div>
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingVatNumber">SARS VAT Registration No.</label>
+                          <input type="text" id="settingVatNumber" class="settings-input" value="4890284910">
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingInvoicePrefix">Invoice Reference Prefix</label>
+                          <input type="text" id="settingInvoicePrefix" class="settings-input" value="VEL-ZA-">
+                        </div>
+                      </div>
+                      <div class="settings-toggle-row">
+                        <div>
+                          <div class="settings-toggle-title">Include 15% VAT in catalog retail prices</div>
+                          <div class="settings-toggle-subtitle">Complies with South African CPA price display guidelines.</div>
+                        </div>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="settingVatInclusive" checked>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 3: Payment Gateways & SnapScan -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                          <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Payment Gateways & SnapScan</h4>
+                        <p class="settings-card-desc">Enable or disable checkout settlement methods.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-toggle-row">
+                        <div>
+                          <div class="settings-toggle-title">Ozow Instant EFT</div>
+                          <div class="settings-toggle-subtitle">Zero card fee direct EFT via FNB, Capitec, Standard Bank, Nedbank & ABSA.</div>
+                        </div>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="settingGatewayOzow" checked>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </div>
+
+                      <div class="settings-toggle-row">
+                        <div>
+                          <div class="settings-toggle-title">SnapScan QR Mobile Checkout</div>
+                          <div class="settings-toggle-subtitle">Scan-to-pay mobile QR code settlement with instant confirmation.</div>
+                        </div>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="settingGatewaySnapScan" checked>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </div>
+
+                      <div class="settings-toggle-row">
+                        <div>
+                          <div class="settings-toggle-title">Visa / Mastercard 3D Secure 2.0</div>
+                          <div class="settings-toggle-subtitle">Card processing with automated fraud screening and tokenization.</div>
+                        </div>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="settingGatewayCards" checked>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </div>
+
+                      <div class="settings-toggle-row">
+                        <div>
+                          <div class="settings-toggle-title">Apple Pay & Google Pay</div>
+                          <div class="settings-toggle-subtitle">One-touch biometric authorization on supported mobile and web devices.</div>
+                        </div>
+                        <label class="toggle-switch">
+                          <input type="checkbox" id="settingGatewayApplePay" checked>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 4: Shipping, Couriers & Logistics -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 3h15v13H1z"></path>
+                          <path d="M16 8h4l3 3v5h-7V8z"></path>
+                          <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                          <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Logistics & Nationwide Courier</h4>
+                        <p class="settings-card-desc">Delivery rates, automated waybills, and free shipping limits.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingCourierPartner">Preferred Courier Partner</label>
+                          <select id="settingCourierPartner" class="settings-select">
+                            <option value="The Courier Guy" selected>The Courier Guy (Locker & Door-to-Door)</option>
+                            <option value="DHL Express SA">DHL Express South Africa</option>
+                            <option value="Velora Studio Courier">Velora Dedicated Studio Dispatch</option>
+                          </select>
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingStandardShipping">Standard Delivery Fee (<span class="current-curr-code">ZAR</span>)</label>
+                          <input type="number" id="settingStandardShipping" class="settings-input" value="150">
+                        </div>
+                      </div>
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingExpressShipping">Express Same-Day Fee (Gauteng)</label>
+                          <input type="number" id="settingExpressShipping" class="settings-input" value="280">
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingFreeShippingThreshold">Free Delivery Threshold (<span class="current-curr-code">ZAR</span>)</label>
+                          <input type="number" id="settingFreeShippingThreshold" class="settings-input" value="1500">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 5: Inventory Alerts & Operational Automation -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Inventory Alerts & Thresholds</h4>
+                        <p class="settings-card-desc">Automated studio alerts when physical catalog stock drops.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingLowStockThreshold">Low Stock Warning Trigger (Units)</label>
+                          <input type="number" id="settingLowStockThreshold" class="settings-input" value="5" min="1" max="50">
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingAutoDraftWaybill">Auto-Generate Courier Waybills</label>
+                          <select id="settingAutoDraftWaybill" class="settings-select">
+                            <option value="enabled" selected>Enabled on 'Paid' Status</option>
+                            <option value="manual">Manual Studio Dispatch Only</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 6: Administrator Security & Session -->
+                  <div class="settings-card">
+                    <div class="settings-card-header">
+                      <div class="settings-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="settings-card-title">Security & Session Controls</h4>
+                        <p class="settings-card-desc">Authentication timeout and active operator profile.</p>
+                      </div>
+                    </div>
+                    <div class="settings-card-body">
+                      <div class="settings-field-row">
+                        <div class="settings-field-group">
+                          <label class="settings-label">Active Operator Profile</label>
+                          <input type="text" class="settings-input" value="Kristina Evans (Studio Director)" disabled>
+                        </div>
+                        <div class="settings-field-group">
+                          <label class="settings-label" for="settingSessionTimeout">Idle Session Timeout</label>
+                          <select id="settingSessionTimeout" class="settings-select">
+                            <option value="30">30 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="120">2 hours</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </section>
+          </div>
+
         </div>
 
       </main>
@@ -563,8 +1297,75 @@
       <!-- ====================================================================
            3. Right Order Inspection Drawer (Opens ONLY when an order is clicked)
            ==================================================================== -->
-      <aside class="dashboard-drawer" id="orderDetailDrawer" aria-label="Order Details Drawer">
-        <!-- Rendered reactively in dashboard.js -->
+      <aside class="dashboard-drawer" id="orderDrawer" aria-label="Order Details Drawer">
+        <div class="drawer-content-wrapper" id="orderDrawerContent">
+          <!-- Drawer Header -->
+          <div class="drawer-header">
+            <div class="drawer-title-group">
+              <h2 class="drawer-order-id" id="drawerOrderId">Order #000000</h2>
+              <div class="drawer-status-line">
+                <span class="status-pill status-paid" id="drawerStatusPill">Paid</span>
+                <span id="drawerOrderDate">Jan 1, 00:00</span>
+              </div>
+            </div>
+            <button type="button" class="drawer-close-btn" id="closeDrawerBtn" title="Close Panel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Customer Card -->
+          <div class="drawer-customer-card">
+            <img class="drawer-customer-avatar" id="drawerCustomerAvatar" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="Customer">
+            <div class="drawer-customer-name" id="drawerCustomerName">Customer Name</div>
+            <div class="drawer-contact-actions">
+              <a href="mailto:client@example.com" class="contact-action-btn" id="drawerEmailLink" title="Send Email">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg>
+              </a>
+              <a href="tel:+27820000000" class="contact-action-btn" id="drawerPhoneLink" title="Call Customer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </a>
+              <button type="button" class="contact-action-btn" id="drawerWhatsappBtn" title="Message via WhatsApp">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Order Items List -->
+          <div class="drawer-items-section">
+            <h3 class="drawer-section-heading">Order items</h3>
+            <div class="drawer-items-list" id="drawerItemsList">
+              <!-- Items dynamically populated via DOM in js/order-drawer.js -->
+            </div>
+
+            <!-- Quick Delivery / Logistics Note -->
+            <div class="drawer-logistics-box">
+              <div class="drawer-logistics-title">Velora Logistics Waybill</div>
+              <div class="drawer-logistics-trk" id="drawerTrackingNumber">TRK-ZA-000000</div>
+            </div>
+          </div>
+
+          <!-- Drawer Footer Actions -->
+          <div class="drawer-footer">
+            <div class="drawer-total-row">
+              <span class="drawer-total-label">Total Amount</span>
+              <span class="drawer-total-val" id="drawerTotalAmount">R0.00</span>
+            </div>
+            <div class="drawer-actions-row">
+              <button type="button" class="drawer-btn drawer-btn-dark" id="btnTrackOrder">Fulfill / Advance</button>
+              <button type="button" class="drawer-btn drawer-btn-outline" id="btnRefundOrder">Cancel & Refund</button>
+            </div>
+          </div>
+        </div>
       </aside>
 
     </div>
@@ -674,7 +1475,47 @@
         <button type="button" class="drawer-close-btn" onclick="window.closePaymentReceiptModal()">✕</button>
       </div>
       <div class="dash-modal-body" id="paymentReceiptContent">
-        <!-- Rendered reactively in dashboard.js -->
+        <div class="receipt-card">
+          <div class="receipt-header">
+            <div class="receipt-status-pill" id="receiptStatusPill">Settled</div>
+            <div class="receipt-ref-code" id="receiptRefCode">PAY-ZA-000000</div>
+          </div>
+
+          <div class="receipt-details-list">
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Order Reference:</span>
+              <span class="receipt-detail-value" id="receiptOrderId">#000000</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Timestamp:</span>
+              <span class="receipt-detail-value" id="receiptTimestamp">--</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Customer:</span>
+              <span class="receipt-detail-value" id="receiptCustomer">--</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Payment Gateway:</span>
+              <span class="receipt-detail-value" id="receiptGateway">Ozow Instant EFT</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Settlement Bank:</span>
+              <span class="receipt-detail-value" id="receiptBank">Standard Bank of SA</span>
+            </div>
+            <div class="receipt-detail-row receipt-total-row">
+              <span class="receipt-detail-label">Gross Amount:</span>
+              <span class="receipt-detail-value" id="receiptGrossAmount">R0.00</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Gateway Fee (est.):</span>
+              <span class="receipt-detail-value" id="receiptFeeAmount">-R0.00</span>
+            </div>
+            <div class="receipt-detail-row receipt-net-row">
+              <span class="receipt-detail-label">Net Settlement:</span>
+              <span class="receipt-detail-value receipt-net-value" id="receiptNetAmount">R0.00</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="dash-modal-footer">
         <button type="button" class="drawer-btn drawer-btn-dark" onclick="window.closePaymentReceiptModal()">Done</button>
@@ -683,123 +1524,128 @@
   </div>
 
   <!-- ====================================================================
-       Admin Authentication Gate (Displayed first on load when unauthenticated)
+       Velora Sign Up / Sign In Auth Gate with High Fashion Background
        ==================================================================== -->
-  <div class="admin-auth-screen" id="adminAuthScreen" style="display: none;">
-    <div class="admin-auth-card">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="./index.html" class="admin-auth-brand">
-          VELORA<span>.</span>
-        </a>
-        <br>
-        <div class="admin-auth-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          Admin Operations Portal
-        </div>
-        <p class="admin-auth-subtitle">Authorized administrator workstation for order fulfillment, customer management, inventory stock, and ZAR payment settlements.</p>
+  <div class="admin-auth-screen kinder-auth-theme" id="adminAuthScreen" style="display: none;">
+    <div class="kinder-auth-canvas">
+      
+      <!-- Background Canvas: High Fashion Editorial Background Layer -->
+      <div class="kinder-bg-decorations" aria-hidden="true">
+        <div class="kinder-fashion-layer"></div>
       </div>
 
-      <div class="admin-auth-alert" id="adminAuthAlert"></div>
+      <!-- Main Workspace: Elegant Frosted Card on Right -->
+      <main class="kinder-main-container">
+        <div class="kinder-form-card" id="kinderFormCard">
+          
+          <!-- Top Brand Header inside Card -->
+          <div class="kinder-card-brand-row">
+            <span class="kinder-card-badge">
+              <span class="kinder-badge-dot"></span>
+              VELORA PORTAL
+            </span>
+            <button type="button" class="kinder-back-btn" id="kinderBackToDashBtn" style="display: none;" onclick="window.closeAuthGate()">
+              ← Back to Operations
+            </button>
+            <span class="kinder-portal-mode" id="kinderPortalModeLabel">Secure Operations</span>
+          </div>
 
-      <!-- Tabs toggle -->
-      <div class="admin-auth-tabs">
-        <button type="button" class="admin-auth-tab active" id="authTabSignIn" onclick="window.switchAuthScreenTab('signin')">Sign In</button>
-        <button type="button" class="admin-auth-tab" id="authTabRegister" onclick="window.switchAuthScreenTab('register')">Register Admin</button>
-      </div>
+          <!-- Mode Switcher Tabs: Sign In / Sign Up -->
+          <div class="kinder-mode-tabs" role="tablist">
+            <button type="button" class="kinder-tab-btn active" id="kinderTabLogin" onclick="window.setKinderAuthMode('login', true)">Sign In</button>
+            <button type="button" class="kinder-tab-btn" id="kinderTabSignUp" onclick="window.setKinderAuthMode('signup', true)">Sign Up</button>
+          </div>
 
-      <!-- Quick Mock Registration Accounts -->
-      <div class="admin-auth-mock-accounts">
-        <span class="mock-accounts-label">⚡ 1-Click Mock Accounts:</span>
-        <div class="mock-accounts-pills">
-          <button type="button" class="mock-acc-pill" onclick="window.pickMockAccount('kris')">Kristina Evans (Director)</button>
-          <button type="button" class="mock-acc-pill" onclick="window.pickMockAccount('thabo')">Thabo Ndlovu (Logistics)</button>
-          <button type="button" class="mock-acc-pill" onclick="window.pickMockAccount('lerato')">Lerato Khumalo (Concierge)</button>
+          <h1 class="kinder-form-title" id="kinderAuthTitle">Welcome Back</h1>
+          <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage operations.</p>
+
+          <!-- Inline Feedback Alert -->
+          <div class="kinder-auth-alert" id="kinderAuthAlert" style="display: none;" role="alert"></div>
+
+          <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;" novalidate>
+            <!-- Full Name (Hidden in Login mode, active in Sign Up mode) -->
+            <div class="kinder-field-group" id="kinderNameGroup" style="display: none;">
+              <label class="kinder-field-label" for="kinderFullName">FULL NAME</label>
+              <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid" autocomplete="name">
+            </div>
+
+            <!-- Email Address -->
+            <div class="kinder-field-group">
+              <label class="kinder-field-label" for="kinderEmail">EMAIL ADDRESS</label>
+              <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za" value="kris.evans@velora.co.za" autocomplete="email" required>
+            </div>
+
+            <!-- Password with Eye Toggle -->
+            <div class="kinder-field-group">
+              <label class="kinder-field-label" for="kinderPassword">PASSWORD</label>
+              <div class="kinder-password-box">
+                <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••" value="password123" autocomplete="current-password" required>
+                <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle" aria-label="Toggle password visibility">
+                  <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirm Password (Sign Up Mode Only) -->
+            <div class="kinder-field-group" id="kinderConfirmPasswordGroup" style="display: none;">
+              <label class="kinder-field-label" for="kinderConfirmPassword">CONFIRM PASSWORD</label>
+              <input type="password" id="kinderConfirmPassword" class="kinder-underline-input" placeholder="••••••••••••" autocomplete="new-password">
+            </div>
+
+            <!-- Agreement / Remember Checkbox -->
+            <label class="kinder-checkbox-row">
+              <input type="checkbox" id="kinderTermsCheckbox" class="kinder-checkbox-input" checked>
+              <span class="kinder-checkbox-label-text" id="kinderTermsText">Remember me on this workstation</span>
+            </label>
+
+            <!-- Buttons: Primary Action + Mode Switcher Link -->
+            <div class="kinder-actions-stack">
+              <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn" onclick="window.handleKinderAuthSubmit(event)">Sign In</button>
+              <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn" onclick="window.toggleKinderAuthMode()">Don't have an account? Sign Up</button>
+            </div>
+          </form>
+
+          <!-- 1-Click Quick Demo Credentials -->
+          <div class="kinder-quick-fill-bar">
+            <span class="kinder-quick-fill-title">⚡ 1-Click Fast Access (Select Persona):</span>
+            <div class="kinder-quick-chips">
+              <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('kris')">Kristina Evans (Director)</button>
+              <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('thabo')">Thabo Ndlovu (Logistics)</button>
+              <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('lerato')">Lerato Khumalo (Concierge)</button>
+            </div>
+          </div>
+
+          <div class="kinder-footer-text">
+            Velora Central Operations • High Fashion & Luxury Atelier
+          </div>
         </div>
-      </div>
+      </main>
 
-      <!-- Sign In Form -->
-      <form class="admin-auth-form" id="adminGateSignInForm">
-        <div class="form-group">
-          <label class="form-label" for="gateEmail">Admin Work Email</label>
-          <input type="email" id="gateEmail" class="form-control" placeholder="Any email (e.g. admin@velora.co.za)" value="kris.evans@velora.co.za" required autocomplete="email">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gatePassword">Password</label>
-          <input type="password" id="gatePassword" class="form-control" placeholder="Any password" value="password123" required autocomplete="current-password">
-        </div>
-
-        <div class="admin-auth-hint">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-          <span>Mock login active: Any email and password can sign in.</span>
-        </div>
-
-        <button type="submit" class="admin-auth-submit">
-          <span>Enter Operations Dashboard</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
-      </form>
-
-      <!-- Register Form -->
-      <form class="admin-auth-form" id="adminGateRegisterForm" style="display: none;">
-        <div class="form-group">
-          <label class="form-label" for="gateRegName">Admin Full Name</label>
-          <input type="text" id="gateRegName" class="form-control" placeholder="e.g. Sipho Ndlovu" required autocomplete="name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gateRegEmail">Work Email (@velora.co.za or custom)</label>
-          <input type="email" id="gateRegEmail" class="form-control" placeholder="e.g. sipho.n@velora.co.za" required autocomplete="email">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gateRegRole">Department Role</label>
-          <select id="gateRegRole" class="form-control">
-            <option value="Store Director">Store Director & Operations Lead</option>
-            <option value="Logistics Manager">Logistics & Order Fulfillment</option>
-            <option value="Customer Care">Client Experience & Concierge</option>
-            <option value="Finance Specialist">Finance & Payments Specialist</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gateRegPassword">Secure Password</label>
-          <input type="password" id="gateRegPassword" class="form-control" placeholder="At least 5 characters" required autocomplete="new-password">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gateRegConfirm">Confirm Password</label>
-          <input type="password" id="gateRegConfirm" class="form-control" placeholder="Confirm password" required autocomplete="new-password">
-        </div>
-
-        <button type="submit" class="admin-auth-submit">
-          <span>Register Admin & Enter Dashboard</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
-      </form>
-
-      <div style="margin-top: 20px; text-align: center; font-size: 11.5px; color: var(--muted);">
-        Velora Central Operations • <span class="active-currency-label">Rands (ZAR)</span> Store Currency Enabled
-      </div>
     </div>
   </div>
 
   <!-- Toast Notification Container -->
   <div class="velora-toast-container" id="veloraToastContainer"></div>
 
+  <!-- Modular Dashboard Controllers (components/, css/, js/ architecture) -->
+  <script src="./js/data.js"></script>
+  <script src="./js/currency.js"></script>
+  <script src="./js/notifications.js"></script>
+  <script src="./js/overview.js"></script>
+  <script src="./js/orders.js"></script>
+  <script src="./js/order-drawer.js"></script>
+  <script src="./js/returns.js"></script>
+  <script src="./js/inventory.js"></script>
+  <script src="./js/customers.js"></script>
+  <script src="./js/payments.js"></script>
+  <script src="./js/settings.js"></script>
+  <script src="./js/modals.js"></script>
+  <script src="./js/search.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/app.js"></script>
   <script src="./dashboard.js"></script>
 </body>
 

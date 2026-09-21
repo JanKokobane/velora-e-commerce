@@ -1,0 +1,117 @@
+<!-- Customers Component (components/customers.html) -->
+<section class="customers-section" id="customersComponent">
+  <!-- Customers KPI Grid -->
+  <div class="kpi-grid" id="customersKPISection">
+    <div class="kpi-card" id="kpiCustTotal">
+      <div class="kpi-header">
+        <span class="kpi-title">Active Clients</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiTotalCount">0</div>
+      <div class="kpi-trend positive">
+        <span>↑ +3 joined</span>
+        <span class="kpi-trend-note">this week</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiCustVip">
+      <div class="kpi-header">
+        <span class="kpi-title">VIP Privilege Tiers</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiVipCount">0</div>
+      <div class="kpi-trend neutral">
+        <span>High-value concierge</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiCustLtv">
+      <div class="kpi-header">
+        <span class="kpi-title">Avg Lifetime Value</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiAvgLtv">R0.00</div>
+      <div class="kpi-trend positive">
+        <span>↑ +14.2%</span>
+        <span class="kpi-trend-note">annual retention</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiCustRetention">
+      <div class="kpi-header">
+        <span class="kpi-title">Client Retention</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">94.8%</div>
+      <div class="kpi-trend positive">
+        <span>Repeat purchasers</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customers Table Card -->
+  <div class="orders-table-card">
+    <div class="customers-table-header">
+      <div>
+        <h3 class="customers-title">Client Registry & VIP Accounts</h3>
+        <p class="customers-subtitle">Track client profiles, VIP tiers, contact directories, and lifetime spend in Rands.</p>
+      </div>
+      <div class="customers-toolbar-controls">
+        <div class="quick-search-input customers-search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="customerSearchInput" placeholder="Search clients...">
+        </div>
+        <select class="filter-select" id="customerTierFilter">
+          <option value="all">All Tiers</option>
+          <option value="VIP Privilege">VIP Privilege</option>
+          <option value="Gold Member">Gold Member</option>
+          <option value="Standard">Standard</option>
+        </select>
+        <button type="button" class="drawer-btn drawer-btn-dark customers-add-btn" onclick="window.openNewCustomerModal()">+ Add Client</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Client Name</th>
+            <th>Contact Details</th>
+            <th>Location / City</th>
+            <th>Tier</th>
+            <th>Total Orders</th>
+            <th>Lifetime Spend</th>
+            <th>Last Active</th>
+            <th style="width: 80px;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="customersTableBody">
+          <!-- Populated by js/customers.js using safe DOM APIs -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
