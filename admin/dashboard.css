@@ -1362,7 +1362,9 @@ body.sidebar-drawer-active {
 .admin-auth-screen {
   position: fixed;
   inset: 0;
-  background-image: url('./images/authBackground.jpg');
+  background-image:
+    linear-gradient(135deg, rgba(6, 4, 10, 0.95) 0%, rgba(10, 7, 14, 0.94) 45%, rgba(6, 4, 10, 0.96) 100%),
+    url('./images/authBackground.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -4339,6 +4341,54 @@ body.sidebar-drawer-active {
    Full-screen Photographic Backdrop & Frosted Glass Form Card
    ==================================================================== */
 
+/* Anti-Flicker Gate States */
+html.velora-auth-required,
+html:not(.velora-authenticated) {
+  background-color: #100b0a !important;
+}
+
+html.velora-auth-required body,
+html:not(.velora-authenticated) body {
+  background-color: #100b0a !important;
+}
+
+html.velora-auth-required .dashboard-viewport,
+html:not(.velora-authenticated) .dashboard-viewport {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.velora-auth-required #adminAuthScreen,
+html.velora-auth-required .admin-auth-screen,
+html:not(.velora-authenticated) #adminAuthScreen,
+html:not(.velora-authenticated) .admin-auth-screen {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 99999 !important;
+}
+
+html.velora-authenticated #adminAuthScreen,
+html.velora-authenticated .admin-auth-screen {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+html.velora-authenticated .dashboard-viewport,
+html.velora-authenticated #dashboardViewport {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 .admin-auth-screen.kinder-auth-theme {
   position: fixed;
   inset: 0;
@@ -4349,7 +4399,13 @@ body.sidebar-drawer-active {
   min-height: 100vh;
   min-height: 100dvh;
   width: 100vw;
-  background-color: #100b0a;
+  background-color: #060408;
+  background-image:
+    linear-gradient(135deg, rgba(6, 4, 10, 0.95) 0%, rgba(10, 7, 14, 0.94) 45%, rgba(6, 4, 10, 0.96) 100%),
+    url('./images/authBackground.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
@@ -4390,15 +4446,15 @@ body.sidebar-drawer-active {
   inset: 0;
   width: 100%;
   height: 100%;
-  background-color: #0b0a10;
+  background-color: #060408;
   background-image:
-    linear-gradient(135deg, rgba(10, 8, 16, 0.82) 0%, rgba(18, 14, 25, 0.68) 45%, rgba(10, 8, 15, 0.88) 100%),
-    url('./authBackground.jpg'),
-    radial-gradient(ellipse at 50% 40%, #201a2e 0%, #0b0a10 80%);
+    linear-gradient(135deg, rgba(6, 4, 10, 0.95) 0%, rgba(10, 7, 14, 0.94) 45%, rgba(6, 4, 10, 0.96) 100%),
+    url('./images/authBackground.jpg'),
+    radial-gradient(ellipse at 50% 40%, #0f0c18 0%, #060408 80%);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  filter: saturate(1.1) brightness(0.95);
+  filter: saturate(0.9) brightness(0.7);
   transform: scale(1.02);
   transition: transform 12s ease-out;
 }
@@ -4407,8 +4463,8 @@ body.sidebar-drawer-active {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 15% 25%, rgba(201, 165, 122, 0.18) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(142, 90, 247, 0.12) 0%, transparent 50%);
+    radial-gradient(circle at 15% 25%, rgba(201, 165, 122, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(142, 90, 247, 0.04) 0%, transparent 50%);
   pointer-events: none;
 }
 

@@ -1,6 +1,14 @@
 const VELORA_API_URL =
   "https://velora-e-commerce-qby7.onrender.com";
 
+const VELORA_REMEMBER_KEY =
+  "velora_admin_remember";
+
+const VELORA_SESSION_KEY =
+  "velora_admin_session";
+
+const VELORA_REMEMBER_DAYS = 30;
+
 const adminAuthApi = {
   async register({
     full_name,
@@ -37,6 +45,7 @@ const adminAuthApi = {
   async login({
     email,
     password,
+    rememberMe = false,
   }) {
     const response = await fetch(
       `${VELORA_API_URL}/api/admin/auth/login`,
@@ -87,6 +96,43 @@ const adminAuthApi = {
       JSON.stringify(data.admin)
     );
 
+    if (rememberMe) {
+      const expiresAt =
+        Date.now() +
+        VELORA_REMEMBER_DAYS *
+          24 *
+          60 *
+          60 *
+          1000;
+
+      localStorage.setItem(
+        VELORA_REMEMBER_KEY,
+        "true"
+      );
+
+      localStorage.setItem(
+        VELORA_SESSION_KEY,
+        String(expiresAt)
+      );
+
+      sessionStorage.removeItem(
+        "velora_admin_session"
+      );
+    } else {
+      localStorage.removeItem(
+        VELORA_REMEMBER_KEY
+      );
+
+      localStorage.removeItem(
+        VELORA_SESSION_KEY
+      );
+
+      sessionStorage.setItem(
+        "velora_admin_session",
+        "true"
+      );
+    }
+
     return data;
   },
 
@@ -105,6 +151,18 @@ const adminAuthApi = {
 
     localStorage.removeItem(
       "admin"
+    );
+
+    localStorage.removeItem(
+      VELORA_REMEMBER_KEY
+    );
+
+    localStorage.removeItem(
+      VELORA_SESSION_KEY
+    );
+
+    sessionStorage.removeItem(
+      "velora_admin_session"
     );
   },
 
@@ -131,12 +189,61 @@ const adminAuthApi = {
     }
   },
 
-  isAuthenticated() {
-    return Boolean(
+  isRememberedSessionValid() {
+    const remember =
       localStorage.getItem(
-        "velora_admin_token"
-      )
-    );
+        VELORA_REMEMBER_KEY
+      );
+
+    const expiresAt =
+      Number(
+        localStorage.getItem(
+          VELORA_SESSION_KEY
+        )
+      );
+
+    if (
+      remember !== "true" ||
+      !expiresAt
+    ) {
+      return false;
+    }
+
+    if (Date.now() >= expiresAt) {
+      this.logout();
+      return false;
+    }
+
+    return true;
+  },
+
+  isAuthenticated() {
+    const token =
+      this.getToken();
+
+    const admin =
+      this.getAdmin();
+
+    if (!token || !admin) {
+      return false;
+    }
+
+    if (
+      this.isRememberedSessionValid()
+    ) {
+      return true;
+    }
+
+    const session =
+      sessionStorage.getItem(
+        "velora_admin_session"
+      );
+
+    if (session === "true") {
+      return true;
+    }
+
+    return false;
   },
 
   async request(
@@ -182,7 +289,6 @@ const adminAuthApi = {
 window.adminAuthApi =
   adminAuthApi;
 
-
 function showKinderValidationMessage(
   message,
   type = "error"
@@ -225,7 +331,6 @@ function showKinderValidationMessage(
     message
   );
 }
-
 
 function clearKinderValidationMessage() {
   const alertBox =
@@ -270,11 +375,12 @@ function clearKinderValidationMessage() {
     });
 }
 
-
 function markKinderFieldError(
   inputEl
 ) {
-  if (!inputEl) return;
+  if (!inputEl) {
+    return;
+  }
 
   inputEl.classList.add(
     "kinder-input-error"
@@ -299,12 +405,13 @@ function markKinderFieldError(
     );
   }
 }
-
 
 function markKinderFieldSuccess(
   inputEl
 ) {
-  if (!inputEl) return;
+  if (!inputEl) {
+    return;
+  }
 
   inputEl.classList.add(
     "kinder-input-success"
@@ -329,7 +436,6 @@ function markKinderFieldSuccess(
     );
   }
 }
-
 
 function validateKinderPassword(
   password
@@ -354,7 +460,6 @@ function validateKinderPassword(
   };
 }
 
-
 function isKinderEmailValid(
   email
 ) {
@@ -362,7 +467,6 @@ function isKinderEmailValid(
     email
   );
 }
-
 
 window.handleKinderAuthSubmit =
   async function (event) {
@@ -416,9 +520,9 @@ window.handleKinderAuthSubmit =
       passwordInput.value;
 
     let hasError = false;
+
     let firstErrorInput =
       null;
-
 
     if (!email) {
       markKinderFieldError(
@@ -459,7 +563,6 @@ window.handleKinderAuthSubmit =
         emailInput
       );
     }
-
 
     if (!password) {
       markKinderFieldError(
@@ -584,10 +687,10 @@ window.handleKinderAuthSubmit =
       );
     }
 
-
     let fullName = "";
     let confirmPassword = "";
     let termsInput = null;
+    let rememberInput = null;
     let fullNameInput = null;
     let confirmPasswordInput =
       null;
@@ -625,7 +728,6 @@ window.handleKinderAuthSubmit =
 
       confirmPassword =
         confirmPasswordInput.value;
-
 
       if (!fullName) {
         markKinderFieldError(
@@ -666,7 +768,6 @@ window.handleKinderAuthSubmit =
           fullNameInput
         );
       }
-
 
       if (!confirmPassword) {
         markKinderFieldError(
@@ -709,7 +810,6 @@ window.handleKinderAuthSubmit =
         );
       }
 
-
       if (!termsInput.checked) {
         termsInput.classList.add(
           "kinder-input-error"
@@ -739,8 +839,12 @@ window.handleKinderAuthSubmit =
           "kinder-input-success"
         );
       }
+    } else {
+      rememberInput =
+        document.getElementById(
+          "kinderRememberCheckbox"
+        );
     }
-
 
     if (hasError) {
       if (firstErrorInput) {
@@ -749,7 +853,6 @@ window.handleKinderAuthSubmit =
 
       return;
     }
-
 
     if (primaryButton) {
       primaryButton.disabled =
@@ -760,7 +863,6 @@ window.handleKinderAuthSubmit =
           ? "Creating Account..."
           : "Signing In...";
     }
-
 
     try {
       if (isSignup) {
@@ -828,6 +930,10 @@ window.handleKinderAuthSubmit =
         return;
       }
 
+      const rememberMe =
+        rememberInput
+          ? rememberInput.checked
+          : false;
 
       showKinderValidationMessage(
         "Signing in...",
@@ -839,6 +945,7 @@ window.handleKinderAuthSubmit =
           {
             email,
             password,
+            rememberMe,
           }
         );
 
@@ -899,3 +1006,112 @@ window.handleKinderAuthSubmit =
       }
     }
   };
+
+function openVeloraAuthScreen() {
+  const authScreen =
+    document.getElementById(
+      "adminAuthScreen"
+    );
+
+  if (!authScreen) {
+    return;
+  }
+
+  authScreen.style.display =
+    "flex";
+
+  document.body.classList.add(
+    "velora-auth-open"
+  );
+}
+
+function closeVeloraAuthScreen() {
+  const authScreen =
+    document.getElementById(
+      "adminAuthScreen"
+    );
+
+  if (!authScreen) {
+    return;
+  }
+
+  authScreen.style.display =
+    "none";
+
+  document.body.classList.remove(
+    "velora-auth-open"
+  );
+}
+
+function restoreVeloraAdminSession() {
+  const authScreen =
+    document.getElementById(
+      "adminAuthScreen"
+    );
+
+  if (!authScreen) {
+    return;
+  }
+
+  openVeloraAuthScreen();
+
+  const token =
+    window.adminAuthApi.getToken();
+
+  const admin =
+    window.adminAuthApi.getAdmin();
+
+  if (!token || !admin) {
+    return;
+  }
+
+  if (
+    !window.adminAuthApi.isAuthenticated()
+  ) {
+    window.adminAuthApi.logout();
+
+    openVeloraAuthScreen();
+
+    return;
+  }
+
+  closeVeloraAuthScreen();
+
+  window.dispatchEvent(
+    new CustomEvent(
+      "veloraAdminSessionRestored",
+      {
+        detail: admin,
+      }
+    )
+  );
+
+  window.dispatchEvent(
+    new CustomEvent(
+      "veloraAdminLogin",
+      {
+        detail: admin,
+      }
+    )
+  );
+}
+
+function initializeVeloraAdminSession() {
+  restoreVeloraAdminSession();
+}
+
+if (
+  document.readyState ===
+  "loading"
+) {
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeVeloraAdminSession,
+    {
+      once: true,
+    }
+  );
+} else {
+  initializeVeloraAdminSession();
+}
+

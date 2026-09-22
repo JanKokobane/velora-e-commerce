@@ -8,6 +8,91 @@
     content="Velora Store Management Dashboard — Real-time order fulfillment, revenue analytics, customer tracking, and stock inventory.">
   <title>Velora Operations — Store Management Dashboard</title>
 
+  <script>
+    (function () {
+      try {
+        var user = localStorage.getItem('velora_admin_user');
+        var session = sessionStorage.getItem('velora_admin_session_active');
+        var signout = sessionStorage.getItem('velora_explicit_signout');
+
+        var isAuth = false;
+        if (signout !== 'true') {
+          if (session === 'true') {
+            isAuth = true;
+          } else if (user) {
+            try {
+              var parsed = JSON.parse(user);
+              if (parsed && (parsed.id || parsed.email || parsed.full_name || parsed.role)) {
+                isAuth = true;
+              }
+            } catch (err) {
+              isAuth = (typeof user === 'string' && user.length > 2);
+            }
+          }
+        }
+
+        if (isAuth) {
+          document.documentElement.classList.add('velora-authenticated');
+          document.documentElement.classList.remove('velora-auth-required');
+        } else {
+          document.documentElement.classList.add('velora-auth-required');
+          document.documentElement.classList.remove('velora-authenticated');
+        }
+      } catch (e) {
+        document.documentElement.classList.add('velora-auth-required');
+      }
+    })();
+  </script>
+  <style id="velora-critical-antiflicker">
+    /* Instant Anti-Flicker Protection: Synchronously enforced before body render */
+    html.velora-authenticated #adminAuthScreen,
+    html.velora-authenticated .admin-auth-screen {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+    html.velora-authenticated #dashboardViewport,
+    html.velora-authenticated .dashboard-viewport {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    html.velora-auth-required,
+    html:not(.velora-authenticated) {
+      background-color: #060408 !important;
+    }
+    html.velora-auth-required body,
+    html:not(.velora-authenticated) body {
+      background-color: #060408 !important;
+    }
+    html.velora-auth-required #dashboardViewport,
+    html.velora-auth-required .dashboard-viewport,
+    html:not(.velora-authenticated) #dashboardViewport,
+    html:not(.velora-authenticated) .dashboard-viewport {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+    html.velora-auth-required #adminAuthScreen,
+    html.velora-auth-required .admin-auth-screen,
+    html:not(.velora-authenticated) #adminAuthScreen,
+    html:not(.velora-authenticated) .admin-auth-screen {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 99999 !important;
+    }
+  </style>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -74,11 +159,15 @@
 
     if (!window.showAuthGate) {
       window.showAuthGate = function () {
+        document.documentElement.classList.add('velora-auth-required');
+        document.documentElement.classList.remove('velora-authenticated');
+        const el = document.getElementById('adminAuthScreen');
+        if (el) el.style.setProperty('display', 'flex', 'important');
+        const dash = document.getElementById('dashboardViewport') || document.querySelector('.dashboard-viewport');
+        if (dash) dash.style.setProperty('display', 'none', 'important');
         if (typeof window._realShowAuthGate === 'function') {
           window._realShowAuthGate();
         } else {
-          const el = document.getElementById('adminAuthScreen');
-          if (el) el.style.setProperty('display', 'flex', 'important');
           window._earlyActionQueue.push(() => {
             if (typeof window._realShowAuthGate === 'function') window._realShowAuthGate();
           });
@@ -88,11 +177,36 @@
 
     if (!window.closeAuthGate) {
       window.closeAuthGate = function () {
+        try {
+          sessionStorage.setItem('velora_admin_session_active', 'true');
+          sessionStorage.removeItem('velora_explicit_signout');
+          if (!localStorage.getItem('velora_admin_user')) {
+            localStorage.setItem('velora_admin_user', JSON.stringify({
+              id: 1,
+              full_name: 'Kristina Evans',
+              email: 'kris.evans@velora.co.za',
+              role: 'Studio Director'
+            }));
+          }
+        } catch (e) {}
+
+        document.documentElement.classList.remove('velora-auth-required');
+        document.documentElement.classList.add('velora-authenticated');
+        const el = document.getElementById('adminAuthScreen');
+        if (el) {
+          el.style.setProperty('display', 'none', 'important');
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('opacity', '0', 'important');
+        }
+        const dash = document.getElementById('dashboardViewport') || document.querySelector('.dashboard-viewport');
+        if (dash) {
+          dash.style.setProperty('display', 'flex', 'important');
+          dash.style.setProperty('visibility', 'visible', 'important');
+          dash.style.setProperty('opacity', '1', 'important');
+        }
         if (typeof window._realCloseAuthGate === 'function') {
           window._realCloseAuthGate();
         } else {
-          const el = document.getElementById('adminAuthScreen');
-          if (el) el.style.setProperty('display', 'none', 'important');
           window._earlyActionQueue.push(() => {
             if (typeof window._realCloseAuthGate === 'function') window._realCloseAuthGate();
           });
@@ -258,7 +372,168 @@
 
 <body>
 
-  <div class="dashboard-viewport">
+  <!-- 0. Authentication Screen (First in DOM so login renders instantaneously without dashboard flash) -->
+  <div class="admin-auth-screen kinder-auth-theme" id="adminAuthScreen" data-component="auth">
+    <div class="kinder-auth-canvas">
+      <div class="kinder-bg-decorations" aria-hidden="true">
+        <div class="kinder-fashion-layer"></div>
+        <div class="kinder-mesh-ambient"></div>
+      </div>
+
+      <header class="kinder-top-bar">
+        <div class="kinder-brand-logo-group">
+          <div class="kinder-brand-text">
+            <span class="kinder-brand-name">VELORA .</span>
+          </div>
+        </div>
+        <div class="kinder-top-actions">
+          <button type="button" class="kinder-back-btn" id="kinderBackToDashBtn" onclick="window.closeAuthGate()"
+            style="display: none;" title="Return to Dashboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Return to Dashboard</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="kinder-main-container">
+        <section class="kinder-editorial-hero" aria-label="Velora Studio Overview">
+          <h2 class="kinder-hero-headline">High Fashion & Retail Management Orchestration</h2>
+          <p class="kinder-hero-desc">
+            Unified dispatch management, live South African ZAR settlement via Ozow & SnapScan, real-time catalog stock
+            control, and bespoke client concierge workflows.
+          </p>
+        </section>
+
+        <section class="kinder-form-wrapper" aria-label="Sign In or Register">
+          <div class="kinder-form-card" id="kinderFormCard">
+
+            <div class="kinder-mode-tabs" role="tablist">
+              <button type="button" class="kinder-tab-btn active" id="kinderTabLogin"
+                onclick="window.setKinderAuthMode('login', true)">Sign In</button>
+              <button type="button" class="kinder-tab-btn" id="kinderTabSignUp"
+                onclick="window.setKinderAuthMode('signup', true)">Create Account</button>
+            </div>
+
+            <h1 class="kinder-form-title" id="kinderAuthTitle">Welcome Back</h1>
+            <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage
+              operations.</p>
+
+            <div class="kinder-auth-alert" id="kinderAuthAlert" style="display: none;" role="alert"></div>
+
+            <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;"
+              novalidate>
+
+              <div class="kinder-field-group" id="kinderNameGroup" style="display: none;">
+                <label class="kinder-field-label" for="kinderFullName">FULL NAME</label>
+
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+
+                  <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid"
+                    autocomplete="off">
+                </div>
+              </div>
+
+              <div class="kinder-field-group">
+                <label class="kinder-field-label" for="kinderEmail">
+                  EMAIL ADDRESS
+                </label>
+
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                  </svg>
+
+                  <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za"
+                    autocomplete="off">
+                </div>
+              </div>
+
+              <div class="kinder-field-group">
+                <label class="kinder-field-label" for="kinderPassword">
+                  PASSWORD
+                </label>
+
+                <div class="kinder-password-box kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+
+                  <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••"
+                    autocomplete="new-password">
+
+                  <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle"
+                    aria-label="Toggle password visibility">
+                    <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                      </path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="kinder-field-group" id="kinderConfirmPasswordGroup" style="display: none;">
+                <label class="kinder-field-label" for="kinderConfirmPassword">
+                  CONFIRM PASSWORD
+                </label>
+
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+
+                  <input type="password" id="kinderConfirmPassword" class="kinder-underline-input"
+                    placeholder="••••••••••••" autocomplete="new-password">
+                </div>
+              </div>
+
+              <label class="kinder-checkbox-row">
+                <input type="checkbox" id="kinderTermsCheckbox" class="kinder-checkbox-input" checked>
+
+                <span class="kinder-checkbox-label-text" id="kinderTermsText">
+                  Remember me
+                </span>
+              </label>
+
+              <div class="kinder-actions-stack">
+                <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn">
+                  Sign In
+                </button>
+
+                <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn"
+                  onclick="window.toggleKinderAuthMode()">
+                  Don't have an account? Create Account
+                </button>
+              </div>
+
+            </form>
+
+            <div class="kinder-footer-text">
+              Velora Central Operations • High Fashion & Luxury Atelier, Sandton
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="dashboard-viewport" id="dashboardViewport">
     <div class="dashboard-shell">
 
       <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
@@ -504,6 +779,7 @@
               </svg>
             </button>
 
+
             <div class="admin-profile-pill" id="adminProfilePill"
               title="Authenticated Administrator — Click to switch staff profile or lock screen"
               onclick="window.showAuthGate()" style="cursor: pointer;">
@@ -515,15 +791,7 @@
                 <span class="admin-name" id="topbarAdminName">Kristina Evans</span>
                 <span class="admin-role" id="topbarAdminRole">kris.evans@velora.co.za</span>
               </div>
-              <button type="button" class="admin-signout-btn" id="adminSignOutBtn" title="Sign Out from Console"
-                onclick="event.stopPropagation(); window.adminSignOut();">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                <span>Exit</span>
-              </button>
+             
             </div>
           </div>
         </header>
@@ -1816,178 +2084,9 @@
     </div>
   </div>
 
-  <!-- 13. Authentication Component -->
-  <div class="admin-auth-screen kinder-auth-theme" id="adminAuthScreen" style="display: flex;" data-component="auth">
-    <div class="kinder-auth-canvas">
-      <div class="kinder-bg-decorations" aria-hidden="true">
-        <div class="kinder-fashion-layer"></div>
-        <div class="kinder-mesh-ambient"></div>
-      </div>
-
-      <header class="kinder-top-bar">
-        <div class="kinder-brand-logo-group">
-          <div class="kinder-brand-text">
-            <span class="kinder-brand-name">VELORA .</span>
-          </div>
-        </div>
-        <div class="kinder-top-actions">
-          <button type="button" class="kinder-back-btn" id="kinderBackToDashBtn" onclick="window.closeAuthGate()"
-            style="display: none;" title="Return to Dashboard">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span>Return to Dashboard</span>
-          </button>
-
-        </div>
-      </header>
-
-      <main class="kinder-main-container">
-        <section class="kinder-editorial-hero" aria-label="Velora Studio Overview">
-          <h2 class="kinder-hero-headline">High Fashion & Retail Management Orchestration</h2>
-          <p class="kinder-hero-desc">
-            Unified dispatch management, live South African ZAR settlement via Ozow & SnapScan, real-time catalog stock
-            control, and bespoke client concierge workflows.
-          </p>
-        </section>
-
-        <section class="kinder-form-wrapper" aria-label="Sign In or Register">
-          <div class="kinder-form-card" id="kinderFormCard">
-
-
-            <div class="kinder-mode-tabs" role="tablist">
-              <button type="button" class="kinder-tab-btn active" id="kinderTabLogin"
-                onclick="window.setKinderAuthMode('login', true)">Sign In</button>
-              <button type="button" class="kinder-tab-btn" id="kinderTabSignUp"
-                onclick="window.setKinderAuthMode('signup', true)">Create Account</button>
-            </div>
-
-            <h1 class="kinder-form-title" id="kinderAuthTitle">Welcome Back</h1>
-            <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage
-              operations.</p>
-
-            <div class="kinder-auth-alert" id="kinderAuthAlert" style="display: none;" role="alert"></div>
-
-            <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;"
-              novalidate>
-
-              <div class="kinder-field-group" id="kinderNameGroup" style="display: none;">
-                <label class="kinder-field-label" for="kinderFullName">FULL NAME</label>
-
-                <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-
-                  <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid"
-                    autocomplete="off">
-                </div>
-              </div>
-
-
-              <div class="kinder-field-group">
-                <label class="kinder-field-label" for="kinderEmail">
-                  EMAIL ADDRESS
-                </label>
-
-                <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                  </svg>
-
-                  <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za"
-                    autocomplete="off">
-                </div>
-              </div>
-
-
-              <div class="kinder-field-group">
-                <label class="kinder-field-label" for="kinderPassword">
-                  PASSWORD
-                </label>
-
-                <div class="kinder-password-box kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-
-                  <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••"
-                    autocomplete="new-password">
-
-                  <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle"
-                    aria-label="Toggle password visibility">
-                    <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path
-                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
-                      </path>
-                      <line x1="1" y1="1" x2="23" y2="23"></line>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div class="kinder-field-group" id="kinderConfirmPasswordGroup" style="display: none;">
-                <label class="kinder-field-label" for="kinderConfirmPassword">
-                  CONFIRM PASSWORD
-                </label>
-
-                <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-
-                  <input type="password" id="kinderConfirmPassword" class="kinder-underline-input"
-                    placeholder="••••••••••••" autocomplete="new-password">
-                </div>
-              </div>
-
-
-              <label class="kinder-checkbox-row">
-                <input type="checkbox" id="kinderTermsCheckbox" class="kinder-checkbox-input" checked>
-
-                <span class="kinder-checkbox-label-text" id="kinderTermsText">
-                  Remember me
-                </span>
-              </label>
-
-
-              <div class="kinder-actions-stack">
-                <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn">
-                  Sign In
-                </button>
-
-                <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn"
-                  onclick="window.toggleKinderAuthMode()">
-                  Don't have an account? Create Account
-                </button>
-              </div>
-
-            </form>
-
-            <div class="kinder-footer-text">
-              Velora Central Operations • High Fashion & Luxury Atelier, Sandton
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  </div>
-
   <div class="velora-toast-container" id="veloraToastContainer"></div>
 
   <!-- Core Modular Data & Controller Scripts -->
-  <script src="./js/ValidationAndAuth.js"></script>
   <script src="./js/data.js"></script>
   <script src="./js/currency.js"></script>
   <script src="./js/notifications.js"></script>
@@ -2001,7 +2100,9 @@
   <script src="./js/settings.js"></script>
   <script src="./js/modals.js"></script>
   <script src="./js/search.js"></script>
+  <script src="./js/auth.js"></script>
   <script src="./js/formLogic.js"></script>
+  <script src="./js/ValidationAndAuth.js"></script>
   <script src="./js/app.js"></script>
   <script src="./dashboard.js"></script>
   <script src="./js/component-renderer.js"></script>
