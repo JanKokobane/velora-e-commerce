@@ -349,7 +349,7 @@ html, body {
 .action-icon-btn {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 100px;
   border: 1px solid var(--dash-border);
   background: var(--dash-card-bg);
   display: flex;
@@ -3736,6 +3736,7 @@ body.sidebar-drawer-active {
   max-width: 440px;
   min-width: 220px;
   margin: 0 16px;
+  margin-left: 20rem;
 }
 
 .header-search-box {
@@ -3743,11 +3744,12 @@ body.sidebar-drawer-active {
   align-items: center;
   background: var(--dash-card-bg, #ffffff);
   border: 1px solid var(--dash-border, #e7e5df);
-  border-radius: 10px;
+  border-radius: 50px;
   padding: 0 12px;
   height: 40px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-be
+  ier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
