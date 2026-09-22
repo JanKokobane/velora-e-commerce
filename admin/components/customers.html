@@ -1,0 +1,92 @@
+<div id="customersMainView" style="display: none;">
+  <div class="kpi-grid" id="customersKPISection">
+    <div class="kpi-card" id="kpiCustomersTotal">
+      <div class="kpi-header">
+        <span class="kpi-title">Total Registered Clients</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiTotalCount">0</div>
+      <div class="kpi-trend positive">
+        <span>↑ +3 this week</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiCustomersVip">
+      <div class="kpi-header">
+        <span class="kpi-title">VIP Privilege Members</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiVipCount">0</div>
+      <div class="kpi-trend positive">
+        <span>High tier loyalty</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" id="kpiCustomersLtv">
+      <div class="kpi-header">
+        <span class="kpi-title">Average Lifetime Value</span>
+        <div class="kpi-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value" id="customersKpiAvgLtv">R0.00</div>
+      <div class="kpi-trend positive">
+        <span>↑ High retention</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="orders-table-card">
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Client Registry & VIP Accounts</h3>
+        <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track client profiles, VIP tiers, contact directories, and lifetime value in Rands.</p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div class="quick-search-input" style="width: 180px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="customerSearchInput" placeholder="Search clients...">
+        </div>
+        <select class="filter-select" id="customerTierFilter">
+          <option value="all">All Tiers</option>
+          <option value="VIP Privilege">VIP Privilege</option>
+          <option value="Gold Member">Gold Member</option>
+          <option value="Standard">Standard</option>
+        </select>
+        <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 7px 14px; font-size: 12.5px;" onclick="window.openNewCustomerModal()">+ Add Client</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Client Name</th>
+            <th>Contact Details</th>
+            <th>Location / City</th>
+            <th>Tier</th>
+            <th>Total Orders</th>
+            <th>Lifetime Spend</th>
+            <th>Last Active</th>
+            <th style="width: 80px;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="customersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>

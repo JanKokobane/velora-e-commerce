@@ -53,6 +53,15 @@ window.switchTab = function(tabId) {
   window.closeMobileSidebar();
 };
 
+window._realSwitchTab = window.switchTab;
+
+// Flush any queued switchTab calls from before app.js was ready
+if (Array.isArray(window._earlyActionQueue) && window._earlyActionQueue.length > 0) {
+  const queue = window._earlyActionQueue.slice();
+  window._earlyActionQueue = [];
+  queue.forEach(fn => { try { fn(); } catch (e) {} });
+}
+
 window.refreshCurrentView = function() {
   const tab = window.currentTab;
   if (tab === 'dashboard' && typeof window.renderOverviewView === 'function') {
@@ -106,10 +115,11 @@ window.closeMobileSidebar = function() {
   document.body.classList.remove('sidebar-drawer-active');
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+window.initApp = function() {
   // Mobile toggle button
   const mobileToggle = document.getElementById('mobileMenuToggle');
-  if (mobileToggle) {
+  if (mobileToggle && !mobileToggle._hasAppClickListener) {
+    mobileToggle._hasAppClickListener = true;
     mobileToggle.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -118,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const mobileBackdrop = document.getElementById('mobileSidebarBackdrop');
-  if (mobileBackdrop) {
+  if (mobileBackdrop && !mobileBackdrop._hasAppClickListener) {
+    mobileBackdrop._hasAppClickListener = true;
     mobileBackdrop.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -132,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auto-close sidebar on mobile/tablet when main content area is clicked
   const mainContent = document.querySelector('.dashboard-main');
-  if (mainContent) {
+  if (mainContent && !mainContent._hasAppClickListener) {
+    mainContent._hasAppClickListener = true;
     mainContent.addEventListener('click', (e) => {
       const sidebar = document.getElementById('dashboardSidebar');
       const toggleBtn = document.getElementById('mobileMenuToggle');
@@ -144,46 +156,53 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Auto-close if clicked anywhere outside the sidebar
-  document.addEventListener('click', (e) => {
-    const sidebar = document.getElementById('dashboardSidebar');
-    const toggleBtn = document.getElementById('mobileMenuToggle');
-    if (sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
-      if (toggleBtn && (toggleBtn === e.target || toggleBtn.contains(e.target))) return;
-      if (!sidebar.contains(e.target)) {
+  if (!window._hasAppDocClickListener) {
+    window._hasAppDocClickListener = true;
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('dashboardSidebar');
+      const toggleBtn = document.getElementById('mobileMenuToggle');
+      if (sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
+        if (toggleBtn && (toggleBtn === e.target || toggleBtn.contains(e.target))) return;
+        if (!sidebar.contains(e.target)) {
+          window.closeMobileSidebar();
+        }
+      }
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
         window.closeMobileSidebar();
       }
-    }
-  });
+    });
 
-  // Close with Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    // Close sidebar on viewport resize to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 1024) {
+        window.closeMobileSidebar();
+      }
+    });
+
+    window.addEventListener('orientationchange', () => {
       window.closeMobileSidebar();
-    }
-  });
-
-  // Close sidebar on viewport resize to desktop
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 1024) {
-      window.closeMobileSidebar();
-    }
-  });
-
-  window.addEventListener('orientationchange', () => {
-    window.closeMobileSidebar();
-  });
+    });
+  }
 
   // Bind all nav items with data-tab (they automatically close the mobile sidebar on navigation)
   document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab');
-      if (tab) window.switchTab(tab);
-    });
+    if (!btn._hasAppNavClickListener) {
+      btn._hasAppNavClickListener = true;
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        if (tab) window.switchTab(tab);
+      });
+    }
   });
 
   // Topbar notification button -> Navigate to Notifications Page
   const headerNotifBtn = document.getElementById('headerNotificationBtn');
-  if (headerNotifBtn) {
+  if (headerNotifBtn && !headerNotifBtn._hasAppNotifClickListener) {
+    headerNotifBtn._hasAppNotifClickListener = true;
     headerNotifBtn.addEventListener('click', (e) => {
       e.preventDefault();
       window.switchTab('notifications');
@@ -191,5 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initial render of default view
-  window.switchTab('dashboard');
-});
+  window.switchTab(window.currentTab || 'dashboard');
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.initApp);
+} else {
+  window.initApp();
+}

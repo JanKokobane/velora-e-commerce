@@ -16,7 +16,13 @@ window.SUPPORTED_COUNTRIES = [
 ];
 
 // Initialize country from localStorage or default to ZA
-const savedCountryCode = localStorage.getItem(window.STORAGE_KEYS.COUNTRY) || 'ZA';
+const countryStorageKey = (window.STORAGE_KEYS && window.STORAGE_KEYS.COUNTRY) || 'velora_country';
+let savedCountryCode = 'ZA';
+try {
+  savedCountryCode = localStorage.getItem(countryStorageKey) || 'ZA';
+} catch (e) {
+  savedCountryCode = 'ZA';
+}
 window.currentCountry = window.SUPPORTED_COUNTRIES.find(c => c.code === savedCountryCode) || window.SUPPORTED_COUNTRIES[0];
 
 /**
@@ -117,7 +123,8 @@ window.applyCountryCurrency = function(country, showToastAlert = true) {
   if (!country) return;
   window.currentCountry = country;
   try {
-    localStorage.setItem(window.STORAGE_KEYS.COUNTRY, country.code);
+    const cKey = (window.STORAGE_KEYS && window.STORAGE_KEYS.COUNTRY) || 'velora_country';
+    localStorage.setItem(cKey, country.code);
   } catch (e) {
     console.warn(e);
   }
@@ -233,16 +240,18 @@ window.toggleCountryDropdown = function(forceState) {
 };
 
 // Initialize event listeners for country search input
-document.addEventListener('DOMContentLoaded', () => {
+window.initCurrency = function() {
   const searchInput = document.getElementById('countrySearchInput');
-  if (searchInput) {
+  if (searchInput && !searchInput._hasCurrencyInputListener) {
+    searchInput._hasCurrencyInputListener = true;
     searchInput.addEventListener('input', (e) => {
       window.renderCountryDropdownList(e.target.value);
     });
   }
 
   const pickerBtn = document.getElementById('countryCurrencyBtn');
-  if (pickerBtn) {
+  if (pickerBtn && !pickerBtn._hasCurrencyClickListener) {
+    pickerBtn._hasCurrencyClickListener = true;
     pickerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       window.toggleCountryDropdown();
@@ -250,13 +259,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    const container = document.getElementById('countryCurrencyPickerContainer');
-    if (container && !container.contains(e.target)) {
-      window.toggleCountryDropdown(false);
-    }
-  });
+  if (!window._hasCurrencyDocClickListener) {
+    window._hasCurrencyDocClickListener = true;
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('countryCurrencyPickerContainer');
+      if (container && !container.contains(e.target)) {
+        window.toggleCountryDropdown(false);
+      }
+    });
+  }
 
   // Apply initial country
   window.applyCountryCurrency(window.currentCountry, false);
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.initCurrency);
+} else {
+  window.initCurrency();
+}

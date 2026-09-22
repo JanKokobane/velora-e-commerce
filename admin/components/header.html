@@ -1,0 +1,158 @@
+<header class="dashboard-topbar">
+  <div class="topbar-left">
+    <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <h1 class="topbar-title" id="currentViewTitle">Store Overview</h1>
+  </div>
+
+  <div class="topbar-search-container" id="topbarSearchContainer">
+    <div class="header-search-box" id="headerSearchBox">
+      <svg class="header-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="headerGlobalSearchInput" class="header-search-input" placeholder="Search orders, items, clients, pages... (⌘K)" autocomplete="off" spellcheck="false" aria-label="Global search">
+      <button type="button" class="header-search-clear-btn" id="headerSearchClearBtn" aria-label="Clear search" style="display: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="header-search-badge" id="headerSearchShortcutBadge" title="Press ⌘K or / to search">
+        <span>⌘K</span>
+      </div>
+    </div>
+
+    <div class="header-search-popover" id="headerSearchPopover" style="display: none;" role="dialog" aria-label="Search results" aria-modal="false">
+      
+      <div class="search-category-tabs" id="searchCategoryTabs">
+        <button type="button" class="search-tab-pill active" data-search-tab="all">All <span class="tab-count" id="searchCountAll">0</span></button>
+        <button type="button" class="search-tab-pill" data-search-tab="orders">Orders <span class="tab-count" id="searchCountOrders">0</span></button>
+        <button type="button" class="search-tab-pill" data-search-tab="products">Products <span class="tab-count" id="searchCountProducts">0</span></button>
+        <button type="button" class="search-tab-pill" data-search-tab="customers">Customers <span class="tab-count" id="searchCountCustomers">0</span></button>
+        <button type="button" class="search-tab-pill" data-search-tab="payments">Payments <span class="tab-count" id="searchCountPayments">0</span></button>
+        <button type="button" class="search-tab-pill" data-search-tab="pages">Navigation</button>
+      </div>
+
+      <div class="search-results-viewport" id="searchResultsViewport">
+        
+      </div>
+
+      <div class="search-popover-footer">
+        <div class="search-footer-shortcuts">
+          <span class="shortcut-item"><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+          <span class="shortcut-item"><kbd>↵</kbd> Select</span>
+          <span class="shortcut-item"><kbd>ESC</kbd> Close</span>
+        </div>
+        <div class="search-footer-brand">
+          <span>Velora Operations</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    
+    <div class="country-currency-picker-container" id="countryCurrencyPickerContainer">
+      <button type="button" class="country-currency-btn" id="countryCurrencyBtn" aria-label="Select Country and Currency" aria-haspopup="true" aria-expanded="false" title="Change country & currency">
+        <span class="country-flag-icon" id="headerSelectedFlag">🇿🇦</span>
+        <span class="country-code-pill" id="headerSelectedCode">ZAR</span>
+        <svg class="dropdown-arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <div class="country-dropdown-popover" id="countryCurrencyDropdown" style="display: none;" role="menu">
+        <div class="country-popover-header">
+          <div class="country-popover-title">Store Country & Currency</div>
+          <div class="country-popover-subtitle">Select a country to convert all store prices and reports</div>
+          <div class="country-search-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="countrySearchInput" placeholder="Search country, currency..." autocomplete="off">
+          </div>
+        </div>
+        <div class="country-options-list" id="countryDropdownList">
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="notification-center-container" id="notificationCenterContainer">
+      <button type="button" class="action-icon-btn" id="headerNotificationBtn" title="Notifications" aria-label="Notifications" onclick="window.switchTab('notifications')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge-count" id="headerNotificationCount">4</span>
+      </button>
+    </div>
+
+    <button type="button" class="action-icon-btn mobile-search-toggle-btn" id="mobileSearchToggleBtn" title="Search Orders, Catalog, Clients (⌘K)" aria-label="Open search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+
+    <div class="admin-profile-pill" id="adminProfilePill" title="Authenticated Administrator — Click to switch staff profile or lock screen" onclick="window.showAuthGate()" style="cursor: pointer;">
+      <img class="admin-avatar" id="topbarAdminAvatar" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Kristina Evans">
+      <div class="admin-info">
+        <span class="admin-name" id="topbarAdminName">Kristina Evans</span>
+        <span class="admin-role" id="topbarAdminRole">kris.evans@velora.co.za</span>
+      </div>
+      <button type="button" class="admin-signout-btn" id="adminSignOutBtn" title="Sign Out from Console" onclick="event.stopPropagation(); window.adminSignOut();">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Exit</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="filter-bar" id="mainFilterBar" style="display: none;">
+  <div class="filter-left-group">
+    <select class="filter-select" id="statusFilterSelect">
+      <option value="all">Any status</option>
+      <option value="paid">Paid</option>
+      <option value="delivered">Delivered</option>
+      <option value="completed">Completed</option>
+      <option value="transit">In Transit</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+
+    <select class="filter-select" id="priceFilterSelect">
+      <option value="all">Any amount</option>
+      <option value="100-1500" id="filterOptMid">R100 – R1,500</option>
+      <option value="under-500" id="filterOptLow">Under R500</option>
+      <option value="above-1500" id="filterOptHigh">Above R1,500</option>
+    </select>
+
+    <div class="quick-search-input">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="orderSearchInput" placeholder="Search order, customer...">
+    </div>
+  </div>
+
+  <div class="filter-right-group">
+    <select class="filter-select" id="sortFilterSelect">
+      <option value="date-desc">Sort by Date (Newest)</option>
+      <option value="date-asc">Sort by Date (Oldest)</option>
+      <option value="total-desc">Sort by Amount (Highest)</option>
+      <option value="total-asc">Sort by Amount (Lowest)</option>
+    </select>
+  </div>
+</div>

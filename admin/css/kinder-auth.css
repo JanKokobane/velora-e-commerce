@@ -1,20 +1,24 @@
+/* ====================================================================
+   Velora Luxury Atelier — High Fashion Studio Operations Auth Theme
+   Full-screen Photographic Backdrop & Frosted Glass Form Card
+   ==================================================================== */
+
 .admin-auth-screen.kinder-auth-theme {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 99999;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
   min-height: 100vh;
   min-height: 100dvh;
   width: 100vw;
-  background:
-    linear-gradient(135deg, rgba(16, 12, 28, 0.72) 0%, rgba(28, 18, 48, 0.62) 45%, rgba(12, 8, 22, 0.88) 100%),
-    url('../images/authBackground.png') center center / cover no-repeat fixed;
+  background-color: #0b0a10;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .admin-auth-screen.kinder-auth-theme.auth-hidden,
@@ -36,9 +40,9 @@
   flex-direction: column;
 }
 
-/* Background High-Fashion Editorial Photography Layer */
+/* Full-Screen Photographic Atelier Backdrop Layer */
 .kinder-bg-decorations {
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
@@ -50,81 +54,364 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  background:
-    linear-gradient(to right, rgba(14, 10, 24, 0.45) 0%, rgba(22, 14, 38, 0.28) 42%, rgba(13, 8, 22, 0.78) 100%),
-    url('../images/authBackground.png') center center / cover no-repeat;
+  background-image:
+    linear-gradient(135deg, rgba(10, 8, 16, 0.82) 0%, rgba(18, 14, 25, 0.68) 45%, rgba(10, 8, 15, 0.88) 100%),
+    url('../images/authBackground.jpg'),
+    url('./images/authBackground.jpg'),
+    url('/admin/images/authBackground.jpg');
   background-size: cover;
   background-position: center center;
-  opacity: 1;
+  background-repeat: no-repeat;
+  filter: saturate(1.1) brightness(0.95);
+  transform: scale(1.02);
+  transition: transform 12s ease-out;
 }
 
-/* Main Workspace: Center-Right Positioning for Frosted Glass Card */
+.kinder-mesh-ambient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(201, 165, 122, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(142, 90, 247, 0.12) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Top Floating Brand Navigation Bar */
+.kinder-top-bar {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kinder-brand-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kinder-brand-monogram {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2b2738 0%, #151221 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e5d7c3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.kinder-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.kinder-brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.kinder-brand-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #c9a57a;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.kinder-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kinder-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kinder-back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.kinder-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(20, 16, 28, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 7px 14px;
+  border-radius: 9999px;
+  color: #e5e7eb;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.kinder-status-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  animation: pulseGreen 2s infinite ease-in-out;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* Split Main Container */
 .kinder-main-container {
   position: relative;
   z-index: 10;
   flex: 1;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  justify-content: flex-end;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
-  padding: 40px 80px;
+  gap: 60px;
+  padding: 10px 48px 48px;
 }
 
-/* Luxury Frosted Card */
-.kinder-form-card {
-  width: 100%;
-  max-width: 470px;
+/* Left Editorial Storytelling Column */
+.kinder-editorial-hero {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-radius: 26px;
-  padding: 38px 36px 32px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 30px 70px -15px rgba(12, 6, 24, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding-right: 20px;
 }
 
-/* Top Brand Row */
+.kinder-hero-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #c9a57a;
+  background: rgba(201, 165, 122, 0.14);
+  border: 1px solid rgba(201, 165, 122, 0.3);
+  padding: 6px 14px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.kinder-hero-headline {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 18px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+.kinder-hero-desc {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #d1d5db;
+  margin: 0 0 32px;
+  max-width: 580px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Highlights Pillars */
+.kinder-hero-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.kinder-pillar-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(26, 22, 36, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 18px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  max-width: 540px;
+}
+
+.kinder-pillar-item:hover {
+  background: rgba(36, 30, 50, 0.7);
+  border-color: rgba(201, 165, 122, 0.4);
+  transform: translateX(4px);
+}
+
+.kinder-pillar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(201, 165, 122, 0.18);
+  color: #e5d7c3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kinder-pillar-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.kinder-pillar-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.kinder-pillar-sub {
+  font-size: 11.5px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* Quick Access Workstation Cards in Hero */
+.kinder-hero-demo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kinder-hero-demo-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #9ca3af;
+}
+
+.kinder-hero-staff-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kinder-staff-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(18, 14, 25, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 6px 14px 6px 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ffffff;
+  font-family: inherit;
+}
+
+.kinder-staff-card:hover {
+  background: rgba(40, 32, 54, 0.9);
+  border-color: #c9a57a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.kinder-staff-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.kinder-staff-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.kinder-staff-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.kinder-staff-role {
+  font-size: 10px;
+  color: #c9a57a;
+  font-weight: 500;
+}
+
+/* Right Column: Luxury Frosted Card */
+.kinder-form-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.kinder-form-card {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: 24px;
+  padding: 36px 36px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 24px 64px -12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* Card Brand & Status Row */
 .kinder-card-brand-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
   margin-bottom: 20px;
-}
-
-.kinder-back-btn {
-  background: transparent;
-  border: 1px solid #d1d5db;
-  border-radius: 9999px;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #4b5563;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.kinder-back-btn:hover {
-  background: #15181b;
-  color: #ffffff;
-  border-color: #15181b;
 }
 
 .kinder-card-badge {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: rgba(201, 165, 122, 0.18);
-  color: #8c6738;
+  background: rgba(201, 165, 122, 0.16);
+  color: #7b582b;
   padding: 5px 12px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -133,16 +420,29 @@
   height: 7px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
 }
 
-.kinder-portal-mode {
-  font-size: 11.5px;
+.kinder-card-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: none;
+  font-size: 13px;
   color: #6b7280;
-  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
-/* Segmented Mode Tabs: Sign In / Sign Up */
+.kinder-card-close-btn:hover {
+  background: #111827;
+  color: #ffffff;
+}
+
+/* Segmented Mode Tabs: Sign In / Create Account */
 .kinder-mode-tabs {
   display: flex;
   background: #f3f4f6;
@@ -154,13 +454,13 @@
 
 .kinder-tab-btn {
   flex: 1;
-  padding: 9px 16px;
+  padding: 10px 16px;
   border: none;
   background: transparent;
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   color: #4b5563;
   border-radius: 9px;
   cursor: pointer;
@@ -172,14 +472,14 @@
 }
 
 .kinder-tab-btn.active {
-  background: #15181b;
+  background: #14121d;
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Titles */
+/* Headings */
 .kinder-form-title {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #111827;
@@ -196,11 +496,11 @@
 
 /* Inline Feedback Alert */
 .kinder-auth-alert {
-  padding: 10px 14px;
+  padding: 11px 14px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -223,7 +523,7 @@
 .kinder-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .kinder-field-group {
@@ -233,8 +533,14 @@
   position: relative;
 }
 
+.kinder-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .kinder-field-label {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -242,49 +548,78 @@
   margin: 0;
 }
 
+.kinder-forgot-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c9a57a;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.kinder-forgot-hint:hover {
+  color: #a07849;
+  text-decoration: underline;
+}
+
+/* Modern Input Wrapper with Left SVG Icon */
+.kinder-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.kinder-input-wrapper:focus-within {
+  border-color: #14121d;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(20, 18, 29, 0.08);
+}
+
+.kinder-input-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.kinder-input-wrapper:focus-within .kinder-input-icon {
+  color: #14121d;
+}
+
 .kinder-underline-input {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 2px solid #d1d5db;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 500;
   color: #111827;
-  padding: 8px 0 10px;
+  padding: 11px 12px 11px 38px;
   outline: none;
-  transition: border-color 0.2s ease;
 }
 
 .kinder-underline-input::placeholder {
-  font-style: normal;
   color: #9ca3af;
+  font-weight: 400;
 }
 
-.kinder-underline-input:focus {
-  border-bottom-color: #15181b;
-}
-
-/* Password eye toggle wrapper */
-.kinder-password-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
+/* Password Eye Toggle */
 .kinder-password-box .kinder-underline-input {
-  padding-right: 36px;
+  padding-right: 42px;
 }
 
 .kinder-eye-toggle {
   position: absolute;
-  right: 0;
-  bottom: 8px;
+  right: 8px;
   background: transparent;
   border: none;
   color: #6b7280;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,7 +645,7 @@
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid #9ca3af;
+  border: 1.5px solid #9ca3af;
   border-radius: 4px;
   background: #ffffff;
   cursor: pointer;
@@ -322,26 +657,26 @@
 }
 
 .kinder-checkbox-input:checked {
-  background: #15181b;
-  border-color: #15181b;
+  background: #14121d;
+  border-color: #14121d;
 }
 
 .kinder-checkbox-input:checked::before {
   content: "";
-  width: 10px;
-  height: 6px;
+  width: 9px;
+  height: 5px;
   border-left: 2px solid #ffffff;
   border-bottom: 2px solid #ffffff;
   transform: rotate(-45deg) translate(1px, -1px);
 }
 
 .kinder-checkbox-label-text {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #4b5563;
 }
 
-/* Action Buttons Stack */
+/* Actions Stack */
 .kinder-actions-stack {
   display: flex;
   flex-direction: column;
@@ -351,7 +686,7 @@
 
 .kinder-btn-solid {
   width: 100%;
-  background: #15181b;
+  background: #14121d;
   color: #ffffff;
   border: none;
   font-family: inherit;
@@ -361,16 +696,16 @@
   padding: 13px 24px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(21, 24, 27, 0.25);
+  box-shadow: 0 4px 16px rgba(20, 18, 29, 0.25);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .kinder-btn-solid:hover {
-  background: #2b3036;
+  background: #252233;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(21, 24, 27, 0.35);
+  box-shadow: 0 6px 20px rgba(20, 18, 29, 0.35);
 }
 
 .kinder-btn-solid:active {
@@ -391,13 +726,13 @@
 }
 
 .kinder-btn-switch:hover {
-  color: #15181b;
+  color: #14121d;
   text-decoration: underline;
 }
 
-/* Quick Fill Admin Chips */
+/* Quick Fill Bar */
 .kinder-quick-fill-bar {
-  margin-top: 24px;
+  margin-top: 20px;
   padding: 12px 14px;
   background: #f9fafb;
   border-radius: 12px;
@@ -408,11 +743,11 @@
 }
 
 .kinder-quick-fill-title {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #4b5563;
+  letter-spacing: 0.08em;
+  color: #6b7280;
 }
 
 .kinder-quick-chips {
@@ -431,17 +766,18 @@
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .kinder-chip-btn:hover {
-  background: #15181b;
+  background: #14121d;
   color: #ffffff;
-  border-color: #15181b;
+  border-color: #14121d;
 }
 
 /* Footer Tagline */
 .kinder-footer-text {
-  margin-top: 16px;
+  margin-top: 18px;
   font-size: 11.5px;
   color: #9ca3af;
   text-align: center;
@@ -456,32 +792,72 @@
 /* --------------------------------------------------------------------------
    Responsive Mobile & Tablet Adjustments
    -------------------------------------------------------------------------- */
-@media (max-width: 992px) {
+@media (max-width: 1080px) {
   .kinder-main-container {
-    padding: 24px 32px;
-    justify-content: center;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 10px 32px 36px;
   }
-  .kinder-fashion-layer {
-    background:
-      linear-gradient(to bottom, rgba(14, 10, 24, 0.45) 0%, rgba(13, 8, 22, 0.85) 100%),
-      url('../images/authBackground.png') center center / cover no-repeat;
+
+  .kinder-editorial-hero {
+    text-align: center;
+    align-items: center;
+    padding-right: 0;
+  }
+
+  .kinder-hero-tag {
+    align-self: center;
+  }
+
+  .kinder-hero-desc {
+    max-width: 100%;
+  }
+
+  .kinder-hero-pillars {
+    width: 100%;
+    align-items: center;
+  }
+
+  .kinder-pillar-item {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .kinder-hero-staff-cards {
+    justify-content: center;
   }
 }
 
 @media (max-width: 640px) {
-  .kinder-main-container {
-    padding: 16px 16px 28px;
+  .kinder-top-bar {
+    padding: 16px 20px;
   }
+
+  .kinder-brand-sub {
+    display: none;
+  }
+
+  .kinder-main-container {
+    padding: 10px 16px 32px;
+  }
+
+  .kinder-editorial-hero {
+    display: none; /* Keep mobile focused directly on the luxury login card */
+  }
+
   .kinder-form-card {
-    padding: 28px 20px 24px;
+    padding: 28px 22px 24px;
     border-radius: 20px;
   }
+
   .kinder-form-title {
-    font-size: 26px;
+    font-size: 24px;
   }
+
   .kinder-quick-chips {
     flex-direction: column;
   }
+
   .kinder-chip-btn {
     text-align: left;
     width: 100%;

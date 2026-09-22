@@ -1,0 +1,148 @@
+<div class="dash-modal-backdrop" id="newProductModal">
+  <div class="dash-modal">
+    <div class="dash-modal-header">
+      <h3>Add New Studio Product</h3>
+      <button type="button" class="drawer-close-btn" onclick="window.closeNewProductModal()">✕</button>
+    </div>
+    <form id="newProductForm">
+      <div class="dash-modal-body">
+        <div class="form-group">
+          <label for="newProdTitle">Product Title</label>
+          <input type="text" id="newProdTitle" class="form-control" placeholder="e.g. Minimalist cardholder" required>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <div class="form-group" style="flex: 1;">
+            <label for="newProdPrice">Price (R / ZAR)</label>
+            <input type="number" id="newProdPrice" class="form-control" placeholder="450" required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="newProdCategory">Category</label>
+            <select id="newProdCategory" class="form-control">
+              <option value="Bags">Bags</option>
+              <option value="Apparel">Apparel</option>
+              <option value="Footwear">Footwear</option>
+              <option value="Objects">Objects</option>
+              <option value="Hardware">Hardware</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="newProdStock">Initial Stock Quantity</label>
+          <input type="number" id="newProdStock" class="form-control" value="15" required>
+        </div>
+        <div class="form-group">
+          <label for="newProdImage">Image URL</label>
+          <input type="url" id="newProdImage" class="form-control" placeholder="https://images.pexels.com/..." value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
+        </div>
+      </div>
+      <div class="dash-modal-footer">
+        <button type="button" class="drawer-btn" style="background: #eee;" onclick="window.closeNewProductModal()">Cancel</button>
+        <button type="submit" class="drawer-btn drawer-btn-dark">Save to Catalog</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="dash-modal-backdrop" id="newCustomerModal">
+  <div class="dash-modal">
+    <div class="dash-modal-header">
+      <h3>Add New Velora Client</h3>
+      <button type="button" class="drawer-close-btn" onclick="window.closeNewCustomerModal()">✕</button>
+    </div>
+    <form id="newCustomerForm">
+      <div class="dash-modal-body">
+        <div class="form-group">
+          <label for="newCustName">Client Full Name</label>
+          <input type="text" id="newCustName" class="form-control" placeholder="e.g. Siyabonga Ndlovu" required>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <div class="form-group" style="flex: 1;">
+            <label for="newCustEmail">Email Address</label>
+            <input type="email" id="newCustEmail" class="form-control" placeholder="client@example.co.za" required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="newCustPhone">Mobile Phone</label>
+            <input type="tel" id="newCustPhone" class="form-control" placeholder="+27 82 123 4567" required>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <div class="form-group" style="flex: 1;">
+            <label for="newCustCity">City / Province</label>
+            <input type="text" id="newCustCity" class="form-control" placeholder="Johannesburg, GP" required>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="newCustTier">Client Tier</label>
+            <select id="newCustTier" class="form-control">
+              <option value="VIP Privilege">VIP Privilege</option>
+              <option value="Gold Member">Gold Member</option>
+              <option value="Standard">Standard</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="newCustInitialSpend">Initial Order Value (R)</label>
+          <input type="number" id="newCustInitialSpend" class="form-control" placeholder="850" value="0">
+        </div>
+      </div>
+      <div class="dash-modal-footer">
+        <button type="button" class="drawer-btn" style="background: #eee;" onclick="window.closeNewCustomerModal()">Cancel</button>
+        <button type="submit" class="drawer-btn drawer-btn-dark">Register Client</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="dash-modal-backdrop" id="paymentReceiptModal">
+  <div class="dash-modal" style="max-width: 480px;">
+    <div class="dash-modal-header">
+      <h3>Payment Settlement Receipt</h3>
+      <button type="button" class="drawer-close-btn" onclick="window.closePaymentReceiptModal()">✕</button>
+    </div>
+    <div class="dash-modal-body" id="paymentReceiptContent">
+      <div class="receipt-card">
+        <div class="receipt-header">
+          <div class="receipt-status-pill" id="receiptStatusPill">Settled</div>
+          <div class="receipt-ref-code" id="receiptRefCode">PAY-ZA-000000</div>
+        </div>
+
+        <div class="receipt-details-list">
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Order Reference:</span>
+            <span class="receipt-detail-value" id="receiptOrderId">#000000</span>
+          </div>
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Timestamp:</span>
+            <span class="receipt-detail-value" id="receiptTimestamp">--</span>
+          </div>
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Customer:</span>
+            <span class="receipt-detail-value" id="receiptCustomer">--</span>
+          </div>
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Payment Gateway:</span>
+            <span class="receipt-detail-value" id="receiptGateway">Ozow Instant EFT</span>
+          </div>
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Settlement Bank:</span>
+            <span class="receipt-detail-value" id="receiptBank">Standard Bank of SA</span>
+          </div>
+          <div class="receipt-detail-row receipt-total-row">
+            <span class="receipt-detail-label">Gross Amount:</span>
+            <span class="receipt-detail-value" id="receiptGrossAmount">R0.00</span>
+          </div>
+          <div class="receipt-detail-row">
+            <span class="receipt-detail-label">Gateway Fee (est.):</span>
+            <span class="receipt-detail-value" id="receiptFeeAmount">-R0.00</span>
+          </div>
+          <div class="receipt-detail-row receipt-net-row">
+            <span class="receipt-detail-label">Net Settlement:</span>
+            <span class="receipt-detail-value receipt-net-value" id="receiptNetAmount">R0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-modal-footer">
+      <button type="button" class="drawer-btn drawer-btn-dark" onclick="window.closePaymentReceiptModal()">Done</button>
+    </div>
+  </div>
+</div>

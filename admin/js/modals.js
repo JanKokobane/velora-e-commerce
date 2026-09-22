@@ -23,10 +23,11 @@ window.closeNewCustomerModal = function() {
   if (modal) modal.classList.remove('open');
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+window.initModals = function() {
   // New Product Form Submission
   const prodForm = document.getElementById('newProductForm');
-  if (prodForm) {
+  if (prodForm && !prodForm._hasModalsSubmitListener) {
+    prodForm._hasModalsSubmitListener = true;
     prodForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -70,7 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // New Customer Form Submission
   const custForm = document.getElementById('newCustomerForm');
-  if (custForm) {
+  if (custForm && !custForm._hasModalsSubmitListener) {
+    custForm._hasModalsSubmitListener = true;
     custForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -118,10 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close modals on backdrop click
   document.querySelectorAll('.dash-modal-backdrop').forEach(modalEl => {
-    modalEl.addEventListener('click', (e) => {
-      if (e.target === modalEl) {
-        modalEl.classList.remove('open');
-      }
-    });
+    if (!modalEl._hasBackdropClickListener) {
+      modalEl._hasBackdropClickListener = true;
+      modalEl.addEventListener('click', (e) => {
+        if (e.target === modalEl) {
+          modalEl.classList.remove('open');
+        }
+      });
+    }
   });
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.initModals);
+} else {
+  window.initModals();
+}

@@ -1,0 +1,276 @@
+<div id="settingsMainView" style="display: none;">
+  <section class="settings-section" id="settingsPageComponent">
+    
+    <div class="settings-header-bar">
+      <div>
+        <h3 class="settings-page-title">Operations & Studio Settings</h3>
+        <p class="settings-page-subtitle">Configure South African retail parameters, currency settlement, courier rates, and security controls.</p>
+      </div>
+      <div class="settings-header-actions">
+        <button type="button" class="settings-btn settings-btn-outline" onclick="window.resetSettingsDefaults()">Reset Defaults</button>
+        <button type="button" class="settings-btn settings-btn-dark" id="saveSettingsBtn" onclick="window.saveStudioSettings()">Save Configuration</button>
+      </div>
+    </div>
+
+    <form id="studioSettingsForm" onsubmit="event.preventDefault(); window.saveStudioSettings();">
+      <div class="settings-grid">
+        
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Studio Identity & Operations</h4>
+              <p class="settings-card-desc">Public store details, client support desk, and headquarter address.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-field-group">
+              <label class="settings-label" for="settingStoreName">Studio Store Name</label>
+              <input type="text" id="settingStoreName" class="settings-input" value="VELORA E-Commerce Studio">
+            </div>
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingSupportEmail">Support Desk Email</label>
+                <input type="email" id="settingSupportEmail" class="settings-input" value="studio@velora.co.za">
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingPhone">Dispatch Hotline</label>
+                <input type="tel" id="settingPhone" class="settings-input" value="+27 11 883 0000">
+              </div>
+            </div>
+            <div class="settings-field-group">
+              <label class="settings-label" for="settingAddress">Studio Headquarters (Physical Address)</label>
+              <input type="text" id="settingAddress" class="settings-input" value="Nelson Mandela Square, Sandton, Johannesburg, 2196, South Africa">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Currency & Tax Compliance</h4>
+              <p class="settings-card-desc">SARS Value Added Tax (VAT) rate, base currency, and price display options.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingCurrency">Operational Base Currency</label>
+                <select id="settingCurrency" class="settings-select">
+                  <option value="ZAR" selected>ZAR - South African Rand (R)</option>
+                  <option value="USD">USD - US Dollar ($)</option>
+                  <option value="GBP">GBP - British Pound (£)</option>
+                  <option value="EUR">EUR - Euro (€)</option>
+                  <option value="NAD">NAD - Namibian Dollar (N$)</option>
+                  <option value="BWP">BWP - Botswana Pula (P)</option>
+                  <option value="AUD">AUD - Australian Dollar (A$)</option>
+                  <option value="AED">AED - UAE Dirham (AED)</option>
+                </select>
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingVatRate">South Africa VAT Rate (%)</label>
+                <input type="number" id="settingVatRate" class="settings-input" value="15" min="0" max="30">
+              </div>
+            </div>
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingVatNumber">SARS VAT Registration No.</label>
+                <input type="text" id="settingVatNumber" class="settings-input" value="4890284910">
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingInvoicePrefix">Invoice Reference Prefix</label>
+                <input type="text" id="settingInvoicePrefix" class="settings-input" value="VEL-ZA-">
+              </div>
+            </div>
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-title">Include 15% VAT in catalog retail prices</div>
+                <div class="settings-toggle-subtitle">Complies with South African CPA price display guidelines.</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingVatInclusive" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Payment Gateways & SnapScan</h4>
+              <p class="settings-card-desc">Enable or disable checkout settlement methods.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-title">Ozow Instant EFT</div>
+                <div class="settings-toggle-subtitle">Zero card fee direct EFT via FNB, Capitec, Standard Bank, Nedbank & ABSA.</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingGatewayOzow" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-title">SnapScan QR Mobile Checkout</div>
+                <div class="settings-toggle-subtitle">Scan-to-pay mobile QR code settlement with instant confirmation.</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingGatewaySnapScan" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-title">Visa / Mastercard 3D Secure 2.0</div>
+                <div class="settings-toggle-subtitle">Card processing with automated fraud screening and tokenization.</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingGatewayCards" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-toggle-row">
+              <div>
+                <div class="settings-toggle-title">Apple Pay & Google Pay</div>
+                <div class="settings-toggle-subtitle">One-touch biometric authorization on supported mobile and web devices.</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingGatewayApplePay" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 3h15v13H1z"></path>
+                <path d="M16 8h4l3 3v5h-7V8z"></path>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Logistics & Nationwide Courier</h4>
+              <p class="settings-card-desc">Delivery rates, automated waybills, and free shipping limits.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingCourierPartner">Preferred Courier Partner</label>
+                <select id="settingCourierPartner" class="settings-select">
+                  <option value="The Courier Guy" selected>The Courier Guy (Locker & Door-to-Door)</option>
+                  <option value="DHL Express SA">DHL Express South Africa</option>
+                  <option value="Velora Studio Courier">Velora Dedicated Studio Dispatch</option>
+                </select>
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingStandardShipping">Standard Delivery Fee (<span class="current-curr-code">ZAR</span>)</label>
+                <input type="number" id="settingStandardShipping" class="settings-input" value="150">
+              </div>
+            </div>
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingExpressShipping">Express Same-Day Fee (Gauteng)</label>
+                <input type="number" id="settingExpressShipping" class="settings-input" value="280">
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingFreeShippingThreshold">Free Delivery Threshold (<span class="current-curr-code">ZAR</span>)</label>
+                <input type="number" id="settingFreeShippingThreshold" class="settings-input" value="1500">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Inventory Alerts & Thresholds</h4>
+              <p class="settings-card-desc">Automated studio alerts when physical catalog stock drops.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingLowStockThreshold">Low Stock Warning Trigger (Units)</label>
+                <input type="number" id="settingLowStockThreshold" class="settings-input" value="5" min="1" max="50">
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingAutoDraftWaybill">Auto-Generate Courier Waybills</label>
+                <select id="settingAutoDraftWaybill" class="settings-select">
+                  <option value="enabled" selected>Enabled on 'Paid' Status</option>
+                  <option value="manual">Manual Studio Dispatch Only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div>
+              <h4 class="settings-card-title">Security & Session Controls</h4>
+              <p class="settings-card-desc">Authentication timeout and active operator profile.</p>
+            </div>
+          </div>
+          <div class="settings-card-body">
+            <div class="settings-field-row">
+              <div class="settings-field-group">
+                <label class="settings-label">Active Operator Profile</label>
+                <input type="text" class="settings-input" value="Kristina Evans (Studio Director)" disabled>
+              </div>
+              <div class="settings-field-group">
+                <label class="settings-label" for="settingSessionTimeout">Idle Session Timeout</label>
+                <select id="settingSessionTimeout" class="settings-select">
+                  <option value="30">30 minutes</option>
+                  <option value="60" selected>60 minutes</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>

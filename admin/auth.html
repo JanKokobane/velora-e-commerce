@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Velora Luxury Atelier — Studio Operations & Staff Authentication">
+  <title>Velora Operations — Staff Authentication</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/kinder-auth.css">
+  <style>
+    
+    #adminAuthScreen {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: relative !important;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-auth-screen kinder-auth-theme" id="adminAuthScreen">
+    <div class="kinder-auth-canvas">
+
+      <div class="kinder-bg-decorations" aria-hidden="true">
+        <div class="kinder-fashion-layer"></div>
+        <div class="kinder-mesh-ambient"></div>
+      </div>
+
+      <header class="kinder-top-bar">
+        <div class="kinder-brand-logo-group">
+          <div class="kinder-brand-monogram">V</div>
+          <div class="kinder-brand-text">
+            <span class="kinder-brand-name">VELORA</span>
+            <span class="kinder-brand-sub">OPERATIONS ATELIER</span>
+          </div>
+        </div>
+        <div class="kinder-top-actions">
+          <a href="./index.html" class="kinder-back-btn" id="kinderBackToDashBtn" style="text-decoration: none; display: inline-flex;" title="Return to Dashboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>Return to Dashboard</span>
+          </a>
+          <span class="kinder-status-indicator">
+            <span class="kinder-status-pulse"></span>
+            <span id="kinderPortalModeLabel">Sandton Studio Live</span>
+          </span>
+        </div>
+      </header>
+
+      <main class="kinder-main-container">
+
+        <section class="kinder-editorial-hero" aria-label="Velora Studio Overview">
+          <div class="kinder-hero-tag">ATELIER OPERATIONAL CONSOLE</div>
+          <h1 class="kinder-hero-headline">High Fashion & Retail Management Orchestration</h1>
+          <p class="kinder-hero-desc">
+            Unified dispatch management, live South African ZAR settlement via Ozow & SnapScan, real-time catalog stock control, and bespoke client concierge workflows.
+          </p>
+
+          <div class="kinder-hero-pillars">
+            <div class="kinder-pillar-item">
+              <div class="kinder-pillar-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+              </div>
+              <div class="kinder-pillar-text">
+                <span class="kinder-pillar-title">SARS VAT 15% Compliant</span>
+                <span class="kinder-pillar-sub">Automated South African invoice settlement</span>
+              </div>
+            </div>
+
+            <div class="kinder-pillar-item">
+              <div class="kinder-pillar-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="kinder-pillar-text">
+                <span class="kinder-pillar-title">Ozow & SnapScan Gateway</span>
+                <span class="kinder-pillar-sub">Zero-friction instant EFT and QR settlement</span>
+              </div>
+            </div>
+
+            <div class="kinder-pillar-item">
+              <div class="kinder-pillar-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="kinder-pillar-text">
+                <span class="kinder-pillar-title">The Courier Guy Sync</span>
+                <span class="kinder-pillar-sub">Real-time nationwide waybill dispatch</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kinder-hero-demo-section">
+            <span class="kinder-hero-demo-title">QUICK ACCESS WORKSTATION PROFILES:</span>
+            <div class="kinder-hero-staff-cards">
+              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('kris')" title="Sign in as Kristina Evans">
+                <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Kristina" class="kinder-staff-avatar">
+                <div class="kinder-staff-info">
+                  <span class="kinder-staff-name">Kristina Evans</span>
+                  <span class="kinder-staff-role">Store Director</span>
+                </div>
+              </button>
+
+              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('thabo')" title="Sign in as Thabo Ndlovu">
+                <img src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Thabo" class="kinder-staff-avatar">
+                <div class="kinder-staff-info">
+                  <span class="kinder-staff-name">Thabo Ndlovu</span>
+                  <span class="kinder-staff-role">Logistics Lead</span>
+                </div>
+              </button>
+
+              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('lerato')" title="Sign in as Lerato Khumalo">
+                <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Lerato" class="kinder-staff-avatar">
+                <div class="kinder-staff-info">
+                  <span class="kinder-staff-name">Lerato Khumalo</span>
+                  <span class="kinder-staff-role">Client Concierge</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="kinder-form-wrapper" aria-label="Sign In or Register">
+          <div class="kinder-form-card" id="kinderFormCard">
+
+            <div class="kinder-card-brand-row">
+              <span class="kinder-card-badge">
+                <span class="kinder-badge-dot"></span>
+                <span>Authorized Operator</span>
+              </span>
+              <a href="./index.html" class="kinder-card-close-btn" title="Back to Dashboard" style="text-decoration: none;">✕</a>
+            </div>
+
+            <div class="kinder-mode-tabs" role="tablist">
+              <button type="button" class="kinder-tab-btn active" id="kinderTabLogin" onclick="window.setKinderAuthMode('login', true)">Sign In</button>
+              <button type="button" class="kinder-tab-btn" id="kinderTabSignUp" onclick="window.setKinderAuthMode('signup', true)">Create Account</button>
+            </div>
+
+            <div class="kinder-form-title" id="kinderAuthTitle">Welcome Back</div>
+            <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage operations.</p>
+
+            <div class="kinder-auth-alert" id="kinderAuthAlert" style="display: none;" role="alert"></div>
+
+            <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;" novalidate>
+              
+              <div class="kinder-field-group" id="kinderNameGroup" style="display: none;">
+                <label class="kinder-field-label" for="kinderFullName">FULL NAME</label>
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid" autocomplete="name">
+                </div>
+              </div>
+
+              <div class="kinder-field-group">
+                <label class="kinder-field-label" for="kinderEmail">EMAIL ADDRESS</label>
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                  </svg>
+                  <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za" value="kris.evans@velora.co.za" autocomplete="email" required>
+                </div>
+              </div>
+
+              <div class="kinder-field-group">
+                <div class="kinder-label-row">
+                  <label class="kinder-field-label" for="kinderPassword">PASSWORD</label>
+                  <span class="kinder-forgot-hint" onclick="window.fillKinderAccount('kris')">Auto-fill default</span>
+                </div>
+                <div class="kinder-password-box kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••" value="velora2026" autocomplete="current-password" required>
+                  <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle" aria-label="Toggle password visibility">
+                    <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="kinder-field-group" id="kinderConfirmPasswordGroup" style="display: none;">
+                <label class="kinder-field-label" for="kinderConfirmPassword">CONFIRM PASSWORD</label>
+                <div class="kinder-input-wrapper">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                  <input type="password" id="kinderConfirmPassword" class="kinder-underline-input" placeholder="••••••••••••" autocomplete="new-password">
+                </div>
+              </div>
+
+              <label class="kinder-checkbox-row">
+                <input type="checkbox" id="kinderTermsCheckbox" class="kinder-checkbox-input" checked>
+                <span class="kinder-checkbox-label-text" id="kinderTermsText">Remember me on this studio workstation</span>
+              </label>
+
+              <div class="kinder-actions-stack">
+                <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn">Sign In</button>
+                <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn" onclick="window.toggleKinderAuthMode()">Don't have an account? Create Account</button>
+              </div>
+            </form>
+
+            <div class="kinder-quick-fill-bar">
+              <span class="kinder-quick-fill-title">Fast Access Profiles</span>
+              <div class="kinder-quick-chips">
+                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('kris')">Kris (Director)</button>
+                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('thabo')">Thabo (Logistics)</button>
+                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('lerato')">Lerato (Concierge)</button>
+              </div>
+            </div>
+
+            <div class="kinder-footer-text">
+              Velora Central Operations • High Fashion & Luxury Atelier, Sandton
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+  </div>
+
+  <div class="velora-toast-container" id="veloraToastContainer"></div>
+
+  <script src="./js/auth.js"></script>
+</body>
+</html>

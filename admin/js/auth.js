@@ -71,6 +71,11 @@
     }
   };
 
+  window._realAdminSignOut = window.adminSignOut;
+  window._realAdminLogin = window.adminLogin;
+  window._realShowAuthGate = window.showAuthGate;
+  window._realCloseAuthGate = window.closeAuthGate;
+
   window.checkAdminAuthSession = function() {
     const authScreen = document.getElementById('adminAuthScreen');
     const userPill = document.getElementById('adminProfilePill') || document.getElementById('topbarUserPill');
@@ -129,9 +134,23 @@
   // Open the auth modal to switch account or re-authenticate
   window.showAuthGate = function() {
     const authScreen = document.getElementById('adminAuthScreen');
+    const backBtn = document.getElementById('kinderBackToDashBtn');
+    const closeBtns = document.querySelectorAll('.kinder-card-close-btn');
+    let userRaw = null;
+    try {
+      userRaw = localStorage.getItem(getAuthKey());
+    } catch (e) {}
+
     if (authScreen) {
       authScreen.style.setProperty('display', 'flex', 'important');
       authScreen.classList.remove('auth-hidden');
+    }
+    if (userRaw) {
+      if (backBtn) backBtn.style.display = 'inline-flex';
+      closeBtns.forEach(btn => btn.style.display = 'flex');
+    } else {
+      if (backBtn) backBtn.style.display = 'none';
+      closeBtns.forEach(btn => btn.style.display = 'none');
     }
   };
 
@@ -314,28 +333,43 @@
   };
 
   // Initialization function
-  function initAuth() {
+  window.initAuth = function() {
     const authForm = document.getElementById('kinderAuthForm');
-    if (authForm) {
+    if (authForm && !authForm._hasAuthSubmitListener) {
+      authForm._hasAuthSubmitListener = true;
       authForm.addEventListener('submit', window.handleKinderAuthSubmit);
     }
 
     const eyeBtn = document.getElementById('kinderEyeToggle');
-    if (eyeBtn) {
+    if (eyeBtn && !eyeBtn._hasEyeClickListener) {
+      eyeBtn._hasEyeClickListener = true;
       eyeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         window.togglePasswordVisibility();
       });
     }
 
+    if (!window._hasAuthEscListener) {
+      window._hasAuthEscListener = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          let userRaw = null;
+          try { userRaw = localStorage.getItem(getAuthKey()); } catch(err) {}
+          if (userRaw) {
+            window.closeAuthGate();
+          }
+        }
+      });
+    }
+
     window.setKinderAuthMode('login', false);
     window.checkAdminAuthSession();
-  }
+  };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuth);
+    document.addEventListener('DOMContentLoaded', window.initAuth);
   } else {
-    initAuth();
+    window.initAuth();
   }
 
 })();

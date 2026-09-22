@@ -783,7 +783,7 @@
   }
 
   // Initialization
-  document.addEventListener('DOMContentLoaded', () => {
+  window.initSearch = function() {
     const searchInput = document.getElementById('headerGlobalSearchInput');
     const searchBox = document.getElementById('headerSearchBox');
     const clearBtn = document.getElementById('headerSearchClearBtn');
@@ -791,7 +791,8 @@
     const categoryTabs = document.getElementById('searchCategoryTabs');
 
     // Input Events
-    if (searchInput) {
+    if (searchInput && !searchInput._hasSearchInputListener) {
+      searchInput._hasSearchInputListener = true;
       searchInput.addEventListener('focus', () => {
         window.openHeaderSearch();
       });
@@ -831,7 +832,8 @@
     }
 
     // Clear Button
-    if (clearBtn) {
+    if (clearBtn && !clearBtn._hasClearClickListener) {
+      clearBtn._hasClearClickListener = true;
       clearBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (searchInput) {
@@ -845,7 +847,8 @@
     }
 
     // Category Tabs Click
-    if (categoryTabs) {
+    if (categoryTabs && !categoryTabs._hasTabClickListener) {
+      categoryTabs._hasTabClickListener = true;
       categoryTabs.addEventListener('click', (e) => {
         const btn = e.target.closest('.search-tab-pill');
         if (btn) {
@@ -856,43 +859,50 @@
     }
 
     // Mobile Search Toggle Button
-    if (mobileToggleBtn) {
+    if (mobileToggleBtn && !mobileToggleBtn._hasToggleClickListener) {
+      mobileToggleBtn._hasToggleClickListener = true;
       mobileToggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         window.openHeaderSearch();
       });
     }
+  };
 
-    // Global Shortcut: Cmd+K or Ctrl+K or '/'
-    document.addEventListener('keydown', (e) => {
-      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+  // Global Shortcut: Cmd+K or Ctrl+K or '/'
+  document.addEventListener('keydown', (e) => {
+    const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
 
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
-        e.preventDefault();
-        window.openHeaderSearch();
-      } else if (e.key === '/' && !isInput) {
-        e.preventDefault();
-        window.openHeaderSearch();
-      } else if (e.key === 'Escape') {
-        const popover = document.getElementById('headerSearchPopover');
-        if (popover && popover.style.display !== 'none') {
-          window.closeHeaderSearch();
-        }
-      }
-    });
-
-    // Close on Click Outside
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('topbarSearchContainer');
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      window.openHeaderSearch();
+    } else if (e.key === '/' && !isInput) {
+      e.preventDefault();
+      window.openHeaderSearch();
+    } else if (e.key === 'Escape') {
       const popover = document.getElementById('headerSearchPopover');
-      const mobileBtn = document.getElementById('mobileSearchToggleBtn');
-
       if (popover && popover.style.display !== 'none') {
-        if (container && !container.contains(e.target) && (!mobileBtn || !mobileBtn.contains(e.target))) {
-          window.closeHeaderSearch();
-        }
+        window.closeHeaderSearch();
       }
-    });
+    }
   });
+
+  // Close on Click Outside
+  document.addEventListener('click', (e) => {
+    const container = document.getElementById('topbarSearchContainer');
+    const popover = document.getElementById('headerSearchPopover');
+    const mobileBtn = document.getElementById('mobileSearchToggleBtn');
+
+    if (popover && popover.style.display !== 'none') {
+      if (container && !container.contains(e.target) && (!mobileBtn || !mobileBtn.contains(e.target))) {
+        window.closeHeaderSearch();
+      }
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.initSearch);
+  } else {
+    window.initSearch();
+  }
 
 })();
