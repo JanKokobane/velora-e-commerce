@@ -11,12 +11,14 @@ const registerAdmin = async (req, res) => {
       password,
     } = req.body;
 
+
     if (!full_name || !email || !password) {
       return res.status(400).json({
         message:
           "Full name, email and password are required.",
       });
     }
+
 
     const normalizedName = String(full_name).trim();
 
@@ -25,6 +27,7 @@ const registerAdmin = async (req, res) => {
       .toLowerCase();
 
     const plainPassword = String(password);
+
 
     if (normalizedName.length < 2) {
       return res.status(400).json({
@@ -40,6 +43,7 @@ const registerAdmin = async (req, res) => {
       });
     }
 
+
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,6 +53,7 @@ const registerAdmin = async (req, res) => {
           "Please provide a valid email address.",
       });
     }
+
 
     if (plainPassword.length < 8) {
       return res.status(400).json({
@@ -76,7 +81,6 @@ const registerAdmin = async (req, res) => {
     return res.status(201).json({
       message:
         "Admin account created successfully.",
-
       admin,
     });
   } catch (error) {
