@@ -60,5 +60,9 @@ const createAdmin = async ({
 
 module.exports = {
   findAdminByEmail,
+  findAdminById,
+  getAllAdmins,
   createAdmin,
+  updateAdmin,
+  deleteAdmin,
 };

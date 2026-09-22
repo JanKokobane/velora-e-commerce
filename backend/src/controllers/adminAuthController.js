@@ -1,6 +1,10 @@
 const {
   createAdmin,
   findAdminByEmail,
+  findAdminById,
+  getAllAdmins,
+  updateAdmin,
+  deleteAdmin,
 } = require("../services/adminService");
 
 const registerAdmin = async (req, res) => {
@@ -11,7 +15,6 @@ const registerAdmin = async (req, res) => {
       password,
     } = req.body;
 
-
     if (!full_name || !email || !password) {
       return res.status(400).json({
         message:
@@ -19,15 +22,13 @@ const registerAdmin = async (req, res) => {
       });
     }
 
+    const normalizedName =
+      String(full_name).trim();
 
-    const normalizedName = String(full_name).trim();
-
-    const normalizedEmail = String(email)
-      .trim()
-      .toLowerCase();
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
 
     const plainPassword = String(password);
-
 
     if (normalizedName.length < 2) {
       return res.status(400).json({
@@ -43,7 +44,6 @@ const registerAdmin = async (req, res) => {
       });
     }
 
-
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,7 +53,6 @@ const registerAdmin = async (req, res) => {
           "Please provide a valid email address.",
       });
     }
-
 
     if (plainPassword.length < 8) {
       return res.status(400).json({
@@ -96,6 +95,180 @@ const registerAdmin = async (req, res) => {
   }
 };
 
+const getAdmins = async (req, res) => {
+  try {
+    const admins = await getAllAdmins();
+
+    return res.status(200).json({
+      admins,
+    });
+  } catch (error) {
+    console.error(
+      "Get admins error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch admins.",
+    });
+  }
+};
+
+const getAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const admin = await findAdminById(id);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found.",
+      });
+    }
+
+    return res.status(200).json({
+      admin,
+    });
+  } catch (error) {
+    console.error(
+      "Get admin error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch admin.",
+    });
+  }
+};
+
+const editAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      full_name,
+      email,
+      role,
+      is_active,
+    } = req.body;
+
+    if (
+      !full_name ||
+      !email ||
+      !role ||
+      typeof is_active !== "boolean"
+    ) {
+      return res.status(400).json({
+        message:
+          "Full name, email, role and is_active are required.",
+      });
+    }
+
+    const normalizedName =
+      String(full_name).trim();
+
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
+
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(normalizedEmail)) {
+      return res.status(400).json({
+        message:
+          "Please provide a valid email address.",
+      });
+    }
+
+    if (normalizedName.length < 2) {
+      return res.status(400).json({
+        message:
+          "Full name must be at least 2 characters.",
+      });
+    }
+
+    const existingAdmin =
+      await findAdminByEmail(normalizedEmail);
+
+    if (
+      existingAdmin &&
+      String(existingAdmin.id) !== String(id)
+    ) {
+      return res.status(409).json({
+        message:
+          "Another admin already uses this email.",
+      });
+    }
+
+    const existingAdminById =
+      await findAdminById(id);
+
+    if (!existingAdminById) {
+      return res.status(404).json({
+        message: "Admin not found.",
+      });
+    }
+
+    const admin = await updateAdmin(
+      id,
+      {
+        full_name: normalizedName,
+        email: normalizedEmail,
+        role: String(role).trim(),
+        is_active,
+      }
+    );
+
+    return res.status(200).json({
+      message: "Admin updated successfully.",
+      admin,
+    });
+  } catch (error) {
+    console.error(
+      "Update admin error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to update admin.",
+    });
+  }
+};
+
+const removeAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const admin = await findAdminById(id);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found.",
+      });
+    }
+
+    await deleteAdmin(id);
+
+    return res.status(200).json({
+      message: "Admin deleted successfully.",
+      admin,
+    });
+  } catch (error) {
+    console.error(
+      "Delete admin error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to delete admin.",
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
+  getAdmins,
+  getAdmin,
+  editAdmin,
+  removeAdmin,
 };
