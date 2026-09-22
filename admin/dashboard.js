@@ -61,6 +61,8 @@
       });
   };
 
+  window._realDownloadProjectZip = window.downloadProjectZip;
+
   // Re-export core methods for any external or inline calls
   window.initDashboard = function() {
     if (typeof window.checkAdminAuthSession === 'function') {

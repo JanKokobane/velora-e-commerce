@@ -31,6 +31,12 @@ window.renderInventoryView = function() {
     img.src = prod.img;
     img.alt = prod.title;
     img.loading = 'lazy';
+    img.onerror = function() {
+      this.onerror = null;
+      this.src = (typeof window.createProductFallbackSvg === 'function')
+        ? window.createProductFallbackSvg(prod.title)
+        : 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 80 80\'%3E%3Crect width=\'80\' height=\'80\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'40\' y=\'46\' fill=\'%23c9a57a\' font-size=\'20\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E';
+    };
     thumbContainer.appendChild(img);
 
     // 2. Body

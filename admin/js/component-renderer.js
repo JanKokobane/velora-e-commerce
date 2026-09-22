@@ -9,6 +9,20 @@
 
   console.log('[Velora Admin] Starting component renderer...');
 
+  // Ensure downloadProjectZip is always available early
+  if (!window.downloadProjectZip) {
+    window.downloadProjectZip = function() {
+      if (typeof window._realDownloadProjectZip === 'function') {
+        return window._realDownloadProjectZip();
+      }
+      if (typeof window.showToast === 'function') {
+        window.showToast('Preparing project ZIP archive...');
+      }
+      const downloadPath = (window.location && window.location.pathname && window.location.pathname.startsWith('/admin')) ? '/admin/download' : '/download';
+      window.location.href = downloadPath;
+    };
+  }
+
   const COMPONENTS = [
     { name: 'sidebar', targetId: 'componentSidebar', file: 'sidebar.html' },
     { name: 'header', targetId: 'componentHeader', file: 'header.html' },
@@ -137,23 +151,30 @@
     hasBootstrapped = true;
 
     try {
-      // Determine correct base path for components
-      let basePath = './components/';
-      if (window.location.pathname.startsWith('/admin')) {
-        basePath = '/admin/components/';
-      }
+      // 1. Check if components are already present in the document (standalone mode)
+      const isAlreadyInjected = !!(document.getElementById('overviewMainView') && document.getElementById('dashboardSidebar'));
 
-      // 1. Fetch and inject all HTML components in parallel
-      await Promise.all(COMPONENTS.map(comp => renderComponent(comp, basePath)));
-      console.log('[Velora Admin] All HTML components rendered successfully.');
+      if (!isAlreadyInjected) {
+        // Fallback: only if placeholders exist and content is missing, attempt fetch
+        let basePath = './components/';
+        if (window.location && window.location.pathname && window.location.pathname.startsWith('/admin')) {
+          basePath = '/admin/components/';
+        }
+        await Promise.all(COMPONENTS.map(comp => renderComponent(comp, basePath)));
+        console.log('[Velora Admin] HTML components rendered via fallback fetch.');
+      } else {
+        console.log('[Velora Admin] Standalone mode: components already present in DOM.');
+      }
 
       // 2. Load any modular JS controllers that were not statically loaded
       for (const scriptUrl of CONTROLLER_SCRIPTS) {
-        if (!isScriptAlreadyPresent(scriptUrl)) {
-          await loadScript(scriptUrl);
+        const resolvedScriptUrl = (window.location && window.location.pathname && window.location.pathname.startsWith('/admin') && scriptUrl.startsWith('./'))
+          ? ('/admin/' + scriptUrl.slice(2))
+          : scriptUrl;
+        if (!isScriptAlreadyPresent(resolvedScriptUrl)) {
+          await loadScript(resolvedScriptUrl);
         }
       }
-      console.log('[Velora Admin] All controller scripts verified.');
 
       isBootstrapping = false;
 

@@ -8,6 +8,10 @@
     return (window.STORAGE_KEYS && window.STORAGE_KEYS.AUTH_USER) || 'velora_admin_user';
   };
 
+  const getSessionActiveKey = function() {
+    return 'velora_admin_session_active';
+  };
+
   function showAuthAlert(message, type = 'error') {
     const alertEl = document.getElementById('kinderAuthAlert');
     if (!alertEl) return;
@@ -34,9 +38,10 @@
 
     try {
       localStorage.setItem(getAuthKey(), JSON.stringify(user));
+      sessionStorage.setItem(getSessionActiveKey(), 'true');
       sessionStorage.removeItem('velora_explicit_signout');
     } catch (e) {
-      console.warn('[Velora Auth] localStorage set error:', e);
+      console.warn('[Velora Auth] storage set error:', e);
     }
 
     // If on standalone auth.html, navigate to dashboard index
@@ -54,9 +59,10 @@
   window.adminSignOut = function() {
     try {
       localStorage.removeItem(getAuthKey());
+      sessionStorage.removeItem(getSessionActiveKey());
       sessionStorage.setItem('velora_explicit_signout', 'true');
     } catch (e) {
-      console.warn('[Velora Auth] localStorage remove error:', e);
+      console.warn('[Velora Auth] storage remove error:', e);
     }
 
     clearAuthAlert();
@@ -81,6 +87,9 @@
   window.checkAdminAuthSession = function() {
     const authScreen = document.getElementById('adminAuthScreen');
     const userPill = document.getElementById('adminProfilePill') || document.getElementById('topbarUserPill');
+    const backBtn = document.getElementById('kinderBackToDashBtn');
+    const closeBtns = document.querySelectorAll('.kinder-card-close-btn');
+
     let userRaw = null;
     try {
       userRaw = localStorage.getItem(getAuthKey());
@@ -88,33 +97,15 @@
       console.warn('[Velora Auth] localStorage get error:', e);
     }
 
-    let isExplicitSignOut = false;
+    let isSessionActive = false;
     try {
-      isExplicitSignOut = sessionStorage.getItem('velora_explicit_signout') === 'true';
+      isSessionActive = sessionStorage.getItem(getSessionActiveKey()) === 'true';
     } catch (e) {}
-
-    // Auto-authenticate default operator on first load for instant dashboard accessibility
-    if (!userRaw && !isExplicitSignOut) {
-      const defaultUser = {
-        email: 'kris.evans@velora.co.za',
-        role: 'Store Director',
-        name: 'Kristina Evans',
-        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100',
-        loginTime: new Date().toISOString()
-      };
-      try {
-        localStorage.setItem(getAuthKey(), JSON.stringify(defaultUser));
-        userRaw = JSON.stringify(defaultUser);
-      } catch (e) {
-        userRaw = JSON.stringify(defaultUser);
-      }
-    }
 
     const isStandaloneAuthPage = window.location.pathname.endsWith('auth.html');
 
-    const backBtn = document.getElementById('kinderBackToDashBtn');
-
-    if (userRaw) {
+    if (userRaw && isSessionActive) {
+      // User is logged in and authenticated in this session: show dashboard
       if (isStandaloneAuthPage) {
         window.location.href = './index.html';
         return;
@@ -124,6 +115,7 @@
         authScreen.classList.add('auth-hidden');
       }
       if (backBtn) backBtn.style.display = 'inline-flex';
+      closeBtns.forEach(btn => btn.style.display = 'flex');
       if (userPill) userPill.style.display = 'flex';
       try {
         const u = JSON.parse(userRaw);
@@ -137,17 +129,44 @@
         console.warn(e);
       }
     } else {
+      // User is not authenticated: open the auth section first!
       if (authScreen) {
         authScreen.style.setProperty('display', 'flex', 'important');
         authScreen.classList.remove('auth-hidden');
       }
       if (backBtn) backBtn.style.display = 'none';
+      closeBtns.forEach(btn => btn.style.display = 'none');
       if (userPill) userPill.style.display = 'none';
+
+      // If user was previously remembered, populate fields for convenient re-entry
+      if (userRaw) {
+        try {
+          const u = JSON.parse(userRaw);
+          const emailInput = document.getElementById('kinderEmail');
+          const nameInput = document.getElementById('kinderFullName');
+          if (emailInput && u.email) emailInput.value = u.email;
+          if (nameInput && u.name) nameInput.value = u.name;
+        } catch (e) {}
+      }
     }
   };
 
-  // Allow closing the auth modal if already authenticated
+  // Allow closing the auth modal ONLY if already authenticated
   window.closeAuthGate = function() {
+    let isSessionActive = false;
+    let userRaw = null;
+    try {
+      userRaw = localStorage.getItem(getAuthKey());
+      isSessionActive = sessionStorage.getItem(getSessionActiveKey()) === 'true';
+    } catch(e) {}
+
+    if (!userRaw || !isSessionActive) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Please sign in to access the Velora Operations dashboard.');
+      }
+      return;
+    }
+
     const authScreen = document.getElementById('adminAuthScreen');
     if (authScreen) {
       authScreen.style.setProperty('display', 'none', 'important');
@@ -161,15 +180,17 @@
     const backBtn = document.getElementById('kinderBackToDashBtn');
     const closeBtns = document.querySelectorAll('.kinder-card-close-btn');
     let userRaw = null;
+    let isSessionActive = false;
     try {
       userRaw = localStorage.getItem(getAuthKey());
+      isSessionActive = sessionStorage.getItem(getSessionActiveKey()) === 'true';
     } catch (e) {}
 
     if (authScreen) {
       authScreen.style.setProperty('display', 'flex', 'important');
       authScreen.classList.remove('auth-hidden');
     }
-    if (userRaw) {
+    if (userRaw && isSessionActive) {
       if (backBtn) backBtn.style.display = 'inline-flex';
       closeBtns.forEach(btn => btn.style.display = 'flex');
     } else {

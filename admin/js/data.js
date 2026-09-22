@@ -15,6 +15,17 @@ window.STORAGE_KEYS = {
   AUTH_USER: 'velora_admin_user'
 };
 
+// Safe offline and fallback SVG image generators (Zero external network dependencies)
+window.createInitialsAvatarSvg = function(name) {
+  const initials = (name || 'V').split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'V';
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23232030'/%3E%3Ctext x='40' y='46' fill='%23c9a57a' font-size='24' font-weight='600' text-anchor='middle' font-family='sans-serif'%3E${initials}%3C/text%3E%3C/svg%3E`;
+};
+
+window.createProductFallbackSvg = function(title) {
+  const initial = (title || 'P').charAt(0).toUpperCase();
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='10' fill='%23232030'/%3E%3Ctext x='40' y='46' fill='%23c9a57a' font-size='26' font-weight='600' text-anchor='middle' font-family='sans-serif'%3E${initial}%3C/text%3E%3C/svg%3E`;
+};
+
 // Seed dataset
 const INITIAL_ORDERS = [
   {

@@ -1363,8 +1363,9 @@ body.sidebar-drawer-active {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(15, 18, 22, 0.72) 0%, rgba(26, 22, 18, 0.78) 50%, rgba(15, 18, 22, 0.88) 100%),
-    url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=85') center center / cover no-repeat fixed;
+    linear-gradient(135deg, rgba(15, 18, 22, 0.82) 0%, rgba(26, 22, 18, 0.84) 50%, rgba(15, 18, 22, 0.92) 100%),
+    url('./images/authBackground.jpg') center center / cover no-repeat fixed,
+    radial-gradient(ellipse at 50% 50%, #1f1b2e 0%, #0d0b13 100%);
   z-index: 9999;
   display: flex;
   align-items: center;

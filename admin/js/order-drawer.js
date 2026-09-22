@@ -28,6 +28,12 @@ window.renderOrderDrawer = function(order) {
   if (avatarEl) {
     avatarEl.src = order.customer.avatar;
     avatarEl.alt = order.customer.fullName;
+    avatarEl.onerror = function() {
+      this.onerror = null;
+      this.src = (typeof window.createInitialsAvatarSvg === 'function')
+        ? window.createInitialsAvatarSvg(order.customer.fullName)
+        : 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Ccircle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E';
+    };
   }
   if (nameEl) nameEl.textContent = order.customer.fullName;
   if (emailLink) emailLink.href = `mailto:${order.customer.email}`;
@@ -53,6 +59,12 @@ window.renderOrderDrawer = function(order) {
         img.className = 'drawer-item-img';
         img.src = item.img;
         img.alt = item.title;
+        img.onerror = function() {
+          this.onerror = null;
+          this.src = (typeof window.createProductFallbackSvg === 'function')
+            ? window.createProductFallbackSvg(item.title)
+            : 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Crect width=\'48\' height=\'48\' rx=\'6\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E';
+        };
 
         const details = document.createElement('div');
         details.className = 'drawer-item-details';
