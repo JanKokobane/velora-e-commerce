@@ -4,27 +4,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Velora Store Management Dashboard — Real-time order fulfillment, revenue analytics, customer tracking, and stock inventory.">
+  <meta name="description"
+    content="Velora Store Management Dashboard — Real-time order fulfillment, revenue analytics, customer tracking, and stock inventory.">
   <title>Velora Operations — Store Management Dashboard</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
 
+  <!-- Unified Standalone Styling (Includes all component & auth styles) -->
   <link rel="stylesheet" href="./dashboard.css">
-  <link rel="stylesheet" href="./css/country-picker.css">
-  <link rel="stylesheet" href="./css/notifications.css">
-  <link rel="stylesheet" href="./css/overview.css">
-  <link rel="stylesheet" href="./css/orders.css">
-  <link rel="stylesheet" href="./css/order-drawer.css">
-  <link rel="stylesheet" href="./css/returns.css">
-  <link rel="stylesheet" href="./css/inventory.css">
-  <link rel="stylesheet" href="./css/customers.css">
-  <link rel="stylesheet" href="./css/payments.css">
-  <link rel="stylesheet" href="./css/settings.css">
-  <link rel="stylesheet" href="./css/modals.css">
-  <link rel="stylesheet" href="./css/search.css">
-  <link rel="stylesheet" href="./css/kinder-auth.css">
 
   <script>
     window.currentTab = 'dashboard';
@@ -45,18 +36,18 @@
     }
 
     if (!window.switchTab) {
-      window.switchTab = function(tabId) {
+      window.switchTab = function (tabId) {
         window.currentTab = tabId;
         _queueOrRun('_realSwitchTab', null, tabId);
       };
     }
 
     if (!window.adminSignOut) {
-      window.adminSignOut = function() {
+      window.adminSignOut = function () {
         try {
           const key = (window.STORAGE_KEYS && window.STORAGE_KEYS.AUTH_USER) || 'velora_admin_user';
           localStorage.removeItem(key);
-        } catch(e) {}
+        } catch (e) { }
         if (typeof window._realAdminSignOut === 'function') {
           window._realAdminSignOut();
         } else if (typeof window.checkAdminAuthSession === 'function') {
@@ -76,13 +67,13 @@
     }
 
     if (!window.adminLogin) {
-      window.adminLogin = function(...args) {
+      window.adminLogin = function (...args) {
         _queueOrRun('_realAdminLogin', null, ...args);
       };
     }
 
     if (!window.showAuthGate) {
-      window.showAuthGate = function() {
+      window.showAuthGate = function () {
         if (typeof window._realShowAuthGate === 'function') {
           window._realShowAuthGate();
         } else {
@@ -96,7 +87,7 @@
     }
 
     if (!window.closeAuthGate) {
-      window.closeAuthGate = function() {
+      window.closeAuthGate = function () {
         if (typeof window._realCloseAuthGate === 'function') {
           window._realCloseAuthGate();
         } else {
@@ -110,7 +101,7 @@
     }
 
     if (!window.togglePasswordVisibility) {
-      window.togglePasswordVisibility = function() {
+      window.togglePasswordVisibility = function () {
         _queueOrRun('_realTogglePasswordVisibility', () => {
           const pwd = document.getElementById('kinderPassword');
           if (pwd) pwd.type = pwd.type === 'password' ? 'text' : 'password';
@@ -119,32 +110,32 @@
     }
 
     if (!window.setKinderAuthMode) {
-      window.setKinderAuthMode = function(mode, shouldFocus) {
+      window.setKinderAuthMode = function (mode, shouldFocus) {
         _queueOrRun('_realSetKinderAuthMode', null, mode, shouldFocus);
       };
     }
 
     if (!window.toggleKinderAuthMode) {
-      window.toggleKinderAuthMode = function() {
+      window.toggleKinderAuthMode = function () {
         _queueOrRun('_realToggleKinderAuthMode', null);
       };
     }
 
     if (!window.fillKinderAccount) {
-      window.fillKinderAccount = function(profileKey) {
+      window.fillKinderAccount = function (profileKey) {
         _queueOrRun('_realFillKinderAccount', null, profileKey);
       };
     }
 
     if (!window.handleKinderAuthSubmit) {
-      window.handleKinderAuthSubmit = function(e) {
+      window.handleKinderAuthSubmit = function (e) {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
         _queueOrRun('_realHandleKinderAuthSubmit', null, e);
       };
     }
 
     if (!window.closeMobileSidebar) {
-      window.closeMobileSidebar = function() {
+      window.closeMobileSidebar = function () {
         const sidebar = document.getElementById('dashboardSidebar');
         if (sidebar) sidebar.classList.remove('mobile-open', 'open');
         const backdrop = document.getElementById('mobileSidebarBackdrop');
@@ -154,7 +145,7 @@
     }
 
     if (!window.toggleMobileSidebar) {
-      window.toggleMobileSidebar = function(e) {
+      window.toggleMobileSidebar = function (e) {
         if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
         const sidebar = document.getElementById('dashboardSidebar');
         const backdrop = document.getElementById('mobileSidebarBackdrop');
@@ -168,80 +159,80 @@
     }
 
     if (!window.showToast) {
-      window.showToast = function(msg, duration) {
+      window.showToast = function (msg, duration) {
         _queueOrRun('_realShowToast', () => console.log('[Velora Toast]', msg), msg, duration);
       };
     }
 
     if (!window.openNewProductModal) {
-      window.openNewProductModal = function() {
+      window.openNewProductModal = function () {
         const m = document.getElementById('newProductModal');
         if (m) m.classList.add('open');
       };
     }
     if (!window.closeNewProductModal) {
-      window.closeNewProductModal = function() {
+      window.closeNewProductModal = function () {
         const m = document.getElementById('newProductModal');
         if (m) m.classList.remove('open');
       };
     }
 
     if (!window.openNewCustomerModal) {
-      window.openNewCustomerModal = function() {
+      window.openNewCustomerModal = function () {
         const m = document.getElementById('newCustomerModal');
         if (m) m.classList.add('open');
       };
     }
     if (!window.closeNewCustomerModal) {
-      window.closeNewCustomerModal = function() {
+      window.closeNewCustomerModal = function () {
         const m = document.getElementById('newCustomerModal');
         if (m) m.classList.remove('open');
       };
     }
 
     if (!window.openReceiptModal) {
-      window.openReceiptModal = function(orderId) {
+      window.openReceiptModal = function (orderId) {
         _queueOrRun('_realOpenReceiptModal', null, orderId);
       };
     }
     if (!window.closeReceiptModal) {
-      window.closeReceiptModal = function() {
+      window.closeReceiptModal = function () {
         const m = document.getElementById('receiptModal');
         if (m) m.classList.remove('open');
       };
     }
 
     if (!window.openOrderDrawer) {
-      window.openOrderDrawer = function(orderId) {
+      window.openOrderDrawer = function (orderId) {
         _queueOrRun('_realOpenOrderDrawer', null, orderId);
       };
     }
     if (!window.closeOrderDrawer) {
-      window.closeOrderDrawer = function() {
+      window.closeOrderDrawer = function () {
         const d = document.getElementById('orderDrawer');
         if (d) d.classList.remove('open');
       };
     }
 
     if (!window.openHeaderSearch) {
-      window.openHeaderSearch = function() {
+      window.openHeaderSearch = function () {
         _queueOrRun('_realOpenHeaderSearch', null);
       };
     }
     if (!window.closeHeaderSearch) {
-      window.closeHeaderSearch = function() {
+      window.closeHeaderSearch = function () {
         _queueOrRun('_realCloseHeaderSearch', null);
       };
     }
 
     if (!window.toggleCountryDropdown) {
-      window.toggleCountryDropdown = function(force) {
+      window.toggleCountryDropdown = function (force) {
         _queueOrRun('_realToggleCountryDropdown', null, force);
       };
     }
 
     if (!window.downloadProjectZip) {
-      window.downloadProjectZip = function() {
+      window.downloadProjectZip = function () {
         if (typeof window._realDownloadProjectZip === 'function') {
           return window._realDownloadProjectZip();
         }
@@ -275,12 +266,15 @@
       <!-- 1. Navigation Sidebar -->
       <aside class="dashboard-sidebar" id="dashboardSidebar" data-component="sidebar">
         <div>
-          <div class="sidebar-header-row" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--dash-sidebar-line); padding-bottom: 16px; margin-bottom: 8px;">
-            <a href="./index.html" class="sidebar-brand" style="border-bottom: none; padding: 0;" aria-label="Velora home">
+          <div class="sidebar-header-row"
+            style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--dash-sidebar-line); padding-bottom: 16px; margin-bottom: 8px;">
+            <a href="./index.html" class="sidebar-brand" style="border-bottom: none; padding: 0;"
+              aria-label="Velora home">
               <span class="brand">VELORA<span>.</span></span>
               <span class="brand-subtitle">Operations Portal</span>
             </a>
-            <button type="button" class="sidebar-mobile-close-btn" id="sidebarMobileCloseBtn" aria-label="Close navigation" onclick="window.closeMobileSidebar()">
+            <button type="button" class="sidebar-mobile-close-btn" id="sidebarMobileCloseBtn"
+              aria-label="Close navigation" onclick="window.closeMobileSidebar()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -314,7 +308,8 @@
                 <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
               </svg>
               <span>Returns</span>
-              <span class="nav-badge" id="sidebarReturnsBadge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">2</span>
+              <span class="nav-badge" id="sidebarReturnsBadge"
+                style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">2</span>
             </button>
 
             <button type="button" class="nav-item" data-tab="inventory">
@@ -349,24 +344,30 @@
         </div>
 
         <div class="sidebar-footer-nav">
-          <button type="button" class="nav-item" id="sidebarNotificationBtn" data-tab="notifications" onclick="window.switchTab('notifications')">
+          <button type="button" class="nav-item" id="sidebarNotificationBtn" data-tab="notifications"
+            onclick="window.switchTab('notifications')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
             <span>Notifications</span>
-            <span class="nav-badge" id="sidebarNotificationBadge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">4</span>
+            <span class="nav-badge" id="sidebarNotificationBadge"
+              style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">4</span>
           </button>
 
-          <button type="button" class="nav-item" id="sidebarSettingsBtn" data-tab="settings" onclick="window.switchTab('settings')">
+          <button type="button" class="nav-item" id="sidebarSettingsBtn" data-tab="settings"
+            onclick="window.switchTab('settings')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
             </svg>
             <span>Settings</span>
           </button>
 
-          <button type="button" class="nav-item" style="color: #c9a57a;" title="Download Complete Project ZIP" onclick="window.downloadProjectZip()">
+          <button type="button" class="nav-item" style="color: #c9a57a;" title="Download Complete Project ZIP"
+            onclick="window.downloadProjectZip()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
@@ -390,7 +391,8 @@
         <!-- 2. Header / Topbar -->
         <header class="dashboard-topbar" id="dashboardTopbar" data-component="header">
           <div class="topbar-left">
-            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu" aria-expanded="false">
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu"
+              aria-expanded="false">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -402,12 +404,16 @@
 
           <div class="topbar-search-container" id="topbarSearchContainer">
             <div class="header-search-box" id="headerSearchBox">
-              <svg class="header-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg class="header-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <input type="text" id="headerGlobalSearchInput" class="header-search-input" placeholder="Search orders, items, clients, pages... (⌘K)" autocomplete="off" spellcheck="false" aria-label="Global search">
-              <button type="button" class="header-search-clear-btn" id="headerSearchClearBtn" aria-label="Clear search" style="display: none;">
+              <input type="text" id="headerGlobalSearchInput" class="header-search-input"
+                placeholder="Search orders, items, clients, pages... (⌘K)" autocomplete="off" spellcheck="false"
+                aria-label="Global search">
+              <button type="button" class="header-search-clear-btn" id="headerSearchClearBtn" aria-label="Clear search"
+                style="display: none;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -418,13 +424,19 @@
               </div>
             </div>
 
-            <div class="header-search-popover" id="headerSearchPopover" style="display: none;" role="dialog" aria-label="Search results" aria-modal="false">
+            <div class="header-search-popover" id="headerSearchPopover" style="display: none;" role="dialog"
+              aria-label="Search results" aria-modal="false">
               <div class="search-category-tabs" id="searchCategoryTabs">
-                <button type="button" class="search-tab-pill active" data-search-tab="all">All <span class="tab-count" id="searchCountAll">0</span></button>
-                <button type="button" class="search-tab-pill" data-search-tab="orders">Orders <span class="tab-count" id="searchCountOrders">0</span></button>
-                <button type="button" class="search-tab-pill" data-search-tab="products">Products <span class="tab-count" id="searchCountProducts">0</span></button>
-                <button type="button" class="search-tab-pill" data-search-tab="customers">Customers <span class="tab-count" id="searchCountCustomers">0</span></button>
-                <button type="button" class="search-tab-pill" data-search-tab="payments">Payments <span class="tab-count" id="searchCountPayments">0</span></button>
+                <button type="button" class="search-tab-pill active" data-search-tab="all">All <span class="tab-count"
+                    id="searchCountAll">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="orders">Orders <span class="tab-count"
+                    id="searchCountOrders">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="products">Products <span
+                    class="tab-count" id="searchCountProducts">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="customers">Customers <span
+                    class="tab-count" id="searchCountCustomers">0</span></button>
+                <button type="button" class="search-tab-pill" data-search-tab="payments">Payments <span
+                    class="tab-count" id="searchCountPayments">0</span></button>
                 <button type="button" class="search-tab-pill" data-search-tab="pages">Navigation</button>
               </div>
 
@@ -445,10 +457,13 @@
 
           <div class="topbar-right">
             <div class="country-currency-picker-container" id="countryCurrencyPickerContainer">
-              <button type="button" class="country-currency-btn" id="countryCurrencyBtn" aria-label="Select Country and Currency" aria-haspopup="true" aria-expanded="false" title="Change country & currency">
+              <button type="button" class="country-currency-btn" id="countryCurrencyBtn"
+                aria-label="Select Country and Currency" aria-haspopup="true" aria-expanded="false"
+                title="Change country & currency">
                 <span class="country-flag-icon" id="headerSelectedFlag">🇿🇦</span>
                 <span class="country-code-pill" id="headerSelectedCode">ZAR</span>
-                <svg class="dropdown-arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg class="dropdown-arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
@@ -462,7 +477,8 @@
                       <circle cx="11" cy="11" r="8"></circle>
                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" id="countrySearchInput" placeholder="Search country, currency..." autocomplete="off">
+                    <input type="text" id="countrySearchInput" placeholder="Search country, currency..."
+                      autocomplete="off">
                   </div>
                 </div>
                 <div class="country-options-list" id="countryDropdownList"></div>
@@ -470,7 +486,8 @@
             </div>
 
             <div class="notification-center-container" id="notificationCenterContainer">
-              <button type="button" class="action-icon-btn" id="headerNotificationBtn" title="Notifications" aria-label="Notifications" onclick="window.switchTab('notifications')">
+              <button type="button" class="action-icon-btn" id="headerNotificationBtn" title="Notifications"
+                aria-label="Notifications" onclick="window.switchTab('notifications')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -479,14 +496,16 @@
               </button>
             </div>
 
-            <button type="button" class="action-icon-btn mobile-search-toggle-btn" id="mobileSearchToggleBtn" title="Search Orders, Catalog, Clients (⌘K)" aria-label="Open search">
+            <button type="button" class="action-icon-btn mobile-search-toggle-btn" id="mobileSearchToggleBtn"
+              title="Search Orders, Catalog, Clients (⌘K)" aria-label="Open search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
             </button>
 
-            <button type="button" class="export-zip-btn" id="headerExportZipBtn" title="Download Full Project ZIP Archive" onclick="window.downloadProjectZip()">
+            <button type="button" class="export-zip-btn" id="headerExportZipBtn"
+              title="Download Full Project ZIP Archive" onclick="window.downloadProjectZip()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -495,13 +514,19 @@
               <span>Download ZIP</span>
             </button>
 
-            <div class="admin-profile-pill" id="adminProfilePill" title="Authenticated Administrator — Click to switch staff profile or lock screen" onclick="window.showAuthGate()" style="cursor: pointer;">
-              <img class="admin-avatar" id="topbarAdminAvatar" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Kristina Evans" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'20\' fill=\'%232a2638\'/%3E%3Ctext x=\'20\' y=\'24\' font-size=\'14\' fill=\'%23c9a57a\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EKE%3C/text%3E%3C/svg%3E'">
+            <div class="admin-profile-pill" id="adminProfilePill"
+              title="Authenticated Administrator — Click to switch staff profile or lock screen"
+              onclick="window.showAuthGate()" style="cursor: pointer;">
+              <img class="admin-avatar" id="topbarAdminAvatar"
+                src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100"
+                alt="Kristina Evans"
+                onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'20\' fill=\'%232a2638\'/%3E%3Ctext x=\'20\' y=\'24\' font-size=\'14\' fill=\'%23c9a57a\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EKE%3C/text%3E%3C/svg%3E'">
               <div class="admin-info">
                 <span class="admin-name" id="topbarAdminName">Kristina Evans</span>
                 <span class="admin-role" id="topbarAdminRole">kris.evans@velora.co.za</span>
               </div>
-              <button type="button" class="admin-signout-btn" id="adminSignOutBtn" title="Sign Out from Console" onclick="event.stopPropagation(); window.adminSignOut();">
+              <button type="button" class="admin-signout-btn" id="adminSignOutBtn" title="Sign Out from Console"
+                onclick="event.stopPropagation(); window.adminSignOut();">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
@@ -621,36 +646,46 @@
                 </div>
               </div>
             </div>
-            
-            <div class="overview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+            <div class="overview-grid"
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
               <div class="orders-table-card" style="padding: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                   <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Live Operations Queue</h3>
                   <span class="status-pill status-paid">Store Active</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 14px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
                     <div>
                       <div style="font-weight: 600; font-size: 13.5px;">Pending Fulfillment</div>
                       <div style="font-size: 11.5px; color: var(--muted);">Ready for courier pickup</div>
                     </div>
-                    <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('orders')">Review (4)</button>
+                    <button type="button" class="drawer-btn drawer-btn-dark"
+                      style="flex: initial; padding: 6px 14px; font-size: 12px;"
+                      onclick="window.switchTab('orders')">Review (4)</button>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
                     <div>
                       <div style="font-weight: 600; font-size: 13.5px;">In-Transit Shipments</div>
                       <div style="font-size: 11.5px; color: var(--muted);">En route via Velora Courier</div>
                     </div>
-                    <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('orders')">Track (2)</button>
+                    <button type="button" class="drawer-btn drawer-btn-dark"
+                      style="flex: initial; padding: 6px 14px; font-size: 12px;"
+                      onclick="window.switchTab('orders')">Track (2)</button>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--dash-bg); border-radius: 10px;">
                     <div>
                       <div style="font-weight: 600; font-size: 13.5px;">Return Authorizations</div>
                       <div style="font-size: 11.5px; color: var(--muted);">Returns awaiting studio inspection</div>
                     </div>
-                    <button type="button" class="drawer-btn drawer-btn-accent" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('returns')">Inspect (2)</button>
+                    <button type="button" class="drawer-btn drawer-btn-accent"
+                      style="flex: initial; padding: 6px 14px; font-size: 12px;"
+                      onclick="window.switchTab('returns')">Inspect (2)</button>
                   </div>
                 </div>
               </div>
@@ -658,43 +693,59 @@
               <div class="orders-table-card" style="padding: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                   <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Trending Goods</h3>
-                  <button type="button" class="action-icon-btn" onclick="window.switchTab('inventory')" title="View Inventory">↗</button>
+                  <button type="button" class="action-icon-btn" onclick="window.switchTab('inventory')"
+                    title="View Inventory">↗</button>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="https://images.pexels.com/photos/8839887/pexels-photo-8839887.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Drill" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
+                    <img
+                      src="https://images.pexels.com/photos/8839887/pexels-photo-8839887.jpeg?auto=compress&cs=tinysrgb&h=100&w=100"
+                      style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Drill"
+                      onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
                     <div style="flex: 1;">
                       <div style="font-size: 13px; font-weight: 600;">Ryobi ONE drill/driver kit</div>
                       <div style="font-size: 11.5px; color: var(--muted);">Hardware • 18 units sold</div>
                     </div>
-                    <div class="currency-converted-price" data-base-price="409.00" style="font-weight: 700; font-size: 13.5px;">R409.00</div>
+                    <div class="currency-converted-price" data-base-price="409.00"
+                      style="font-weight: 700; font-size: 13.5px;">R409.00</div>
                   </div>
 
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Tote" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
+                    <img
+                      src="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=100&w=100"
+                      style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Tote"
+                      onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
                     <div style="flex: 1;">
                       <div style="font-size: 13px; font-weight: 600;">Everyday leather tote</div>
                       <div style="font-size: 11.5px; color: var(--muted);">Bags • 24 units sold</div>
                     </div>
-                    <div class="currency-converted-price" data-base-price="1250.00" style="font-weight: 700; font-size: 13.5px;">R1,250.00</div>
+                    <div class="currency-converted-price" data-base-price="1250.00"
+                      style="font-weight: 700; font-size: 13.5px;">R1,250.00</div>
                   </div>
 
                   <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="https://images.pexels.com/photos/32677219/pexels-photo-32677219.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Socket" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
+                    <img
+                      src="https://images.pexels.com/photos/32677219/pexels-photo-32677219.jpeg?auto=compress&cs=tinysrgb&h=100&w=100"
+                      style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="Socket"
+                      onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23232030\' rx=\'8\'/%3E%3Ctext x=\'22\' y=\'26\' fill=\'%23c9a57a\' font-size=\'14\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
                     <div style="flex: 1;">
                       <div style="font-size: 13px; font-weight: 600;">Socket Systeme Electric Pack</div>
                       <div style="font-size: 11.5px; color: var(--muted);">Electrical • 14 units sold</div>
                     </div>
-                    <div class="currency-converted-price" data-base-price="238.00" style="font-weight: 700; font-size: 13.5px;">R238.00</div>
+                    <div class="currency-converted-price" data-base-price="238.00"
+                      style="font-weight: 700; font-size: 13.5px;">R238.00</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="orders-table-card">
-              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
+              <div
+                style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; font-size: 15px; font-weight: 700;">Recent Store Activity</h3>
-                <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('orders')">View All Orders ↗</button>
+                <button type="button" class="drawer-btn drawer-btn-dark"
+                  style="flex: initial; padding: 6px 14px; font-size: 12px;" onclick="window.switchTab('orders')">View
+                  All Orders ↗</button>
               </div>
               <div class="table-responsive">
                 <table class="dash-table">
@@ -874,10 +925,12 @@
             </div>
 
             <div class="orders-table-card">
-              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
+              <div
+                style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center;">
                 <div>
                   <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Returns & Refund Management</h3>
-                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track incoming return parcels, return authorizations, and customer refund statuses.</p>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track incoming return parcels, return
+                    authorizations, and customer refund statuses.</p>
                 </div>
               </div>
               <div class="table-responsive">
@@ -905,9 +958,11 @@
               <div class="inventory-header-bar">
                 <div>
                   <h3 class="inventory-title">Catalog & Stock Inventory</h3>
-                  <p class="inventory-subtitle">Manage real-time product availability across online and studio stock.</p>
+                  <p class="inventory-subtitle">Manage real-time product availability across online and studio stock.
+                  </p>
                 </div>
-                <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn" onclick="window.openNewProductModal()">
+                <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn"
+                  onclick="window.openNewProductModal()">
                   ＋ Add New Product
                 </button>
               </div>
@@ -940,7 +995,9 @@
                   <span class="kpi-title">VIP Privilege Members</span>
                   <div class="kpi-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                      </polygon>
                     </svg>
                   </div>
                 </div>
@@ -968,10 +1025,12 @@
             </div>
 
             <div class="orders-table-card">
-              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div
+                style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
                   <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Client Registry & VIP Accounts</h3>
-                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track client profiles, VIP tiers, contact directories, and lifetime value in Rands.</p>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Track client profiles, VIP tiers,
+                    contact directories, and lifetime value in Rands.</p>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <div class="quick-search-input" style="width: 180px;">
@@ -987,7 +1046,9 @@
                     <option value="Gold Member">Gold Member</option>
                     <option value="Standard">Standard</option>
                   </select>
-                  <button type="button" class="drawer-btn drawer-btn-dark" style="flex: initial; padding: 7px 14px; font-size: 12.5px;" onclick="window.openNewCustomerModal()">+ Add Client</button>
+                  <button type="button" class="drawer-btn drawer-btn-dark"
+                    style="flex: initial; padding: 7px 14px; font-size: 12.5px;"
+                    onclick="window.openNewCustomerModal()">+ Add Client</button>
                 </div>
               </div>
               <div class="table-responsive">
@@ -1063,10 +1124,12 @@
             </div>
 
             <div class="orders-table-card">
-              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div
+                style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
                   <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Financial Transactions & Payouts</h3>
-                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Real-time settlement status for Ozow Instant EFT, SnapScan, and card gateways in South African Rands (ZAR).</p>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Real-time settlement status for Ozow
+                    Instant EFT, SnapScan, and card gateways in South African Rands (ZAR).</p>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <div class="quick-search-input" style="width: 180px;">
@@ -1119,16 +1182,20 @@
               <div class="notifications-header-bar">
                 <div>
                   <h3 class="notifications-page-title">Notifications & Activity Alerts</h3>
-                  <p class="notifications-page-subtitle">Real-time studio updates across order fulfillment, inventory warnings, client actions, and settlements.</p>
+                  <p class="notifications-page-subtitle">Real-time studio updates across order fulfillment, inventory
+                    warnings, client actions, and settlements.</p>
                 </div>
                 <div class="notifications-header-actions">
-                  <button type="button" class="notif-btn notif-btn-outline" id="btnPageMarkAllRead" onclick="window.markAllNotificationsRead()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <button type="button" class="notif-btn notif-btn-outline" id="btnPageMarkAllRead"
+                    onclick="window.markAllNotificationsRead()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <span>Mark All Read</span>
                   </button>
-                  <button type="button" class="notif-btn notif-btn-dark" id="btnPageClearAll" onclick="window.clearAllNotifications()">
+                  <button type="button" class="notif-btn notif-btn-dark" id="btnPageClearAll"
+                    onclick="window.clearAllNotifications()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="3 6 5 6 21 6"></polyline>
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1143,7 +1210,8 @@
                   <div class="kpi-header">
                     <span class="kpi-title">Total Active Notices</span>
                     <div class="kpi-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                       </svg>
@@ -1159,7 +1227,8 @@
                   <div class="kpi-header">
                     <span class="kpi-title">Unread Alerts</span>
                     <div class="kpi-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -1176,8 +1245,11 @@
                   <div class="kpi-header">
                     <span class="kpi-title">Actionable Items</span>
                     <div class="kpi-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                        </polygon>
                       </svg>
                     </div>
                   </div>
@@ -1190,19 +1262,24 @@
 
               <div class="notifications-filter-card">
                 <div class="notif-filter-pills" id="notifCategoryFilterGroup">
-                  <button type="button" class="notif-pill active" data-category="all" onclick="window.filterNotificationsCategory('all')">
+                  <button type="button" class="notif-pill active" data-category="all"
+                    onclick="window.filterNotificationsCategory('all')">
                     All Alerts (<span id="pillCountAll">0</span>)
                   </button>
-                  <button type="button" class="notif-pill" data-category="unread" onclick="window.filterNotificationsCategory('unread')">
+                  <button type="button" class="notif-pill" data-category="unread"
+                    onclick="window.filterNotificationsCategory('unread')">
                     Unread (<span id="pillCountUnread">0</span>)
                   </button>
-                  <button type="button" class="notif-pill" data-category="order" onclick="window.filterNotificationsCategory('order')">
+                  <button type="button" class="notif-pill" data-category="order"
+                    onclick="window.filterNotificationsCategory('order')">
                     Orders (<span id="pillCountOrders">0</span>)
                   </button>
-                  <button type="button" class="notif-pill" data-category="inventory" onclick="window.filterNotificationsCategory('inventory')">
+                  <button type="button" class="notif-pill" data-category="inventory"
+                    onclick="window.filterNotificationsCategory('inventory')">
                     Stock (<span id="pillCountInventory">0</span>)
                   </button>
-                  <button type="button" class="notif-pill" data-category="payment" onclick="window.filterNotificationsCategory('payment')">
+                  <button type="button" class="notif-pill" data-category="payment"
+                    onclick="window.filterNotificationsCategory('payment')">
                     Finance (<span id="pillCountPayment">0</span>)
                   </button>
                 </div>
@@ -1218,11 +1295,14 @@
               <div class="settings-header-bar">
                 <div>
                   <h3 class="settings-page-title">Operations & Studio Settings</h3>
-                  <p class="settings-page-subtitle">Configure South African retail parameters, currency settlement, courier rates, and security controls.</p>
+                  <p class="settings-page-subtitle">Configure South African retail parameters, currency settlement,
+                    courier rates, and security controls.</p>
                 </div>
                 <div class="settings-header-actions">
-                  <button type="button" class="settings-btn settings-btn-outline" onclick="window.resetSettingsDefaults()">Reset Defaults</button>
-                  <button type="button" class="settings-btn settings-btn-dark" id="saveSettingsBtn" onclick="window.saveStudioSettings()">Save Configuration</button>
+                  <button type="button" class="settings-btn settings-btn-outline"
+                    onclick="window.resetSettingsDefaults()">Reset Defaults</button>
+                  <button type="button" class="settings-btn settings-btn-dark" id="saveSettingsBtn"
+                    onclick="window.saveStudioSettings()">Save Configuration</button>
                 </div>
               </div>
 
@@ -1231,25 +1311,29 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                           <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                       </div>
                       <div>
                         <h4 class="settings-card-title">Studio Identity & Operations</h4>
-                        <p class="settings-card-desc">Public store details, client support desk, and headquarter address.</p>
+                        <p class="settings-card-desc">Public store details, client support desk, and headquarter
+                          address.</p>
                       </div>
                     </div>
                     <div class="settings-card-body">
                       <div class="settings-field-group">
                         <label class="settings-label" for="settingStoreName">Studio Store Name</label>
-                        <input type="text" id="settingStoreName" class="settings-input" value="VELORA E-Commerce Studio">
+                        <input type="text" id="settingStoreName" class="settings-input"
+                          value="VELORA E-Commerce Studio">
                       </div>
                       <div class="settings-field-row">
                         <div class="settings-field-group">
                           <label class="settings-label" for="settingSupportEmail">Support Desk Email</label>
-                          <input type="email" id="settingSupportEmail" class="settings-input" value="studio@velora.co.za">
+                          <input type="email" id="settingSupportEmail" class="settings-input"
+                            value="studio@velora.co.za">
                         </div>
                         <div class="settings-field-group">
                           <label class="settings-label" for="settingPhone">Dispatch Hotline</label>
@@ -1257,8 +1341,10 @@
                         </div>
                       </div>
                       <div class="settings-field-group">
-                        <label class="settings-label" for="settingAddress">Studio Headquarters (Physical Address)</label>
-                        <input type="text" id="settingAddress" class="settings-input" value="Nelson Mandela Square, Sandton, Johannesburg, 2196, South Africa">
+                        <label class="settings-label" for="settingAddress">Studio Headquarters (Physical
+                          Address)</label>
+                        <input type="text" id="settingAddress" class="settings-input"
+                          value="Nelson Mandela Square, Sandton, Johannesburg, 2196, South Africa">
                       </div>
                     </div>
                   </div>
@@ -1266,14 +1352,16 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <line x1="12" y1="1" x2="12" y2="23"></line>
                           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                       </div>
                       <div>
                         <h4 class="settings-card-title">Currency & Tax Compliance</h4>
-                        <p class="settings-card-desc">SARS Value Added Tax (VAT) rate, base currency, and price display options.</p>
+                        <p class="settings-card-desc">SARS Value Added Tax (VAT) rate, base currency, and price display
+                          options.</p>
                       </div>
                     </div>
                     <div class="settings-card-body">
@@ -1309,7 +1397,8 @@
                       <div class="settings-toggle-row">
                         <div>
                           <div class="settings-toggle-title">Include 15% VAT in catalog retail prices</div>
-                          <div class="settings-toggle-subtitle">Complies with South African CPA price display guidelines.</div>
+                          <div class="settings-toggle-subtitle">Complies with South African CPA price display
+                            guidelines.</div>
                         </div>
                         <label class="toggle-switch">
                           <input type="checkbox" id="settingVatInclusive" checked>
@@ -1322,7 +1411,8 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                           <line x1="1" y1="10" x2="23" y2="10"></line>
                         </svg>
@@ -1336,7 +1426,8 @@
                       <div class="settings-toggle-row">
                         <div>
                           <div class="settings-toggle-title">Ozow Instant EFT</div>
-                          <div class="settings-toggle-subtitle">Zero card fee direct EFT via FNB, Capitec, Standard Bank, Nedbank & ABSA.</div>
+                          <div class="settings-toggle-subtitle">Zero card fee direct EFT via FNB, Capitec, Standard
+                            Bank, Nedbank & ABSA.</div>
                         </div>
                         <label class="toggle-switch">
                           <input type="checkbox" id="settingGatewayOzow" checked>
@@ -1347,7 +1438,8 @@
                       <div class="settings-toggle-row">
                         <div>
                           <div class="settings-toggle-title">SnapScan QR Mobile Checkout</div>
-                          <div class="settings-toggle-subtitle">Scan-to-pay mobile QR code settlement with instant confirmation.</div>
+                          <div class="settings-toggle-subtitle">Scan-to-pay mobile QR code settlement with instant
+                            confirmation.</div>
                         </div>
                         <label class="toggle-switch">
                           <input type="checkbox" id="settingGatewaySnapScan" checked>
@@ -1358,7 +1450,8 @@
                       <div class="settings-toggle-row">
                         <div>
                           <div class="settings-toggle-title">Visa / Mastercard 3D Secure 2.0</div>
-                          <div class="settings-toggle-subtitle">Card processing with automated fraud screening and tokenization.</div>
+                          <div class="settings-toggle-subtitle">Card processing with automated fraud screening and
+                            tokenization.</div>
                         </div>
                         <label class="toggle-switch">
                           <input type="checkbox" id="settingGatewayCards" checked>
@@ -1369,7 +1462,8 @@
                       <div class="settings-toggle-row">
                         <div>
                           <div class="settings-toggle-title">Apple Pay & Google Pay</div>
-                          <div class="settings-toggle-subtitle">One-touch biometric authorization on supported mobile and web devices.</div>
+                          <div class="settings-toggle-subtitle">One-touch biometric authorization on supported mobile
+                            and web devices.</div>
                         </div>
                         <label class="toggle-switch">
                           <input type="checkbox" id="settingGatewayApplePay" checked>
@@ -1382,7 +1476,8 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <path d="M1 3h15v13H1z"></path>
                           <path d="M16 8h4l3 3v5h-7V8z"></path>
                           <circle cx="5.5" cy="18.5" r="2.5"></circle>
@@ -1405,17 +1500,20 @@
                           </select>
                         </div>
                         <div class="settings-field-group">
-                          <label class="settings-label" for="settingStandardShipping">Standard Delivery Fee (<span class="current-curr-code">ZAR</span>)</label>
+                          <label class="settings-label" for="settingStandardShipping">Standard Delivery Fee (<span
+                              class="current-curr-code">ZAR</span>)</label>
                           <input type="number" id="settingStandardShipping" class="settings-input" value="150">
                         </div>
                       </div>
                       <div class="settings-field-row">
                         <div class="settings-field-group">
-                          <label class="settings-label" for="settingExpressShipping">Express Same-Day Fee (Gauteng)</label>
+                          <label class="settings-label" for="settingExpressShipping">Express Same-Day Fee
+                            (Gauteng)</label>
                           <input type="number" id="settingExpressShipping" class="settings-input" value="280">
                         </div>
                         <div class="settings-field-group">
-                          <label class="settings-label" for="settingFreeShippingThreshold">Free Delivery Threshold (<span class="current-curr-code">ZAR</span>)</label>
+                          <label class="settings-label" for="settingFreeShippingThreshold">Free Delivery Threshold
+                            (<span class="current-curr-code">ZAR</span>)</label>
                           <input type="number" id="settingFreeShippingThreshold" class="settings-input" value="1500">
                         </div>
                       </div>
@@ -1425,7 +1523,8 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <circle cx="12" cy="12" r="10"></circle>
                           <line x1="12" y1="8" x2="12" y2="12"></line>
                           <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -1439,11 +1538,14 @@
                     <div class="settings-card-body">
                       <div class="settings-field-row">
                         <div class="settings-field-group">
-                          <label class="settings-label" for="settingLowStockThreshold">Low Stock Warning Trigger (Units)</label>
-                          <input type="number" id="settingLowStockThreshold" class="settings-input" value="5" min="1" max="50">
+                          <label class="settings-label" for="settingLowStockThreshold">Low Stock Warning Trigger
+                            (Units)</label>
+                          <input type="number" id="settingLowStockThreshold" class="settings-input" value="5" min="1"
+                            max="50">
                         </div>
                         <div class="settings-field-group">
-                          <label class="settings-label" for="settingAutoDraftWaybill">Auto-Generate Courier Waybills</label>
+                          <label class="settings-label" for="settingAutoDraftWaybill">Auto-Generate Courier
+                            Waybills</label>
                           <select id="settingAutoDraftWaybill" class="settings-select">
                             <option value="enabled" selected>Enabled on 'Paid' Status</option>
                             <option value="manual">Manual Studio Dispatch Only</option>
@@ -1456,7 +1558,8 @@
                   <div class="settings-card">
                     <div class="settings-card-header">
                       <div class="settings-card-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
@@ -1511,7 +1614,10 @@
           </div>
 
           <div class="drawer-customer-card">
-            <img class="drawer-customer-avatar" id="drawerCustomerAvatar" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="Customer" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Ccircle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
+            <img class="drawer-customer-avatar" id="drawerCustomerAvatar"
+              src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=150&w=150"
+              alt="Customer"
+              onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Ccircle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
             <div class="drawer-customer-name" id="drawerCustomerName">Customer Name</div>
             <div class="drawer-contact-actions">
               <a href="mailto:client@example.com" class="contact-action-btn" id="drawerEmailLink" title="Send Email">
@@ -1522,12 +1628,16 @@
               </a>
               <a href="tel:+27820000000" class="contact-action-btn" id="drawerPhoneLink" title="Call Customer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                  </path>
                 </svg>
               </a>
               <button type="button" class="contact-action-btn" id="drawerWhatsappBtn" title="Message via WhatsApp">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  <path
+                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                  </path>
                 </svg>
               </button>
             </div>
@@ -1571,7 +1681,8 @@
           <div class="dash-modal-body">
             <div class="form-group">
               <label for="newProdTitle">Product Title</label>
-              <input type="text" id="newProdTitle" class="form-control" placeholder="e.g. Minimalist cardholder" required>
+              <input type="text" id="newProdTitle" class="form-control" placeholder="e.g. Minimalist cardholder"
+                required>
             </div>
             <div style="display: flex; gap: 14px;">
               <div class="form-group" style="flex: 1;">
@@ -1595,11 +1706,13 @@
             </div>
             <div class="form-group">
               <label for="newProdImage">Image URL</label>
-              <input type="url" id="newProdImage" class="form-control" placeholder="https://images.pexels.com/..." value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
+              <input type="url" id="newProdImage" class="form-control" placeholder="https://images.pexels.com/..."
+                value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
             </div>
           </div>
           <div class="dash-modal-footer">
-            <button type="button" class="drawer-btn" style="background: #eee;" onclick="window.closeNewProductModal()">Cancel</button>
+            <button type="button" class="drawer-btn" style="background: #eee;"
+              onclick="window.closeNewProductModal()">Cancel</button>
             <button type="submit" class="drawer-btn drawer-btn-dark">Save to Catalog</button>
           </div>
         </form>
@@ -1648,7 +1761,8 @@
             </div>
           </div>
           <div class="dash-modal-footer">
-            <button type="button" class="drawer-btn" style="background: #eee;" onclick="window.closeNewCustomerModal()">Cancel</button>
+            <button type="button" class="drawer-btn" style="background: #eee;"
+              onclick="window.closeNewCustomerModal()">Cancel</button>
             <button type="submit" class="drawer-btn drawer-btn-dark">Register Client</button>
           </div>
         </form>
@@ -1705,7 +1819,8 @@
           </div>
         </div>
         <div class="dash-modal-footer">
-          <button type="button" class="drawer-btn drawer-btn-dark" onclick="window.closePaymentReceiptModal()">Done</button>
+          <button type="button" class="drawer-btn drawer-btn-dark"
+            onclick="window.closePaymentReceiptModal()">Done</button>
         </div>
       </div>
     </div>
@@ -1721,197 +1836,154 @@
 
       <header class="kinder-top-bar">
         <div class="kinder-brand-logo-group">
-          <div class="kinder-brand-monogram">V</div>
           <div class="kinder-brand-text">
-            <span class="kinder-brand-name">VELORA</span>
-            <span class="kinder-brand-sub">OPERATIONS ATELIER</span>
+            <span class="kinder-brand-name">VELORA .</span>
           </div>
         </div>
         <div class="kinder-top-actions">
-          <button type="button" class="kinder-back-btn" id="kinderBackToDashBtn" onclick="window.closeAuthGate()" style="display: none;" title="Return to Dashboard">
+          <button type="button" class="kinder-back-btn" id="kinderBackToDashBtn" onclick="window.closeAuthGate()"
+            style="display: none;" title="Return to Dashboard">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
             <span>Return to Dashboard</span>
           </button>
-          <span class="kinder-status-indicator">
-            <span class="kinder-status-pulse"></span>
-            <span id="kinderPortalModeLabel">Sandton Studio Live</span>
-          </span>
+
         </div>
       </header>
 
       <main class="kinder-main-container">
         <section class="kinder-editorial-hero" aria-label="Velora Studio Overview">
-          <div class="kinder-hero-tag">ATELIER OPERATIONAL CONSOLE</div>
           <h2 class="kinder-hero-headline">High Fashion & Retail Management Orchestration</h2>
           <p class="kinder-hero-desc">
-            Unified dispatch management, live South African ZAR settlement via Ozow & SnapScan, real-time catalog stock control, and bespoke client concierge workflows.
+            Unified dispatch management, live South African ZAR settlement via Ozow & SnapScan, real-time catalog stock
+            control, and bespoke client concierge workflows.
           </p>
-
-          <div class="kinder-hero-pillars">
-            <div class="kinder-pillar-item">
-              <div class="kinder-pillar-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-              </div>
-              <div class="kinder-pillar-text">
-                <span class="kinder-pillar-title">SARS VAT 15% Compliant</span>
-                <span class="kinder-pillar-sub">Automated South African invoice settlement</span>
-              </div>
-            </div>
-
-            <div class="kinder-pillar-item">
-              <div class="kinder-pillar-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <div class="kinder-pillar-text">
-                <span class="kinder-pillar-title">Ozow & SnapScan Gateway</span>
-                <span class="kinder-pillar-sub">Zero-friction instant EFT and QR settlement</span>
-              </div>
-            </div>
-
-            <div class="kinder-pillar-item">
-              <div class="kinder-pillar-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-              </div>
-              <div class="kinder-pillar-text">
-                <span class="kinder-pillar-title">The Courier Guy Sync</span>
-                <span class="kinder-pillar-sub">Real-time nationwide waybill dispatch</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="kinder-hero-demo-section">
-            <span class="kinder-hero-demo-title">QUICK ACCESS WORKSTATION PROFILES:</span>
-            <div class="kinder-hero-staff-cards">
-              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('kris')" title="Sign in as Kristina Evans">
-                <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Kristina" class="kinder-staff-avatar" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Ccircle cx=\'18\' cy=\'18\' r=\'18\' fill=\'%23232030\'/%3E%3Ctext x=\'18\' y=\'22\' fill=\'%23c9a57a\' font-size=\'13\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EKE%3C/text%3E%3C/svg%3E'">
-                <div class="kinder-staff-info">
-                  <span class="kinder-staff-name">Kristina Evans</span>
-                  <span class="kinder-staff-role">Store Director</span>
-                </div>
-              </button>
-
-              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('thabo')" title="Sign in as Thabo Ndlovu">
-                <img src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Thabo" class="kinder-staff-avatar" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Ccircle cx=\'18\' cy=\'18\' r=\'18\' fill=\'%23232030\'/%3E%3Ctext x=\'18\' y=\'22\' fill=\'%23c9a57a\' font-size=\'13\' text-anchor=\'middle\' font-family=\'sans-serif\'%3ETN%3C/text%3E%3C/svg%3E'">
-                <div class="kinder-staff-info">
-                  <span class="kinder-staff-name">Thabo Ndlovu</span>
-                  <span class="kinder-staff-role">Logistics Lead</span>
-                </div>
-              </button>
-
-              <button type="button" class="kinder-staff-card" onclick="window.fillKinderAccount('lerato')" title="Sign in as Lerato Khumalo">
-                <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&h=100&w=100" alt="Lerato" class="kinder-staff-avatar" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Ccircle cx=\'18\' cy=\'18\' r=\'18\' fill=\'%23232030\'/%3E%3Ctext x=\'18\' y=\'22\' fill=\'%23c9a57a\' font-size=\'13\' text-anchor=\'middle\' font-family=\'sans-serif\'%3ELK%3C/text%3E%3C/svg%3E'">
-                <div class="kinder-staff-info">
-                  <span class="kinder-staff-name">Lerato Khumalo</span>
-                  <span class="kinder-staff-role">Client Concierge</span>
-                </div>
-              </button>
-            </div>
-          </div>
         </section>
 
         <section class="kinder-form-wrapper" aria-label="Sign In or Register">
           <div class="kinder-form-card" id="kinderFormCard">
-            <div class="kinder-card-brand-row">
-              <span class="kinder-card-badge">
-                <span class="kinder-badge-dot"></span>
-                <span>Authorized Operator</span>
-              </span>
-              <button type="button" class="kinder-card-close-btn" onclick="window.closeAuthGate()" title="Close and return to dashboard">✕</button>
-            </div>
+
 
             <div class="kinder-mode-tabs" role="tablist">
-              <button type="button" class="kinder-tab-btn active" id="kinderTabLogin" onclick="window.setKinderAuthMode('login', true)">Sign In</button>
-              <button type="button" class="kinder-tab-btn" id="kinderTabSignUp" onclick="window.setKinderAuthMode('signup', true)">Create Account</button>
+              <button type="button" class="kinder-tab-btn active" id="kinderTabLogin"
+                onclick="window.setKinderAuthMode('login', true)">Sign In</button>
+              <button type="button" class="kinder-tab-btn" id="kinderTabSignUp"
+                onclick="window.setKinderAuthMode('signup', true)">Create Account</button>
             </div>
 
             <h1 class="kinder-form-title" id="kinderAuthTitle">Welcome Back</h1>
-            <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage operations.</p>
+            <p class="kinder-form-subtitle" id="kinderAuthSubtitle">Sign in with your authorized studio email to manage
+              operations.</p>
 
             <div class="kinder-auth-alert" id="kinderAuthAlert" style="display: none;" role="alert"></div>
 
-            <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;" novalidate>
+            <form class="kinder-form" id="kinderAuthForm" onsubmit="window.handleKinderAuthSubmit(event); return false;"
+              novalidate>
+
               <div class="kinder-field-group" id="kinderNameGroup" style="display: none;">
                 <label class="kinder-field-label" for="kinderFullName">FULL NAME</label>
+
                 <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-                  <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid" autocomplete="name">
+
+                  <input type="text" id="kinderFullName" class="kinder-underline-input" placeholder="e.g. Samira Hadid"
+                    autocomplete="off">
                 </div>
               </div>
 
+
               <div class="kinder-field-group">
-                <label class="kinder-field-label" for="kinderEmail">EMAIL ADDRESS</label>
+                <label class="kinder-field-label" for="kinderEmail">
+                  EMAIL ADDRESS
+                </label>
+
                 <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
                     <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                   </svg>
-                  <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za" value="kris.evans@velora.co.za" autocomplete="email" required>
+
+                  <input type="email" id="kinderEmail" class="kinder-underline-input" placeholder="name@velora.co.za"
+                    autocomplete="off">
                 </div>
               </div>
 
+
               <div class="kinder-field-group">
-                <div class="kinder-label-row">
-                  <label class="kinder-field-label" for="kinderPassword">PASSWORD</label>
-                  <span class="kinder-forgot-hint" onclick="window.fillKinderAccount('kris')">Auto-fill default</span>
-                </div>
+                <label class="kinder-field-label" for="kinderPassword">
+                  PASSWORD
+                </label>
+
                 <div class="kinder-password-box kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
-                  <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••" value="velora2026" autocomplete="current-password" required>
-                  <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle" aria-label="Toggle password visibility">
-                    <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+
+                  <input type="password" id="kinderPassword" class="kinder-underline-input" placeholder="••••••••••••"
+                    autocomplete="new-password">
+
+                  <button type="button" class="kinder-eye-toggle" id="kinderEyeToggle"
+                    aria-label="Toggle password visibility">
+                    <svg id="kinderEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                      </path>
                       <line x1="1" y1="1" x2="23" y2="23"></line>
                     </svg>
                   </button>
                 </div>
               </div>
 
+
               <div class="kinder-field-group" id="kinderConfirmPasswordGroup" style="display: none;">
-                <label class="kinder-field-label" for="kinderConfirmPassword">CONFIRM PASSWORD</label>
+                <label class="kinder-field-label" for="kinderConfirmPassword">
+                  CONFIRM PASSWORD
+                </label>
+
                 <div class="kinder-input-wrapper">
-                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <svg class="kinder-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
-                  <input type="password" id="kinderConfirmPassword" class="kinder-underline-input" placeholder="••••••••••••" autocomplete="new-password">
+
+                  <input type="password" id="kinderConfirmPassword" class="kinder-underline-input"
+                    placeholder="••••••••••••" autocomplete="new-password">
                 </div>
               </div>
 
+
               <label class="kinder-checkbox-row">
                 <input type="checkbox" id="kinderTermsCheckbox" class="kinder-checkbox-input" checked>
-                <span class="kinder-checkbox-label-text" id="kinderTermsText">Remember me on this studio workstation</span>
+
+                <span class="kinder-checkbox-label-text" id="kinderTermsText">
+                  Remember me
+                </span>
               </label>
 
-              <div class="kinder-actions-stack">
-                <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn">Sign In</button>
-                <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn" onclick="window.toggleKinderAuthMode()">Don't have an account? Create Account</button>
-              </div>
-            </form>
 
-            <div class="kinder-quick-fill-bar">
-              <span class="kinder-quick-fill-title">Fast Access Profiles</span>
-              <div class="kinder-quick-chips">
-                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('kris')">Kris (Director)</button>
-                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('thabo')">Thabo (Logistics)</button>
-                <button type="button" class="kinder-chip-btn" onclick="window.fillKinderAccount('lerato')">Lerato (Concierge)</button>
+              <div class="kinder-actions-stack">
+                <button type="submit" class="kinder-btn kinder-btn-solid" id="kinderPrimaryBtn">
+                  Sign In
+                </button>
+
+                <button type="button" class="kinder-btn-switch" id="kinderSecondaryBtn"
+                  onclick="window.toggleKinderAuthMode()">
+                  Don't have an account? Create Account
+                </button>
               </div>
-            </div>
+
+            </form>
 
             <div class="kinder-footer-text">
               Velora Central Operations • High Fashion & Luxury Atelier, Sandton
@@ -1924,7 +1996,7 @@
 
   <div class="velora-toast-container" id="veloraToastContainer"></div>
 
-  <!-- Core Modular Data & Controller Scripts (100% Standalone - No build, external server or bundler required) -->
+  <!-- Core Modular Data & Controller Scripts -->
   <script src="./js/data.js"></script>
   <script src="./js/currency.js"></script>
   <script src="./js/notifications.js"></script>
@@ -1938,7 +2010,8 @@
   <script src="./js/settings.js"></script>
   <script src="./js/modals.js"></script>
   <script src="./js/search.js"></script>
-  <script src="./js/auth.js"></script>
+  <script src="./js/formLogic.js"></script>
+  <script src="./js/formValidation.js"></script>
   <script src="./js/app.js"></script>
   <script src="./dashboard.js"></script>
   <script src="./js/component-renderer.js"></script>
