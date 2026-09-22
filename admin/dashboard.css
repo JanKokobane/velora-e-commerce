@@ -376,6 +376,41 @@ html, body {
   border-radius: 50%;
 }
 
+.export-zip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.export-zip-btn:hover {
+  background: #2d3135;
+  transform: translateY(-1px);
+}
+
+.export-zip-btn svg {
+  stroke: #e5c69a;
+}
+
+@media (max-width: 640px) {
+  .export-zip-btn span {
+    display: none;
+  }
+  .export-zip-btn {
+    padding: 8px 10px;
+  }
+}
+
 .admin-profile-pill {
   display: flex;
   align-items: center;

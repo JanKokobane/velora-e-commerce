@@ -121,7 +121,11 @@
     }
 
     const str = String(text || '');
-    const q = query.trim().toLowerCase();
+    const q = query ? query.trim().toLowerCase() : '';
+    if (!q) {
+      container.appendChild(document.createTextNode(str));
+      return container;
+    }
     let lowerStr = str.toLowerCase();
     let startIdx = 0;
     let matchIdx = lowerStr.indexOf(q, startIdx);

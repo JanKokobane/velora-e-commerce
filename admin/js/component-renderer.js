@@ -48,15 +48,13 @@
   const domLoadedCallbacks = [];
   const nativeAddEventListener = document.addEventListener.bind(document);
   let isBootstrapping = true;
+  let hasBootstrapped = false;
 
   document.addEventListener = function(type, listener, options) {
     if (type === 'DOMContentLoaded') {
-      if (isBootstrapping) {
-        domLoadedCallbacks.push(listener);
-        return;
-      }
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(listener, 1);
+      if (hasBootstrapped) {
+        // Dashboard has already completed bootstrapping; run listener immediately
+        try { listener(); } catch(e) { console.warn(e); }
         return;
       }
       domLoadedCallbacks.push(listener);
@@ -135,6 +133,9 @@
    * Main bootstrap function
    */
   async function bootstrapModularDashboard() {
+    if (hasBootstrapped) return;
+    hasBootstrapped = true;
+
     try {
       // Determine correct base path for components
       let basePath = './components/';
@@ -156,8 +157,13 @@
 
       isBootstrapping = false;
 
+      // Restore native addEventListener now that bootstrap phase is ending
+      document.addEventListener = nativeAddEventListener;
+
       // 3. Fire all DOMContentLoaded listeners now that DOM is complete
-      domLoadedCallbacks.forEach((cb) => {
+      const callbacks = domLoadedCallbacks.slice();
+      domLoadedCallbacks.length = 0;
+      callbacks.forEach((cb) => {
         try {
           cb();
         } catch (e) {
@@ -165,41 +171,22 @@
         }
       });
 
-      // Dispatch native event for any other listeners
-      try {
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-      } catch (e) {}
-
       // 4. Initialize module states explicitly
-      if (typeof window.initAuth === 'function') {
-        window.initAuth();
-      }
-      if (typeof window.initSearch === 'function') {
-        window.initSearch();
-      }
-      if (typeof window.initModals === 'function') {
-        window.initModals();
-      }
-      if (typeof window.initCurrency === 'function') {
-        window.initCurrency();
-      }
-      if (typeof window.renderSettingsView === 'function') {
-        window.renderSettingsView();
-      }
-      if (typeof window.initApp === 'function') {
-        window.initApp();
-      }
-      if (typeof window.updateNotificationBadges === 'function') {
-        window.updateNotificationBadges();
-      }
-      if (typeof window.checkAdminAuthSession === 'function') {
-        window.checkAdminAuthSession();
-      }
-      if (typeof window.initDashboard === 'function') {
-        window.initDashboard();
-      } else if (typeof window.switchTab === 'function') {
-        window.switchTab(window.currentTab || 'dashboard');
-      }
+      try { if (typeof window.initAuth === 'function') window.initAuth(); } catch(e) { console.warn(e); }
+      try { if (typeof window.initSearch === 'function') window.initSearch(); } catch(e) { console.warn(e); }
+      try { if (typeof window.initModals === 'function') window.initModals(); } catch(e) { console.warn(e); }
+      try { if (typeof window.initCurrency === 'function') window.initCurrency(); } catch(e) { console.warn(e); }
+      try { if (typeof window.renderSettingsView === 'function') window.renderSettingsView(); } catch(e) { console.warn(e); }
+      try { if (typeof window.initApp === 'function') window.initApp(); } catch(e) { console.warn(e); }
+      try { if (typeof window.updateNotificationBadges === 'function') window.updateNotificationBadges(); } catch(e) { console.warn(e); }
+      try { if (typeof window.checkAdminAuthSession === 'function') window.checkAdminAuthSession(); } catch(e) { console.warn(e); }
+      try {
+        if (typeof window.initDashboard === 'function') {
+          window.initDashboard();
+        } else if (typeof window.switchTab === 'function') {
+          window.switchTab(window.currentTab || 'dashboard');
+        }
+      } catch(e) { console.warn(e); }
 
       // 5. Flush any early queued actions
       if (Array.isArray(window._earlyActionQueue) && window._earlyActionQueue.length > 0) {

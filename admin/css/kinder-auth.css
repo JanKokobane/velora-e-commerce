@@ -794,12 +794,19 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 1080px) {
   .kinder-main-container {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 36px;
     padding: 10px 32px 36px;
   }
 
+  .kinder-form-wrapper {
+    order: 1;
+    width: 100%;
+  }
+
   .kinder-editorial-hero {
+    order: 2;
     text-align: center;
     align-items: center;
     padding-right: 0;

@@ -34,6 +34,7 @@
 
     try {
       localStorage.setItem(getAuthKey(), JSON.stringify(user));
+      sessionStorage.removeItem('velora_explicit_signout');
     } catch (e) {
       console.warn('[Velora Auth] localStorage set error:', e);
     }
@@ -53,6 +54,7 @@
   window.adminSignOut = function() {
     try {
       localStorage.removeItem(getAuthKey());
+      sessionStorage.setItem('velora_explicit_signout', 'true');
     } catch (e) {
       console.warn('[Velora Auth] localStorage remove error:', e);
     }
@@ -84,6 +86,28 @@
       userRaw = localStorage.getItem(getAuthKey());
     } catch (e) {
       console.warn('[Velora Auth] localStorage get error:', e);
+    }
+
+    let isExplicitSignOut = false;
+    try {
+      isExplicitSignOut = sessionStorage.getItem('velora_explicit_signout') === 'true';
+    } catch (e) {}
+
+    // Auto-authenticate default operator on first load for instant dashboard accessibility
+    if (!userRaw && !isExplicitSignOut) {
+      const defaultUser = {
+        email: 'kris.evans@velora.co.za',
+        role: 'Store Director',
+        name: 'Kristina Evans',
+        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100',
+        loginTime: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem(getAuthKey(), JSON.stringify(defaultUser));
+        userRaw = JSON.stringify(defaultUser);
+      } catch (e) {
+        userRaw = JSON.stringify(defaultUser);
+      }
     }
 
     const isStandaloneAuthPage = window.location.pathname.endsWith('auth.html');
