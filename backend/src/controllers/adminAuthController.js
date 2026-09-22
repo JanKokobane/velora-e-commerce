@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+
 const {
   createAdmin,
   findAdminByEmail,
@@ -91,6 +93,89 @@ const registerAdmin = async (req, res) => {
     return res.status(500).json({
       message:
         "Failed to create admin account.",
+    });
+  }
+};
+
+const loginAdmin = async (req, res) => {
+  try {
+    const {
+      email,
+      password,
+    } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message:
+          "Email and password are required.",
+      });
+    }
+
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
+
+    const admin =
+      await findAdminByEmail(normalizedEmail);
+
+    if (!admin) {
+      return res.status(401).json({
+        message:
+          "Invalid email or password.",
+      });
+    }
+
+    if (!admin.is_active) {
+      return res.status(403).json({
+        message:
+          "This admin account is inactive.",
+      });
+    }
+
+    const passwordMatches =
+      await require("bcrypt").compare(
+        String(password),
+        admin.password_hash
+      );
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        message:
+          "Invalid email or password.",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        admin_id: admin.id,
+        email: admin.email,
+        role: admin.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    return res.status(200).json({
+      message: "Login successful.",
+      token,
+      admin: {
+        id: admin.id,
+        full_name: admin.full_name,
+        email: admin.email,
+        role: admin.role,
+        is_active: admin.is_active,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Admin login error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to login admin.",
     });
   }
 };
@@ -267,6 +352,7 @@ const removeAdmin = async (req, res) => {
 
 module.exports = {
   registerAdmin,
+  loginAdmin,
   getAdmins,
   getAdmin,
   editAdmin,

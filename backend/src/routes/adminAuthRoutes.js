@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   registerAdmin,
+  loginAdmin,
   getAdmins,
   getAdmin,
   editAdmin,
@@ -13,6 +14,11 @@ const router = express.Router();
 router.post(
   "/register",
   registerAdmin
+);
+
+router.post(
+  "/login",
+  loginAdmin
 );
 
 router.get(
