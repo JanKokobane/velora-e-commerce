@@ -19,6 +19,11 @@ const startServer = async () => {
   try {
     await connectDB();
 
+    console.log(
+      "JWT_SECRET configured:",
+      !!process.env.JWT_SECRET
+    );
+
     app.listen(PORT, () => {
       console.log(
         `Server running on port ${PORT}`
@@ -26,11 +31,6 @@ const startServer = async () => {
 
       console.log(
         "Admin registration: /api/admin/auth/register"
-      );
-
-      console.log(
-        "JWT_SECRET configured:",
-        Boolean(process.env.JWT_SECRET)
       );
     });
   } catch (error) {
