@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const {
   createAdmin,
@@ -132,7 +133,7 @@ const loginAdmin = async (req, res) => {
     }
 
     const passwordMatches =
-      await require("bcrypt").compare(
+      await bcrypt.compare(
         String(password),
         admin.password_hash
       );
@@ -141,6 +142,17 @@ const loginAdmin = async (req, res) => {
       return res.status(401).json({
         message:
           "Invalid email or password.",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error(
+        "JWT_SECRET is not configured."
+      );
+
+      return res.status(500).json({
+        message:
+          "Server authentication configuration is missing.",
       });
     }
 
