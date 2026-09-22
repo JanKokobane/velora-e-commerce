@@ -9,6 +9,10 @@ const {
   removeAdmin,
 } = require("../controllers/adminAuthController");
 
+const adminAuthMiddleware = require(
+  "../middleware/adminAuthMiddleware"
+);
+
 const router = express.Router();
 
 router.post(
@@ -23,21 +27,25 @@ router.post(
 
 router.get(
   "/",
+  adminAuthMiddleware,
   getAdmins
 );
 
 router.get(
   "/:id",
+  adminAuthMiddleware,
   getAdmin
 );
 
 router.put(
   "/:id",
+  adminAuthMiddleware,
   editAdmin
 );
 
 router.delete(
   "/:id",
+  adminAuthMiddleware,
   removeAdmin
 );
 
