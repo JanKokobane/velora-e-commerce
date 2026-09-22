@@ -504,16 +504,6 @@
               </svg>
             </button>
 
-            <button type="button" class="export-zip-btn" id="headerExportZipBtn"
-              title="Download Full Project ZIP Archive" onclick="window.downloadProjectZip()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              <span>Download ZIP</span>
-            </button>
-
             <div class="admin-profile-pill" id="adminProfilePill"
               title="Authenticated Administrator — Click to switch staff profile or lock screen"
               onclick="window.showAuthGate()" style="cursor: pointer;">
@@ -1997,6 +1987,7 @@
   <div class="velora-toast-container" id="veloraToastContainer"></div>
 
   <!-- Core Modular Data & Controller Scripts -->
+  <script src="./js/ValidationAndAuth.js"></script>
   <script src="./js/data.js"></script>
   <script src="./js/currency.js"></script>
   <script src="./js/notifications.js"></script>
@@ -2011,7 +2002,6 @@
   <script src="./js/modals.js"></script>
   <script src="./js/search.js"></script>
   <script src="./js/formLogic.js"></script>
-  <script src="./js/formValidation.js"></script>
   <script src="./js/app.js"></script>
   <script src="./dashboard.js"></script>
   <script src="./js/component-renderer.js"></script>
