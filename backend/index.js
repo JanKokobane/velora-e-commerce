@@ -27,6 +27,11 @@ const startServer = async () => {
       console.log(
         "Admin registration: /api/admin/auth/register"
       );
+
+      console.log(
+        "JWT_SECRET configured:",
+        Boolean(process.env.JWT_SECRET)
+      );
     });
   } catch (error) {
     console.error(
