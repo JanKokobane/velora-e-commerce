@@ -1,2 +1,3 @@
 *.crdownload
 admin/images/*.crdownload
+.DS_Store
