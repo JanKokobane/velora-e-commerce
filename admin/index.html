@@ -54,6 +54,7 @@
       transition: none !important;
       animation: none !important;
     }
+
     html.velora-authenticated #dashboardViewport,
     html.velora-authenticated .dashboard-viewport {
       display: flex !important;
@@ -66,10 +67,12 @@
     html:not(.velora-authenticated) {
       background-color: #060408 !important;
     }
+
     html.velora-auth-required body,
     html:not(.velora-authenticated) body {
       background-color: #060408 !important;
     }
+
     html.velora-auth-required #dashboardViewport,
     html.velora-auth-required .dashboard-viewport,
     html:not(.velora-authenticated) #dashboardViewport,
@@ -81,6 +84,7 @@
       transition: none !important;
       animation: none !important;
     }
+
     html.velora-auth-required #adminAuthScreen,
     html.velora-auth-required .admin-auth-screen,
     html:not(.velora-authenticated) #adminAuthScreen,
@@ -188,7 +192,7 @@
               role: 'Studio Director'
             }));
           }
-        } catch (e) {}
+        } catch (e) { }
 
         document.documentElement.classList.remove('velora-auth-required');
         document.documentElement.classList.add('velora-authenticated');
@@ -674,7 +678,7 @@
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             </button>
-            
+
           </div>
 
           <div class="topbar-search-container" id="topbarSearchContainer">
@@ -737,10 +741,7 @@
                 title="Change country & currency">
                 <span class="country-flag-icon" id="headerSelectedFlag">🇿🇦</span>
                 <span class="country-code-pill" id="headerSelectedCode">ZAR</span>
-                <svg class="dropdown-arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                
               </button>
 
               <div class="country-dropdown-popover" id="countryCurrencyDropdown" style="display: none;" role="menu">
@@ -783,16 +784,19 @@
             <div class="admin-profile-pill" id="adminProfilePill"
               title="Authenticated Administrator — Click to switch staff profile or lock screen"
               onclick="window.showAuthGate()" style="cursor: pointer;">
-              <img class="admin-avatar" id="topbarAdminAvatar"
-                src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=100&w=100"
-                alt="Kristina Evans"
-                onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'20\' fill=\'%232a2638\'/%3E%3Ctext x=\'20\' y=\'24\' font-size=\'14\' fill=\'%23c9a57a\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EKE%3C/text%3E%3C/svg%3E'">
+              <img class="admin-avatar" id="topbarAdminAvatar" src="" alt="Administrator">
+
               <div class="admin-info">
-                <span class="admin-name" id="topbarAdminName">Kristina Evans</span>
-                <span class="admin-role" id="topbarAdminRole">kris.evans@velora.co.za</span>
+                <span class="admin-name" id="topbarAdminName">
+                  Administrator
+                </span>
+
+                <span class="admin-role" id="topbarAdminRole">
+                  admin
+                </span>
               </div>
-             
             </div>
+
           </div>
         </header>
 

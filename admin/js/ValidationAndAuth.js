@@ -10,18 +10,22 @@ const VELORA_SESSION_KEY =
 const VELORA_REMEMBER_DAYS = 30;
 
 const adminAuthApi = {
+
   async register({
     full_name,
     email,
     password,
   }) {
+
     const response = await fetch(
       `${VELORA_API_URL}/api/admin/auth/register`,
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           full_name,
           email,
@@ -47,13 +51,16 @@ const adminAuthApi = {
     password,
     rememberMe = false,
   }) {
+
     const response = await fetch(
       `${VELORA_API_URL}/api/admin/auth/login`,
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           email,
           password,
@@ -73,6 +80,12 @@ const adminAuthApi = {
     if (!data.token) {
       throw new Error(
         "Login succeeded but no authentication token was returned."
+      );
+    }
+
+    if (!data.admin) {
+      throw new Error(
+        "Login succeeded but no administrator information was returned."
       );
     }
 
@@ -97,6 +110,7 @@ const adminAuthApi = {
     );
 
     if (rememberMe) {
+
       const expiresAt =
         Date.now() +
         VELORA_REMEMBER_DAYS *
@@ -118,7 +132,9 @@ const adminAuthApi = {
       sessionStorage.removeItem(
         "velora_admin_session"
       );
+
     } else {
+
       localStorage.removeItem(
         VELORA_REMEMBER_KEY
       );
@@ -137,6 +153,7 @@ const adminAuthApi = {
   },
 
   logout() {
+
     localStorage.removeItem(
       "velora_admin_token"
     );
@@ -167,12 +184,14 @@ const adminAuthApi = {
   },
 
   getToken() {
+
     return localStorage.getItem(
       "velora_admin_token"
     );
   },
 
   getAdmin() {
+
     const admin =
       localStorage.getItem(
         "velora_admin"
@@ -183,13 +202,18 @@ const adminAuthApi = {
     }
 
     try {
+
       return JSON.parse(admin);
+
     } catch {
+
       return null;
+
     }
   },
 
   isRememberedSessionValid() {
+
     const remember =
       localStorage.getItem(
         VELORA_REMEMBER_KEY
@@ -210,7 +234,9 @@ const adminAuthApi = {
     }
 
     if (Date.now() >= expiresAt) {
+
       this.logout();
+
       return false;
     }
 
@@ -218,6 +244,7 @@ const adminAuthApi = {
   },
 
   isAuthenticated() {
+
     const token =
       this.getToken();
 
@@ -250,16 +277,20 @@ const adminAuthApi = {
     endpoint,
     options = {}
   ) {
+
     const token =
       this.getToken();
 
     const headers = {
+
       "Content-Type":
         "application/json",
+
       ...(options.headers || {}),
     };
 
     if (token) {
+
       headers.Authorization =
         `Bearer ${token}`;
     }
@@ -276,6 +307,7 @@ const adminAuthApi = {
       await response.json();
 
     if (!response.ok) {
+
       throw new Error(
         data.message ||
           "Request failed."
@@ -284,21 +316,221 @@ const adminAuthApi = {
 
     return data;
   },
+
 };
 
 window.adminAuthApi =
   adminAuthApi;
 
+
+function getAdminInitials(
+  fullName
+) {
+
+  if (!fullName) {
+    return "AD";
+  }
+
+  const nameParts =
+    String(fullName)
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+  if (nameParts.length === 1) {
+
+    return nameParts[0]
+      .substring(0, 2)
+      .toUpperCase();
+  }
+
+  return (
+    nameParts[0].charAt(0) +
+    nameParts[
+      nameParts.length - 1
+    ].charAt(0)
+  ).toUpperCase();
+}
+
+
+function createAdminInitialsAvatar(
+  fullName
+) {
+
+  const initials =
+    getAdminInitials(
+      fullName
+    );
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#2a2638"/>
+      <text x="50" y="58" font-size="32" fill="#c9a57a" text-anchor="middle" font-family="Arial, sans-serif" font-weight="600">${initials}</text>
+    </svg>
+  `)}`;
+}
+
+
+function updateAdminProfilePill(
+  admin
+) {
+
+  if (!admin) {
+
+    console.warn(
+      "No admin data available for profile."
+    );
+
+    return;
+  }
+
+  const nameElement =
+    document.getElementById(
+      "topbarAdminName"
+    );
+
+  const roleElement =
+    document.getElementById(
+      "topbarAdminRole"
+    );
+
+  const avatarElement =
+    document.getElementById(
+      "topbarAdminAvatar"
+    );
+
+  const fullName =
+    admin.full_name ||
+    admin.fullName ||
+    admin.name ||
+    "Administrator";
+
+  const email =
+    admin.email ||
+    "";
+
+  const initials =
+    getAdminInitials(
+      fullName
+    );
+
+  if (nameElement) {
+
+    nameElement.textContent =
+      fullName;
+  }
+
+  if (roleElement) {
+
+    roleElement.textContent =
+      email;
+  }
+
+  if (avatarElement) {
+
+    avatarElement.src =
+      createAdminInitialsAvatar(
+        fullName
+      );
+
+    avatarElement.alt =
+      fullName;
+  }
+
+  console.log(
+    "[Velora Admin] Profile displayed:",
+    {
+      name: fullName,
+      email: email,
+      initials: initials
+    }
+  );
+}
+
+window.updateAdminProfilePill =
+  updateAdminProfilePill;
+
+
+async function fetchLoggedInAdmin() {
+
+  const token =
+    window.adminAuthApi.getToken();
+
+  if (!token) {
+
+    console.warn(
+      "[Velora Admin] No authentication token found."
+    );
+
+    return null;
+  }
+
+  try {
+
+    const storedAdmin =
+      window.adminAuthApi.getAdmin();
+
+    if (storedAdmin) {
+
+      updateAdminProfilePill(
+        storedAdmin
+      );
+
+      return storedAdmin;
+    }
+
+    const data =
+      await window.adminAuthApi.request(
+        "/api/admin/auth/me"
+      );
+
+    const admin =
+      data.admin ||
+      data;
+
+    if (admin) {
+
+      localStorage.setItem(
+        "velora_admin",
+        JSON.stringify(admin)
+      );
+
+      localStorage.setItem(
+        "admin",
+        JSON.stringify(admin)
+      );
+
+      updateAdminProfilePill(
+        admin
+      );
+
+      return admin;
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "[Velora Admin] Could not fetch authenticated admin profile:",
+      error
+    );
+  }
+
+  return null;
+}
+
+
 function showKinderValidationMessage(
   message,
   type = "error"
 ) {
+
   const alertBox =
     document.getElementById(
       "kinderAuthAlert"
     );
 
   if (alertBox) {
+
     alertBox.textContent =
       message;
 
@@ -314,12 +546,14 @@ function showKinderValidationMessage(
     );
 
     if (type === "error") {
+
       alertBox.classList.add(
         "error"
       );
     }
 
     if (type === "success") {
+
       alertBox.classList.add(
         "success"
       );
@@ -332,13 +566,16 @@ function showKinderValidationMessage(
   );
 }
 
+
 function clearKinderValidationMessage() {
+
   const alertBox =
     document.getElementById(
       "kinderAuthAlert"
     );
 
   if (alertBox) {
+
     alertBox.textContent = "";
 
     alertBox.style.display =
@@ -357,10 +594,12 @@ function clearKinderValidationMessage() {
       ".kinder-input-error, .kinder-input-success"
     )
     .forEach((input) => {
+
       input.classList.remove(
         "kinder-input-error",
         "kinder-input-success"
       );
+
     });
 
   document
@@ -368,16 +607,20 @@ function clearKinderValidationMessage() {
       ".kinder-field-error, .kinder-field-success"
     )
     .forEach((group) => {
+
       group.classList.remove(
         "kinder-field-error",
         "kinder-field-success"
       );
+
     });
 }
+
 
 function markKinderFieldError(
   inputEl
 ) {
+
   if (!inputEl) {
     return;
   }
@@ -396,6 +639,7 @@ function markKinderFieldError(
     );
 
   if (group) {
+
     group.classList.add(
       "kinder-field-error"
     );
@@ -405,10 +649,12 @@ function markKinderFieldError(
     );
   }
 }
+
 
 function markKinderFieldSuccess(
   inputEl
 ) {
+
   if (!inputEl) {
     return;
   }
@@ -427,6 +673,7 @@ function markKinderFieldSuccess(
     );
 
   if (group) {
+
     group.classList.add(
       "kinder-field-success"
     );
@@ -437,10 +684,13 @@ function markKinderFieldSuccess(
   }
 }
 
+
 function validateKinderPassword(
   password
 ) {
+
   return {
+
     length:
       password.length >= 8,
 
@@ -457,19 +707,24 @@ function validateKinderPassword(
       /[^A-Za-z0-9]/.test(
         password
       ),
+
   };
 }
+
 
 function isKinderEmailValid(
   email
 ) {
+
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
     email
   );
 }
 
+
 window.handleKinderAuthSubmit =
   async function (event) {
+
     event.preventDefault();
 
     clearKinderValidationMessage();
@@ -504,6 +759,7 @@ window.handleKinderAuthSubmit =
       !emailInput ||
       !passwordInput
     ) {
+
       console.error(
         "Email or password input could not be found."
       );
@@ -525,11 +781,13 @@ window.handleKinderAuthSubmit =
       null;
 
     if (!email) {
+
       markKinderFieldError(
         emailInput
       );
 
       if (!hasError) {
+
         showKinderValidationMessage(
           "Email address is required.",
           "error"
@@ -540,14 +798,17 @@ window.handleKinderAuthSubmit =
 
         hasError = true;
       }
+
     } else if (
       !isKinderEmailValid(email)
     ) {
+
       markKinderFieldError(
         emailInput
       );
 
       if (!hasError) {
+
         showKinderValidationMessage(
           "Please enter a valid email address.",
           "error"
@@ -558,18 +819,22 @@ window.handleKinderAuthSubmit =
 
         hasError = true;
       }
+
     } else {
+
       markKinderFieldSuccess(
         emailInput
       );
     }
 
     if (!password) {
+
       markKinderFieldError(
         passwordInput
       );
 
       if (!hasError) {
+
         showKinderValidationMessage(
           "Password is required.",
           "error"
@@ -580,7 +845,9 @@ window.handleKinderAuthSubmit =
 
         hasError = true;
       }
+
     } else if (isSignup) {
+
       const passwordRequirements =
         validateKinderPassword(
           password
@@ -589,11 +856,13 @@ window.handleKinderAuthSubmit =
       if (
         !passwordRequirements.length
       ) {
+
         markKinderFieldError(
           passwordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Password must be at least 8 characters.",
             "error"
@@ -604,14 +873,17 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         !passwordRequirements.uppercase
       ) {
+
         markKinderFieldError(
           passwordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Password must contain at least one uppercase letter.",
             "error"
@@ -622,14 +894,17 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         !passwordRequirements.lowercase
       ) {
+
         markKinderFieldError(
           passwordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Password must contain at least one lowercase letter.",
             "error"
@@ -640,14 +915,17 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         !passwordRequirements.number
       ) {
+
         markKinderFieldError(
           passwordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Password must contain at least one number.",
             "error"
@@ -658,14 +936,17 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         !passwordRequirements.special
       ) {
+
         markKinderFieldError(
           passwordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Password must contain at least one special character.",
             "error"
@@ -676,26 +957,36 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else {
+
         markKinderFieldSuccess(
           passwordInput
         );
       }
+
     } else {
+
       markKinderFieldSuccess(
         passwordInput
       );
     }
 
     let fullName = "";
+
     let confirmPassword = "";
+
     let termsInput = null;
+
     let rememberInput = null;
+
     let fullNameInput = null;
+
     let confirmPasswordInput =
       null;
 
     if (isSignup) {
+
       fullNameInput =
         document.getElementById(
           "kinderFullName"
@@ -716,6 +1007,7 @@ window.handleKinderAuthSubmit =
         !confirmPasswordInput ||
         !termsInput
       ) {
+
         console.error(
           "One or more signup fields could not be found."
         );
@@ -730,11 +1022,13 @@ window.handleKinderAuthSubmit =
         confirmPasswordInput.value;
 
       if (!fullName) {
+
         markKinderFieldError(
           fullNameInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Full name is required.",
             "error"
@@ -745,14 +1039,17 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         fullName.length < 2
       ) {
+
         markKinderFieldError(
           fullNameInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Full name must be at least 2 characters.",
             "error"
@@ -763,18 +1060,22 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else {
+
         markKinderFieldSuccess(
           fullNameInput
         );
       }
 
       if (!confirmPassword) {
+
         markKinderFieldError(
           confirmPasswordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Please confirm your password.",
             "error"
@@ -785,15 +1086,18 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else if (
         password !==
         confirmPassword
       ) {
+
         markKinderFieldError(
           confirmPasswordInput
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Passwords do not match.",
             "error"
@@ -804,13 +1108,16 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else {
+
         markKinderFieldSuccess(
           confirmPasswordInput
         );
       }
 
       if (!termsInput.checked) {
+
         termsInput.classList.add(
           "kinder-input-error"
         );
@@ -820,6 +1127,7 @@ window.handleKinderAuthSubmit =
         );
 
         if (!hasError) {
+
           showKinderValidationMessage(
             "Please select the checkbox to continue.",
             "error"
@@ -830,7 +1138,9 @@ window.handleKinderAuthSubmit =
 
           hasError = true;
         }
+
       } else {
+
         termsInput.classList.remove(
           "kinder-input-error"
         );
@@ -839,7 +1149,9 @@ window.handleKinderAuthSubmit =
           "kinder-input-success"
         );
       }
+
     } else {
+
       rememberInput =
         document.getElementById(
           "kinderRememberCheckbox"
@@ -847,7 +1159,9 @@ window.handleKinderAuthSubmit =
     }
 
     if (hasError) {
+
       if (firstErrorInput) {
+
         firstErrorInput.focus();
       }
 
@@ -855,6 +1169,7 @@ window.handleKinderAuthSubmit =
     }
 
     if (primaryButton) {
+
       primaryButton.disabled =
         true;
 
@@ -865,7 +1180,9 @@ window.handleKinderAuthSubmit =
     }
 
     try {
+
       if (isSignup) {
+
         showKinderValidationMessage(
           "Creating your admin account...",
           "success"
@@ -876,7 +1193,9 @@ window.handleKinderAuthSubmit =
             {
               full_name:
                 fullName,
+
               email,
+
               password,
             }
           );
@@ -893,6 +1212,7 @@ window.handleKinderAuthSubmit =
         if (
           confirmPasswordInput
         ) {
+
           confirmPasswordInput.value =
             "";
         }
@@ -902,17 +1222,21 @@ window.handleKinderAuthSubmit =
         );
 
         setTimeout(() => {
+
           const loginTab =
             document.getElementById(
               "kinderTabLogin"
             );
 
           if (loginTab) {
+
             loginTab.click();
+
           } else if (
             typeof window.setKinderAuthMode ===
             "function"
           ) {
+
             window.setKinderAuthMode(
               "login",
               false
@@ -925,6 +1249,7 @@ window.handleKinderAuthSubmit =
           emailInput.focus();
 
           clearKinderValidationMessage();
+
         }, 1000);
 
         return;
@@ -949,6 +1274,13 @@ window.handleKinderAuthSubmit =
           }
         );
 
+      const loggedInAdmin =
+        result.admin;
+
+      updateAdminProfilePill(
+        loggedInAdmin
+      );
+
       showKinderValidationMessage(
         result.message ||
           "Sign in successful!",
@@ -956,12 +1288,14 @@ window.handleKinderAuthSubmit =
       );
 
       setTimeout(() => {
+
         const authScreen =
           document.getElementById(
             "adminAuthScreen"
           );
 
         if (authScreen) {
+
           authScreen.style.display =
             "none";
         }
@@ -970,6 +1304,7 @@ window.handleKinderAuthSubmit =
           typeof window.closeAuthGate ===
           "function"
         ) {
+
           window.closeAuthGate();
         }
 
@@ -978,12 +1313,15 @@ window.handleKinderAuthSubmit =
             "veloraAdminLogin",
             {
               detail:
-                result.admin,
+                loggedInAdmin,
             }
           )
         );
+
       }, 700);
+
     } catch (error) {
+
       console.error(
         "Velora authentication error:",
         error
@@ -994,8 +1332,11 @@ window.handleKinderAuthSubmit =
           "Authentication failed. Please try again.",
         "error"
       );
+
     } finally {
+
       if (primaryButton) {
+
         primaryButton.disabled =
           false;
 
@@ -1007,111 +1348,130 @@ window.handleKinderAuthSubmit =
     }
   };
 
-function openVeloraAuthScreen() {
-  const authScreen =
-    document.getElementById(
-      "adminAuthScreen"
+
+  function openVeloraAuthScreen() {
+
+    const authScreen =
+      document.getElementById(
+        "adminAuthScreen"
+      );
+
+    if (!authScreen) {
+      return;
+    }
+
+    authScreen.style.display =
+      "flex";
+
+    document.body.classList.add(
+      "velora-auth-open"
     );
-
-  if (!authScreen) {
-    return;
   }
 
-  authScreen.style.display =
-    "flex";
 
-  document.body.classList.add(
-    "velora-auth-open"
-  );
-}
+  function closeVeloraAuthScreen() {
 
-function closeVeloraAuthScreen() {
-  const authScreen =
-    document.getElementById(
-      "adminAuthScreen"
+    const authScreen =
+      document.getElementById(
+        "adminAuthScreen"
+      );
+
+    if (!authScreen) {
+      return;
+    }
+
+    authScreen.style.display =
+      "none";
+
+    document.body.classList.remove(
+      "velora-auth-open"
     );
-
-  if (!authScreen) {
-    return;
   }
 
-  authScreen.style.display =
-    "none";
 
-  document.body.classList.remove(
-    "velora-auth-open"
-  );
-}
+  async function restoreVeloraAdminSession() {
 
-function restoreVeloraAdminSession() {
-  const authScreen =
-    document.getElementById(
-      "adminAuthScreen"
-    );
+    const authScreen =
+      document.getElementById(
+        "adminAuthScreen"
+      );
 
-  if (!authScreen) {
-    return;
-  }
-
-  openVeloraAuthScreen();
-
-  const token =
-    window.adminAuthApi.getToken();
-
-  const admin =
-    window.adminAuthApi.getAdmin();
-
-  if (!token || !admin) {
-    return;
-  }
-
-  if (
-    !window.adminAuthApi.isAuthenticated()
-  ) {
-    window.adminAuthApi.logout();
+    if (!authScreen) {
+      return;
+    }
 
     openVeloraAuthScreen();
 
-    return;
+    const token =
+      window.adminAuthApi.getToken();
+
+    const admin =
+      window.adminAuthApi.getAdmin();
+
+    if (!token || !admin) {
+      return;
+    }
+
+    if (
+      !window.adminAuthApi.isAuthenticated()
+    ) {
+
+      window.adminAuthApi.logout();
+
+      openVeloraAuthScreen();
+
+      return;
+    }
+
+    updateAdminProfilePill(
+      admin
+    );
+
+    await fetchLoggedInAdmin();
+
+    closeVeloraAuthScreen();
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "veloraAdminSessionRestored",
+        {
+          detail: admin,
+        }
+      )
+    );
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "veloraAdminLogin",
+        {
+          detail: admin,
+        }
+      )
+    );
   }
 
-  closeVeloraAuthScreen();
 
-  window.dispatchEvent(
-    new CustomEvent(
-      "veloraAdminSessionRestored",
+  function initializeVeloraAdminSession() {
+
+    restoreVeloraAdminSession();
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeVeloraAdminSession,
       {
-        detail: admin,
+        once: true,
       }
-    )
-  );
+    );
 
-  window.dispatchEvent(
-    new CustomEvent(
-      "veloraAdminLogin",
-      {
-        detail: admin,
-      }
-    )
-  );
-}
+  } else {
 
-function initializeVeloraAdminSession() {
-  restoreVeloraAdminSession();
-}
-
-if (
-  document.readyState ===
-  "loading"
-) {
-  document.addEventListener(
-    "DOMContentLoaded",
-    initializeVeloraAdminSession,
-    {
-      once: true,
-    }
-  );
-} else {
-  initializeVeloraAdminSession();
-}
+    initializeVeloraAdminSession();
+  }
 

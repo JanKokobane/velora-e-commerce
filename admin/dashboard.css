@@ -2080,11 +2080,11 @@ body.sidebar-drawer-active {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: var(--dash-bg);
-  border: 1px solid var(--dash-border);
-  border-radius: 8px;
+  border-radius: 50px;
   cursor: pointer;
   font-family: inherit;
+  background-color: transparent;
+  border: none;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
@@ -2092,8 +2092,8 @@ body.sidebar-drawer-active {
 }
 
 .country-currency-btn:hover {
-  background: #f0ece3;
-  border-color: var(--accent);
+  background-color: transparent;
+  border: none;
 }
 
 .country-flag-icon {

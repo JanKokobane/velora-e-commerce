@@ -193,6 +193,45 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+const getCurrentAdmin = async (req, res) => {
+  try {
+    const adminId = req.admin?.admin_id;
+
+    if (!adminId) {
+      return res.status(401).json({
+        message: "Authenticated admin could not be identified.",
+      });
+    }
+
+    const admin = await findAdminById(adminId);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found.",
+      });
+    }
+
+    if (!admin.is_active) {
+      return res.status(403).json({
+        message: "This admin account is inactive.",
+      });
+    }
+
+    return res.status(200).json({
+      admin,
+    });
+  } catch (error) {
+    console.error(
+      "Get current admin error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch current admin.",
+    });
+  }
+};
+
 const getAdmins = async (req, res) => {
   try {
     const admins = await getAllAdmins();
@@ -366,6 +405,7 @@ const removeAdmin = async (req, res) => {
 module.exports = {
   registerAdmin,
   loginAdmin,
+  getCurrentAdmin,
   getAdmins,
   getAdmin,
   editAdmin,

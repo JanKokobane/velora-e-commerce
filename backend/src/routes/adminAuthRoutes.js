@@ -3,6 +3,7 @@ const express = require("express");
 const {
   registerAdmin,
   loginAdmin,
+  getCurrentAdmin,
   getAdmins,
   getAdmin,
   editAdmin,
@@ -47,6 +48,12 @@ router.delete(
   "/:id",
   adminAuthMiddleware,
   removeAdmin
+);
+
+router.get(
+  "/me",
+  adminAuthMiddleware,
+  getCurrentAdmin
 );
 
 module.exports = router;
