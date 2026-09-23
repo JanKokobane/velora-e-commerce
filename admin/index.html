@@ -1209,16 +1209,53 @@
             <div class="inventory-section" id="inventoryComponent">
               <div class="inventory-header-bar">
                 <div>
-                  <h3 class="inventory-title"></h3>
-                  <p class="inventory-subtitle"></p>
+                  <h3 class="inventory-title">Catalog &amp; Stock Inventory</h3>
+                  <p class="inventory-subtitle">Manage store pieces, stock thresholds, pricing, and visual presentation</p>
                 </div>
-                <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn"
-                  onclick="window.openNewProductModal()">
-                  ＋ Add New Product
-                </button>
+                <div class="inventory-header-actions">
+                  <!-- View Switcher: Cards, List, Details -->
+                  <div class="inv-view-toggle" id="invViewToggle" role="group" aria-label="Catalog view style">
+                    <button type="button" class="inv-toggle-btn active" data-view="cards" title="Cards Grid View" onclick="window.setInventoryViewMode('cards')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                      <span>Cards</span>
+                    </button>
+                    <button type="button" class="inv-toggle-btn" data-view="list" title="Compact List View" onclick="window.setInventoryViewMode('list')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                      </svg>
+                      <span>List</span>
+                    </button>
+                    <button type="button" class="inv-toggle-btn" data-view="details" title="Expanded Detailed View" onclick="window.setInventoryViewMode('details')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                      </svg>
+                      <span>Details</span>
+                    </button>
+                  </div>
+
+                  <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn"
+                    onclick="window.openNewProductModal()">
+                    ＋ Add New Product
+                  </button>
+                </div>
               </div>
 
-              <div class="product-inventory-grid" id="productInventoryGrid"></div>
+              <!-- Product Inventory Display Container -->
+              <div class="product-inventory-container" id="productInventoryContainer">
+                <div class="product-inventory-grid" id="productInventoryGrid"></div>
+              </div>
             </div>
           </div>
 
@@ -2237,7 +2274,158 @@
   </div>
 </div>
 
-    <div class="dash-modal-backdrop" id="newCustomerModal">
+    <!-- Product Detail & Customer Presentation Modal -->
+    <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productTitle">
+      <div class="dash-modal product-detail-modal-container">
+        
+        <!-- Header Bar -->
+        <div class="product-detail-modal-topbar">
+          <!-- Breadcrumbs matching user template -->
+          <div class="breadcrumbs" id="pvBreadcrumbs">
+            <span class="breadcrumb-link" onclick="window.closeProductDetailModal()">Catalog</span>
+            <span class="breadcrumb-sep">/</span>
+            <span id="breadcrumbCategory" class="breadcrumb-cat">Footwear</span>
+            <span class="breadcrumb-sep">/</span>
+            <span id="breadcrumbTitle" class="breadcrumb-title">Cloud-step sneakers</span>
+          </div>
+
+          <div class="product-detail-modal-actions">
+            <span id="pvStockBadge" class="product-stock-badge stock-in">In Stock</span>
+            <button type="button" class="pv-header-action-btn pv-edit-btn" id="pvHeaderEditBtn" title="Edit specifications">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span>Edit Piece</span>
+            </button>
+            <button type="button" class="pv-header-action-btn pv-close-btn" onclick="window.closeProductDetailModal()" aria-label="Close dialog">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div class="product-detail-modal-scrollable">
+          <!-- Product detail: gallery + copy (matching user layout) -->
+          <section class="product-detail" id="productInfo">
+
+            <!-- Gallery -->
+            <div class="product-gallery" id="pvProductGallery">
+              <div class="gallery-main">
+                <img id="mainProductImage"
+                  src="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+                  alt="Product view">
+              </div>
+              <div class="gallery-thumbs" id="galleryThumbs">
+                <!-- Injected dynamically based on item images -->
+              </div>
+              <div class="rotate-badge" id="rotateBadge">
+                <span class="rotate-dot"></span>
+                <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
+              </div>
+            </div>
+
+            <!-- Copy / purchase -->
+            <div class="product-copy">
+              <p class="eyebrow" id="productEyebrow">Weekend Uniform</p>
+              <h1 id="productTitle">Cloud-step <em>sneakers.</em></h1>
+
+              <div class="rating">
+                <span id="productRatingStars">★★★★★</span>
+                <u id="productReviewsCount">12 reviews</u>
+              </div>
+
+              <div class="detail-price-wrap">
+                <p class="detail-price" id="productPrice">R1 150</p>
+                <span class="detail-compare-price" id="productComparePrice"></span>
+              </div>
+
+              <p class="detail-description" id="productDesc">
+                A light, considered everyday sneaker with a soft step and a clean silhouette.
+                Made for long walks, slow mornings, and everything in between.
+              </p>
+
+              <div class="detail-rule"></div>
+
+              <div class="option-row">
+                <span>Select size</span>
+                <span class="detail-fit-badge" id="productFitBadge">Regular Classic Fit</span>
+              </div>
+
+              <div class="size-options" id="productSizesContainer">
+                <button type="button" class="selected">36</button>
+                <button type="button">37</button>
+                <button type="button">38</button>
+                <button type="button">39</button>
+                <button type="button">40</button>
+              </div>
+
+              <div class="detail-colors-wrap" id="productColorsWrap" style="margin-top: 14px;">
+                <div class="option-row">
+                  <span>Available colors</span>
+                </div>
+                <div class="color-options" id="productColorsContainer">
+                  <!-- Color pills -->
+                </div>
+              </div>
+
+              <div class="purchase-row admin-preview-actions">
+                <div class="quantity">
+                  <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
+                  <span id="quantity">1</span>
+                  <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
+                </div>
+                <button class="add-to-bag" id="addToBag" type="button">
+                  Edit Specifications <span>↗</span>
+                </button>
+                <button class="buy-now-btn pv-delete-btn" id="buyNowBtn" type="button">
+                  Delete Piece <span>🗑</span>
+                </button>
+              </div>
+
+              <p class="added-feedback" id="addedFeedback" role="status"></p>
+
+              <!-- Accordions matching user template -->
+              <div class="detail-accordions">
+                <details open id="accordionDetails">
+                  <summary>Product details <span>＋</span></summary>
+                  <p id="detailsContent">Breathable textile upper, cushioned footbed, and durable rubber sole. Designed in Cape Town and made for daily wear.</p>
+                </details>
+                <details id="accordionDelivery">
+                  <summary>Delivery &amp; returns <span>＋</span></summary>
+                  <p id="deliveryContent">Complimentary delivery over R800. Returns are accepted within 14 days of delivery in pristine original condition.</p>
+                </details>
+                <details id="accordionCare">
+                  <summary>Care notes <span>＋</span></summary>
+                  <p id="careContent">Wipe gently with a soft, damp cloth. Allow to air dry away from direct heat.</p>
+                </details>
+              </div>
+
+              <!-- Admin Quick Specs Meta Card -->
+              <div class="pv-admin-metrics-card">
+                <div class="pv-metric-col">
+                  <span class="pv-metric-label">Units in Stock</span>
+                  <strong class="pv-metric-val" id="pvMetricStock">35</strong>
+                </div>
+                <div class="pv-metric-col">
+                  <span class="pv-metric-label">Unit Cost</span>
+                  <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
+                </div>
+                <div class="pv-metric-col">
+                  <span class="pv-metric-label">Gross Margin</span>
+                  <strong class="pv-metric-val" id="pvMetricMargin">60%</strong>
+                </div>
+                <div class="pv-metric-col">
+                  <span class="pv-metric-label">Catalog ID</span>
+                  <strong class="pv-metric-val" id="pvMetricId">#1</strong>
+                </div>
+              </div>
+
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
       <div class="dash-modal">
         <div class="dash-modal-header">
           <h3>Add New Velora Client</h3>
