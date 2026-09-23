@@ -6,6 +6,10 @@ const adminAuthRoutes = require(
   "./src/routes/adminAuthRoutes"
 );
 
+const productRoutes = require(
+  "./src/routes/productRoutes"
+);
+
 const { connectDB } = require("./src/config/db");
 
 const PORT = process.env.PORT || 5000;
@@ -13,6 +17,11 @@ const PORT = process.env.PORT || 5000;
 app.use(
   "/api/admin/auth",
   adminAuthRoutes
+);
+
+app.use(
+  "/api/products",
+  productRoutes
 );
 
 const startServer = async () => {
@@ -31,6 +40,10 @@ const startServer = async () => {
 
       console.log(
         "Admin registration: /api/admin/auth/register"
+      );
+
+      console.log(
+        "Product API: /api/products"
       );
     });
   } catch (error) {
