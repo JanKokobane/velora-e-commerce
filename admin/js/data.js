@@ -1,8 +1,3 @@
-/**
- * Data Storage & Master State Module (js/data.js)
- * Manages seed models and localStorage persistence.
- */
-
 window.STORAGE_KEYS = {
   ORDERS: 'velora_orders_history',
   INVENTORY: 'velora_inventory_state',
@@ -117,14 +112,7 @@ const INITIAL_ORDERS = [
   }
 ];
 
-const INITIAL_INVENTORY = [
-  { id: 'prod-1', title: 'Everyday leather tote', category: 'Bags', price: 1250.00, stock: 18, img: 'https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' },
-  { id: 'prod-2', title: 'Ryobi ONE drill/driver kit', category: 'Hardware', price: 409.00, stock: 3, img: 'https://images.pexels.com/photos/8839887/pexels-photo-8839887.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' },
-  { id: 'prod-3', title: 'Socket Systeme Electric Pack', category: 'Electrical', price: 238.00, stock: 24, img: 'https://images.pexels.com/photos/32677219/pexels-photo-32677219.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' },
-  { id: 'prod-4', title: 'Architectural desk lamp', category: 'Objects', price: 2150.00, stock: 7, img: 'https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' },
-  { id: 'prod-5', title: 'Raw ceramic vessel', category: 'Objects', price: 890.00, stock: 0, img: 'https://images.pexels.com/photos/4207892/pexels-photo-4207892.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' },
-  { id: 'prod-6', title: 'Studio wool overcoat', category: 'Apparel', price: 1750.00, stock: 12, img: 'https://images.pexels.com/photos/32677219/pexels-photo-32677219.jpeg?auto=compress&cs=tinysrgb&h=300&w=300' }
-];
+const INITIAL_INVENTORY = [];
 
 const INITIAL_RETURNS = [
   { id: 'RET-0981', orderId: '#390557', customer: 'Lara Croft-Mthembu', reason: 'Size too small, requested return before shipment', refundAmount: 450.00, status: 'Authorised' },
@@ -199,6 +187,13 @@ const INITIAL_SETTINGS = {
 // Global active states
 window.ordersData = loadStorage(window.STORAGE_KEYS.ORDERS, INITIAL_ORDERS);
 window.inventoryData = loadStorage(window.STORAGE_KEYS.INVENTORY, INITIAL_INVENTORY);
+if (Array.isArray(window.inventoryData)) {
+  window.inventoryData = window.inventoryData.filter(item => {
+    if (!item) return false;
+    const isMock = typeof item.id === 'string' && /^prod-[1-6]$/.test(item.id);
+    return !isMock;
+  });
+}
 window.returnsData = loadStorage(window.STORAGE_KEYS.RETURNS, INITIAL_RETURNS);
 window.customersData = loadStorage(window.STORAGE_KEYS.CUSTOMERS, INITIAL_CUSTOMERS);
 window.paymentsData = loadStorage(window.STORAGE_KEYS.PAYMENTS, INITIAL_PAYMENTS);

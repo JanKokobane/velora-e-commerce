@@ -7,13 +7,20 @@ window.renderInventoryView = function() {
   const grid = document.getElementById('productInventoryGrid');
   if (!grid) return;
 
-  if (window.inventoryData.length === 0) {
+  if (!window.inventoryData || window.inventoryData.length === 0) {
     const emptyNotice = document.createElement('div');
     emptyNotice.style.gridColumn = '1 / -1';
     emptyNotice.style.textAlign = 'center';
     emptyNotice.style.padding = '60px 20px';
     emptyNotice.style.color = 'var(--muted)';
-    emptyNotice.textContent = 'No products found in the catalog.';
+    emptyNotice.innerHTML = `
+      <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.6;">📦</div>
+      <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 6px;">No products in catalog yet</h3>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 18px;">Your product catalog is ready. Publish your first piece to your online storefront.</p>
+      <button type="button" class="studio-btn-publish" style="margin: 0 auto; display: inline-flex;" onclick="window.openNewProductModal()">
+        <span>+ Add First Product</span>
+      </button>
+    `;
     grid.replaceChildren(emptyNotice);
     return;
   }
@@ -77,26 +84,43 @@ window.renderInventoryView = function() {
     const actions = document.createElement('div');
     actions.className = 'product-stock-actions';
 
-    const minusBtn = document.createElement('button');
-    minusBtn.type = 'button';
-    minusBtn.className = 'stock-btn';
-    minusBtn.title = 'Deduct 1 unit';
-    minusBtn.textContent = '−';
-    minusBtn.disabled = prod.stock <= 0;
-    minusBtn.addEventListener('click', () => {
-      window.quickDeductProduct(prod.id, 1);
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'prod-action-btn prod-edit-btn';
+    editBtn.title = 'Edit product specifications';
+    editBtn.innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+      <span>Edit</span>
+    `;
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof window.openEditProductModal === 'function') {
+        window.openEditProductModal(prod);
+      }
     });
 
-    const plusBtn = document.createElement('button');
-    plusBtn.type = 'button';
-    plusBtn.className = 'stock-btn';
-    plusBtn.title = 'Restock 5 units';
-    plusBtn.textContent = '+';
-    plusBtn.addEventListener('click', () => {
-      window.quickRestockProduct(prod.id, 5);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'prod-action-btn prod-delete-btn';
+    deleteBtn.title = 'Delete product from store';
+    deleteBtn.innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+      <span>Delete</span>
+    `;
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof window.deleteProductHandler === 'function') {
+        window.deleteProductHandler(prod);
+      }
     });
 
-    actions.append(minusBtn, plusBtn);
+    actions.append(editBtn, deleteBtn);
     stockRow.append(badge, actions);
 
     body.append(catTag, title, price, stockRow);

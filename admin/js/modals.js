@@ -1,8 +1,3 @@
-/**
- * Modals & Dialog Controllers (js/modals.js)
- * Pure DOM implementation with NO innerHTML.
- */
-
 window.openNewProductModal = function() {
   const modal = document.getElementById('newProductModal');
   if (modal) {
@@ -310,115 +305,10 @@ window.initModals = function() {
       });
     }
 
-    // Product Form Submission
-    prodForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const titleInput = document.getElementById('newProdTitle');
-      const skuInput = document.getElementById('newProdSku');
-      const barcodeInput = document.getElementById('newProdBarcode');
-      const priceInput = document.getElementById('newProdPrice');
-      const comparePriceInput = document.getElementById('newProdComparePrice');
-      const costPriceInput = document.getElementById('newProdCostPrice');
-      const catInput = document.getElementById('newProdCategory');
-      const stockInput = document.getElementById('newProdStock');
-      const statusInput = document.getElementById('newProdStatus');
-      const imgInput = document.getElementById('newProdImage');
-      const eyebrowInput = document.getElementById('newProdEyebrow');
-      const descInput = document.getElementById('newProdDescription');
-      const sizesInput = document.getElementById('newProdSizes');
-      const fitInput = document.getElementById('newProdFit');
-      const detailsInput = document.getElementById('newProdDetails');
-      const deliveryInput = document.getElementById('newProdDelivery');
-      const careInput = document.getElementById('newProdCare');
-      const img2Input = document.getElementById('newProdImage2');
-      const img3Input = document.getElementById('newProdImage3');
-
-      const title = titleInput ? titleInput.value.trim() : '';
-      const price = priceInput ? parseFloat(priceInput.value) : 0;
-      const compareAtPrice = comparePriceInput && comparePriceInput.value ? parseFloat(comparePriceInput.value) : null;
-      const costPrice = costPriceInput && costPriceInput.value ? parseFloat(costPriceInput.value) : null;
-      const category = catInput ? catInput.value : 'T-Shirts';
-      const stock = stockInput ? parseInt(stockInput.value, 10) : 10;
-      const status = statusInput ? statusInput.value : 'active';
-      const sku = (skuInput && skuInput.value.trim()) || `VEL-${category.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const barcode = (barcodeInput && barcodeInput.value.trim()) || '';
-      const img = imgInput && imgInput.value.trim()
-        ? imgInput.value.trim()
-        : 'https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&h=650&w=940';
-
-      if (!title) {
-        if (typeof window.showToast === 'function') window.showToast('Please enter a product title');
-        if (titleInput) titleInput.focus();
-        return;
-      }
-
-      if (isNaN(price) || price < 0) {
-        if (typeof window.showToast === 'function') window.showToast('Please enter a valid retail price');
-        if (priceInput) priceInput.focus();
-        return;
-      }
-
-      const submitBtn = document.getElementById('btnSubmitProduct');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        const textSpan = submitBtn.querySelector('.studio-btn-text');
-        if (textSpan) textSpan.textContent = 'Publishing...';
-      }
-
-      const newProduct = {
-        id: `prod-${Date.now()}`,
-        sku,
-        barcode,
-        title,
-        category,
-        price,
-        compareAtPrice,
-        costPrice,
-        stock,
-        status,
-        img,
-        eyebrow: (eyebrowInput && eyebrowInput.value.trim()) || 'Core Collection',
-        description: (descInput && descInput.value.trim()) || '',
-        sizes: (sizesInput && sizesInput.value.trim()) || '',
-        fit: (fitInput && fitInput.value.trim()) || '',
-        details: (detailsInput && detailsInput.value.trim()) || '',
-        delivery: (deliveryInput && deliveryInput.value.trim()) || '',
-        care: (careInput && careInput.value.trim()) || '',
-        galleryImages: [
-          img2Input && img2Input.value.trim(),
-          img3Input && img3Input.value.trim()
-        ].filter(Boolean),
-        rating: 5,
-        reviews: 0
-      };
-
-      if (!Array.isArray(window.inventoryData)) {
-        window.inventoryData = [];
-      }
-
-      window.inventoryData.unshift(newProduct);
-      if (typeof window.saveInventory === 'function') {
-        window.saveInventory();
-      }
-
-      setTimeout(() => {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          const textSpan = submitBtn.querySelector('.studio-btn-text');
-          if (textSpan) textSpan.textContent = 'Publish to Catalog';
-        }
-
-        window.closeNewProductModal();
-        if (typeof window.showToast === 'function') {
-          window.showToast(`Product "${title}" successfully published to catalog.`);
-        }
-
-        if (typeof window.renderInventoryView === 'function') {
-          window.renderInventoryView();
-        }
-      }, 250);
-    });
+    // Product Form Submission & Database Integration is managed by js/productLogic.js
+    if (typeof window.initProductLogic === 'function') {
+      window.initProductLogic();
+    }
   }
 
   // 2. New Customer Form Submission

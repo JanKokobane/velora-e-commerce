@@ -149,6 +149,12 @@ const adminAuthApi = {
       );
     }
 
+    try {
+      if (typeof window.fetchProductsFromDatabase === "function") {
+        window.fetchProductsFromDatabase();
+      }
+    } catch (_) {}
+
     return data;
   },
 

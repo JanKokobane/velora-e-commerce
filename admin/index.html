@@ -1928,9 +1928,9 @@
       <!-- 1. E-Commerce Product Header -->
       <div class="studio-modal-header">
         <div class="studio-modal-title-group">
-          <h3 class="studio-modal-heading">Add New Product</h3>
-          <p class="studio-modal-subheading">
-            Publish items to your online storefront, configure pricing, manage inventory levels, and set product variants.
+          <h3 class="studio-modal-heading" id="productModalTitle">Add New Product</h3>
+          <p class="studio-modal-subheading" id="productModalSubheading">
+            Fill in the details to publish a new piece to your store catalog.
           </p>
         </div>
 
@@ -1950,16 +1950,16 @@
       <!-- 2. Form Body -->
       <form id="newProductForm" class="studio-modal-form" novalidate>
         <div class="studio-modal-scrollable-body">
+          <!-- Inline Form Notification Banner for Validation & API Feedback -->
+          <div id="productFormAlert" class="studio-form-alert" style="display: none;" role="alert"></div>
+
           <div class="studio-form-columns studio-single-column">
 
-            <!-- Section 1: Product Overview & Categorization -->
+            <!-- Section 1: Basic Information -->
             <section class="studio-form-card">
-              <div class="studio-card-legend">
-                <span class="studio-legend-number">01</span>
-                <div>
-                  <h4>Product Overview &amp; Categorization</h4>
-                  <p>Product naming, brand collection, and apparel taxonomy</p>
-                </div>
+              <div class="studio-card-simple-title">
+                <h4>Basic Information</h4>
+                <p>Primary title, category and collection</p>
               </div>
 
               <div class="studio-input-group">
@@ -1970,22 +1970,10 @@
                   type="text"
                   id="newProdTitle"
                   class="studio-input"
-                  placeholder="e.g. Vintage Heavyweight Boxy T-Shirt"
-                  value="Heavyweight Boxy T-Shirt"
-                  required>
+                  placeholder="e.g. Vintage Heavyweight Boxy T-Shirt">
               </div>
 
               <div class="studio-grid-2">
-                <div class="studio-input-group">
-                  <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
-                  <input
-                    type="text"
-                    id="newProdEyebrow"
-                    class="studio-input"
-                    placeholder="e.g. Velora Essentials or Summer 2026"
-                    value="Velora Essentials">
-                </div>
-
                 <div class="studio-input-group">
                   <label for="newProdCategory" class="studio-label">
                     Category <span class="studio-req">*</span>
@@ -2005,29 +1993,23 @@
                     </select>
                   </div>
                 </div>
-              </div>
 
-              <!-- Quick Category Selector Chips -->
-              <div class="studio-quick-cats" aria-label="Select category quickly">
-                <span class="studio-quick-cats-label">Quick select:</span>
-                <button type="button" class="studio-cat-chip active" data-cat="T-Shirts">T-Shirts</button>
-                <button type="button" class="studio-cat-chip" data-cat="Jeans">Jeans</button>
-                <button type="button" class="studio-cat-chip" data-cat="Shirts">Shirts</button>
-                <button type="button" class="studio-cat-chip" data-cat="Jackets & Outerwear">Jackets</button>
-                <button type="button" class="studio-cat-chip" data-cat="Bags">Bags</button>
-                <button type="button" class="studio-cat-chip" data-cat="Footwear">Footwear</button>
-                <button type="button" class="studio-cat-chip" data-cat="Accessories">Accessories</button>
+                <div class="studio-input-group">
+                  <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
+                  <input
+                    type="text"
+                    id="newProdEyebrow"
+                    class="studio-input"
+                    placeholder="e.g. Velora Essentials">
+                </div>
               </div>
             </section>
 
-            <!-- Section 2: Pricing & Inventory Management -->
+            <!-- Section 2: Pricing & Inventory -->
             <section class="studio-form-card">
-              <div class="studio-card-legend">
-                <span class="studio-legend-number">02</span>
-                <div>
-                  <h4>Pricing &amp; Inventory Management</h4>
-                  <p>Customer retail price, promotional discounts, and stock levels</p>
-                </div>
+              <div class="studio-card-simple-title">
+                <h4>Pricing &amp; Inventory</h4>
+                <p>Retail pricing and available warehouse stock</p>
               </div>
 
               <div class="studio-grid-3">
@@ -2042,10 +2024,8 @@
                       id="newProdPrice"
                       class="studio-input studio-input-with-prefix"
                       placeholder="450"
-                      value="450"
                       min="0"
-                      step="0.01"
-                      required>
+                      step="0.01">
                   </div>
                 </div>
 
@@ -2058,7 +2038,6 @@
                       id="newProdComparePrice"
                       class="studio-input studio-input-with-prefix"
                       placeholder="590"
-                      value="590"
                       min="0"
                       step="0.01">
                   </div>
@@ -2073,7 +2052,6 @@
                       id="newProdCostPrice"
                       class="studio-input studio-input-with-prefix"
                       placeholder="180"
-                      value="180"
                       min="0"
                       step="0.01">
                   </div>
@@ -2085,21 +2063,12 @@
                   <label for="newProdStock" class="studio-label">
                     Stock Quantity <span class="studio-req">*</span>
                   </label>
-                  <div class="studio-stock-input-wrap">
-                    <input
-                      type="number"
-                      id="newProdStock"
-                      class="studio-input"
-                      value="35"
-                      min="0"
-                      required>
-                    <div class="studio-stock-quick-btns">
-                      <button type="button" class="studio-stock-step-btn" data-step="-5" title="Subtract 5">−5</button>
-                      <button type="button" class="studio-stock-step-btn" data-step="+5" title="Add 5">+5</button>
-                      <button type="button" class="studio-stock-step-btn" data-step="+10" title="Add 10">+10</button>
-                      <button type="button" class="studio-stock-step-btn" data-step="+25" title="Add 25">+25</button>
-                    </div>
-                  </div>
+                  <input
+                    type="number"
+                    id="newProdStock"
+                    class="studio-input"
+                    placeholder="15"
+                    min="0">
                 </div>
 
                 <div class="studio-input-group">
@@ -2115,250 +2084,104 @@
               </div>
             </section>
 
-            <!-- Section 3: Variants, Sizing & Colors -->
+            <!-- Section 3: Product Imagery -->
             <section class="studio-form-card">
-              <div class="studio-card-legend">
-                <span class="studio-legend-number">03</span>
-                <div>
-                  <h4>Variants, Sizing &amp; Fit</h4>
-                  <p>Garment sizes, denim waist measurements, and color variants</p>
-                </div>
+              <div class="studio-card-simple-title">
+                <h4>Product Images</h4>
+                <p>Direct image links to showcase your product</p>
               </div>
 
               <div class="studio-input-group">
-                <div class="studio-label-row">
-                  <label for="newProdSizes" class="studio-label">Available Sizes</label>
-                  <span class="studio-input-hint">Click chips to quickly add/remove sizes</span>
-                </div>
+                <label for="newProdImage" class="studio-label">
+                  Main Product Image URL <span class="studio-req">*</span>
+                </label>
                 <input
-                  type="text"
-                  id="newProdSizes"
+                  type="url"
+                  id="newProdImage"
                   class="studio-input"
-                  placeholder="e.g. S, M, L, XL, XXL or 28, 30, 32, 34, 36"
-                  value="XS, S, M, L, XL, XXL">
+                  placeholder="https://images.pexels.com/...">
+                <input type="file" id="newProdImageFile" accept="image/*" style="display: none;">
+              </div>
 
-                <!-- Quick Size Presets -->
-                <div class="studio-size-presets-group" style="margin-top: 8px;">
-                  <div class="studio-size-row">
-                    <span class="studio-size-group-label">Apparel sizes:</span>
-                    <div class="studio-size-chips">
-                      <button type="button" class="studio-size-chip active" data-size="XS">XS</button>
-                      <button type="button" class="studio-size-chip active" data-size="S">S</button>
-                      <button type="button" class="studio-size-chip active" data-size="M">M</button>
-                      <button type="button" class="studio-size-chip active" data-size="L">L</button>
-                      <button type="button" class="studio-size-chip active" data-size="XL">XL</button>
-                      <button type="button" class="studio-size-chip active" data-size="XXL">XXL</button>
-                    </div>
-                  </div>
-                  <div class="studio-size-row" style="margin-top: 6px;">
-                    <span class="studio-size-group-label">Jeans / Waist:</span>
-                    <div class="studio-size-chips">
-                      <button type="button" class="studio-size-chip" data-size="28">28</button>
-                      <button type="button" class="studio-size-chip" data-size="30">30</button>
-                      <button type="button" class="studio-size-chip" data-size="32">32</button>
-                      <button type="button" class="studio-size-chip" data-size="34">34</button>
-                      <button type="button" class="studio-size-chip" data-size="36">36</button>
-                      <button type="button" class="studio-size-chip" data-size="38">38</button>
-                      <button type="button" class="studio-size-chip" data-size="One Size">One Size</button>
-                    </div>
-                  </div>
+              <div class="studio-grid-2">
+                <div class="studio-input-group">
+                  <label for="newProdImage2" class="studio-label">Gallery Image 2 (Optional)</label>
+                  <input
+                    type="url"
+                    id="newProdImage2"
+                    class="studio-input"
+                    placeholder="https://...">
+                  <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="studio-input-group">
+                  <label for="newProdImage3" class="studio-label">Gallery Image 3 (Optional)</label>
+                  <input
+                    type="url"
+                    id="newProdImage3"
+                    class="studio-input"
+                    placeholder="https://...">
+                  <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
+                </div>
+              </div>
+            </section>
+
+            <!-- Section 4: Variants, Specifications & Details -->
+            <section class="studio-form-card">
+              <div class="studio-card-simple-title">
+                <h4>Variants &amp; Details</h4>
+                <p>Sizes, colors, silhouette and care instructions</p>
+              </div>
+
+              <div class="studio-grid-2">
+                <div class="studio-input-group">
+                  <label for="newProdSizes" class="studio-label">Available Sizes</label>
+                  <input
+                    type="text"
+                    id="newProdSizes"
+                    class="studio-input"
+                    placeholder="e.g. S, M, L, XL or 28, 30, 32">
+                </div>
+
+                <div class="studio-input-group">
+                  <label for="newProdColors" class="studio-label">Available Colors</label>
+                  <input
+                    type="text"
+                    id="newProdColors"
+                    class="studio-input"
+                    placeholder="e.g. Washed Black, Vintage White">
                 </div>
               </div>
 
               <div class="studio-grid-2" style="margin-top: 14px;">
                 <div class="studio-input-group">
-                  <label for="newProdColors" class="studio-label">Available Colors / Washes</label>
+                  <label for="newProdFit" class="studio-label">Fit / Silhouette</label>
                   <input
                     type="text"
-                    id="newProdColors"
+                    id="newProdFit"
                     class="studio-input"
-                    placeholder="e.g. Washed Black, Vintage White, Raw Indigo"
-                    value="Washed Black, Vintage White, Olive">
+                    placeholder="e.g. Boxy Oversized Fit">
                 </div>
 
                 <div class="studio-input-group">
-                  <label for="newProdFit" class="studio-label">Garment Silhouette / Fit</label>
-                  <div class="studio-select-wrapper">
-                    <select id="newProdFit" class="studio-select">
-                      <option value="Relaxed / Boxy Fit" selected>Relaxed / Boxy Fit</option>
-                      <option value="Regular Classic Fit">Regular Classic Fit</option>
-                      <option value="Slim Fit">Slim Fit</option>
-                      <option value="Oversized Fit">Oversized Fit</option>
-                      <option value="Straight Leg">Straight Leg (Denim)</option>
-                      <option value="Tapered Fit">Tapered Fit</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 4: Product Media & Gallery -->
-            <section class="studio-form-card">
-              <div class="studio-card-legend">
-                <span class="studio-legend-number">04</span>
-                <div>
-                  <h4>Product Imagery &amp; Media</h4>
-                  <p>Primary hero storefront photo and secondary gallery angles</p>
-                </div>
-              </div>
-
-              <!-- Main Image Group -->
-              <div class="studio-input-group">
-                <div class="studio-label-row">
-                  <label for="newProdImage" class="studio-label">
-                    Main Product Image <span class="studio-req">*</span>
-                  </label>
-                  <div class="studio-image-mode-toggles">
-                    <button type="button" class="studio-mini-tab active" id="tabModeUrl">URL Link</button>
-                    <button type="button" class="studio-mini-tab" id="tabModeUpload">Upload File</button>
-                  </div>
-                </div>
-
-                <!-- Direct URL Box -->
-                <div id="boxMainImageUrl" class="studio-image-input-box">
+                  <label for="newProdDetails" class="studio-label">Fabric &amp; Specifications</label>
                   <input
-                    type="url"
-                    id="newProdImage"
+                    type="text"
+                    id="newProdDetails"
                     class="studio-input"
-                    placeholder="https://images.pexels.com/..."
-                </div>
-
-                <!-- Upload Dropzone -->
-                <div id="boxMainImageUpload" class="studio-dropzone" style="display: none;">
-                  <input
-                    type="file"
-                    id="newProdImageFile"
-                    accept="image/*"
-                    style="display: none;">
-                  <div class="studio-dropzone-inner" onclick="document.getElementById('newProdImageFile').click()">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <div class="studio-dropzone-text">
-                      <strong id="dropzonePrompt">Click to choose image file</strong>
-                      <span>Supports JPG, PNG, WEBP, or SVG</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Quick Lookbook Presets Strip -->
-                <div class="studio-preset-strip">
-                  <span class="studio-preset-strip-title">Curated looks:</span>
-                  <button type="button" class="studio-preset-chip"
-                    data-img="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    data-title="Vintage Heavyweight Boxy T-Shirt"
-                    data-cat="T-Shirts"
-                    data-price="450"
-                    data-sizes="XS, S, M, L, XL, XXL"
-                    data-details="100% Organic Combed Cotton (240 GSM)">
-                    T-Shirt
-                  </button>
-                  <button type="button" class="studio-preset-chip"
-                    data-img="https://images.pexels.com/photos/1082529/pexels-photo-1082529.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    data-title="Classic Raw Indigo Selvedge Jeans"
-                    data-cat="Jeans"
-                    data-price="1190"
-                    data-sizes="28, 30, 32, 34, 36, 38"
-                    data-details="13.5oz Raw Indigo Selvedge Denim, 99% Cotton, 1% Stretch">
-                    Jeans
-                  </button>
-                  <button type="button" class="studio-preset-chip"
-                    data-img="https://images.pexels.com/photos/19915586/pexels-photo-19915586.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    data-title="Relaxed Linen Overshirt"
-                    data-cat="Shirts"
-                    data-price="890"
-                    data-sizes="S, M, L, XL"
-                    data-details="100% French Flax Linen, Mother of Pearl Buttons">
-                    Linen Shirt
-                  </button>
-                  <button type="button" class="studio-preset-chip"
-                    data-img="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    data-title="Everyday Leather Tote"
-                    data-cat="Bags"
-                    data-price="1290"
-                    data-sizes="One Size"
-                    data-details="100% Full-Grain Calfskin Leather">
-                    Leather Tote
-                  </button>
-                  <button type="button" class="studio-preset-chip"
-                    data-img="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    data-title="Cloud Minimalist Leather Sneakers"
-                    data-cat="Footwear"
-                    data-price="1450"
-                    data-sizes="UK 6, UK 7, UK 8, UK 9, UK 10, UK 11"
-                    data-details="Full-Grain Leather Upper, Natural Rubber Cupsole">
-                    Sneakers
-                  </button>
+                    placeholder="e.g. 100% Combed Cotton (240 GSM)">
                 </div>
               </div>
 
-              <!-- Secondary Gallery Images -->
-              <div class="studio-gallery-row">
-                <!-- Gallery Image 2 -->
-                <div class="studio-gallery-slot">
-                  <div class="studio-gallery-slot-header">
-                    <span class="studio-slot-title">Gallery Angle 2</span>
-                    <button type="button" class="studio-slot-upload-btn" onclick="document.getElementById('newProdImage2File').click()">
-                      Upload
-                    </button>
-                  </div>
-                  <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
-                  <input
-                    type="url"
-                    id="newProdImage2"
-                    class="studio-input studio-input-compact"
-                    placeholder="Optional image URL...">
-                </div>
-
-                <!-- Gallery Image 3 -->
-                <div class="studio-gallery-slot">
-                  <div class="studio-gallery-slot-header">
-                    <span class="studio-slot-title">Gallery Angle 3</span>
-                    <button type="button" class="studio-slot-upload-btn" onclick="document.getElementById('newProdImage3File').click()">
-                      Upload
-                    </button>
-                  </div>
-                  <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
-                  <input
-                    type="url"
-                    id="newProdImage3"
-                    class="studio-input studio-input-compact"
-                    placeholder="Optional image URL...">
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 5: Description, Fabric & Shipping -->
-            <section class="studio-form-card">
-              <div class="studio-card-legend">
-                <span class="studio-legend-number">05</span>
-                <div>
-                  <h4>Description, Materials &amp; Shipping</h4>
-                  <p>Product description, fabric specifications, care instructions, and fulfillment</p>
-                </div>
-              </div>
-
-              <div class="studio-input-group">
+              <div class="studio-input-group" style="margin-top: 14px;">
                 <label for="newProdDescription" class="studio-label">Product Description</label>
                 <textarea
                   id="newProdDescription"
                   class="studio-textarea"
                   rows="3"
-                  placeholder="Describe the fit, drape, texture, and everyday versatility..."></textarea>
+                  placeholder="Describe the product styling, fit, texture, and everyday versatility..."></textarea>
               </div>
 
-              <div class="studio-input-group">
-                <label for="newProdDetails" class="studio-label">Fabric Composition &amp; Specifications</label>
-                <input
-                  type="text"
-                  id="newProdDetails"
-                  class="studio-input"
-                  placeholder="e.g. 100% Organic Combed Cotton (240 GSM), Pre-shrunk"
-              </div>
-
-              <!-- Logistics & Care -->
               <div class="studio-grid-2" style="margin-top: 14px;">
                 <div class="studio-input-group">
                   <label for="newProdCare" class="studio-label">Care Instructions</label>
@@ -2366,7 +2189,7 @@
                     id="newProdCare"
                     class="studio-textarea studio-textarea-compact"
                     rows="2"
-                    placeholder="e.g. Machine wash cold with like colors. Hang dry in shade."></textarea>
+                    placeholder="e.g. Cold wash with like colors. Hang dry."></textarea>
                 </div>
 
                 <div class="studio-input-group">
@@ -2375,7 +2198,7 @@
                     id="newProdDelivery"
                     class="studio-textarea studio-textarea-compact"
                     rows="2"
-                    placeholder="e.g. Dispatched within 24 hours. Free courier delivery over R800."></textarea>
+                    placeholder="e.g. Dispatched within 24 hours. Express courier."></textarea>
                 </div>
               </div>
 
@@ -2540,6 +2363,7 @@
   <script src="./js/auth.js"></script>
   <script src="./js/formLogic.js"></script>
   <script src="./js/ValidationAndAuth.js"></script>
+  <script src="./js/productLogic.js"></script>
   <script src="./js/app.js"></script>
   <script src="./dashboard.js"></script>
   <script src="./js/component-renderer.js"></script>
