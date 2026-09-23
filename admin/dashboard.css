@@ -1053,7 +1053,7 @@ html, body {
 .drawer-btn {
   flex: 1;
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: 50px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

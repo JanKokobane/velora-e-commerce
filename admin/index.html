@@ -1920,55 +1920,272 @@
     </div>
   </div>
 
-  <!-- 12. Modals Component -->
-  <div id="componentModals" data-component="modals">
-    <div class="dash-modal-backdrop" id="newProductModal">
-      <div class="dash-modal">
-        <div class="dash-modal-header">
-          <h3>Add New Studio Product</h3>
-          <button type="button" class="drawer-close-btn" onclick="window.closeNewProductModal()">✕</button>
-        </div>
-        <form id="newProductForm">
-          <div class="dash-modal-body">
-            <div class="form-group">
-              <label for="newProdTitle">Product Title</label>
-              <input type="text" id="newProdTitle" class="form-control" placeholder="e.g. Minimalist cardholder"
+<!-- 12. Modals Component -->
+<div id="componentModals" data-component="modals">
+  <div class="dash-modal-backdrop" id="newProductModal">
+    <div class="dash-modal">
+      <div class="dash-modal-header">
+        <h3>Add New Studio Product</h3>
+        <button type="button" class="drawer-close-btn" onclick="window.closeNewProductModal()">✕</button>
+      </div>
+
+      <form id="newProductForm">
+        <div class="dash-modal-body">
+
+          <div class="form-group">
+            <label for="newProdTitle">Product Title</label>
+            <input
+              type="text"
+              id="newProdTitle"
+              class="form-control"
+              placeholder="e.g. Minimalist Cardholder"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="newProdEyebrow">Product Collection / Label</label>
+            <input
+              type="text"
+              id="newProdEyebrow"
+              class="form-control"
+              placeholder="e.g. Studio Essentials">
+          </div>
+
+          <div style="display: flex; gap: 14px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdPrice">Price (R / ZAR)</label>
+              <input
+                type="number"
+                id="newProdPrice"
+                class="form-control"
+                placeholder="450"
+                min="0"
+                step="0.01"
                 required>
             </div>
-            <div style="display: flex; gap: 14px;">
-              <div class="form-group" style="flex: 1;">
-                <label for="newProdPrice">Price (R / ZAR)</label>
-                <input type="number" id="newProdPrice" class="form-control" placeholder="450" required>
-              </div>
-              <div class="form-group" style="flex: 1;">
-                <label for="newProdCategory">Category</label>
-                <select id="newProdCategory" class="form-control">
-                  <option value="Bags">Bags</option>
-                  <option value="Apparel">Apparel</option>
-                  <option value="Footwear">Footwear</option>
-                  <option value="Objects">Objects</option>
-                  <option value="Hardware">Hardware</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="newProdStock">Initial Stock Quantity</label>
-              <input type="number" id="newProdStock" class="form-control" value="15" required>
-            </div>
-            <div class="form-group">
-              <label for="newProdImage">Image URL</label>
-              <input type="url" id="newProdImage" class="form-control" placeholder="https://images.pexels.com/..."
-                value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
+
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdCategory">Category</label>
+              <select id="newProdCategory" class="form-control">
+                <option value="Bags">Bags</option>
+                <option value="Apparel">Apparel</option>
+                <option value="Footwear">Footwear</option>
+                <option value="Objects">Objects</option>
+                <option value="Hardware">Hardware</option>
+              </select>
             </div>
           </div>
-          <div class="dash-modal-footer">
-            <button type="button" class="drawer-btn" style="background: #eee;"
-              onclick="window.closeNewProductModal()">Cancel</button>
-            <button type="submit" class="drawer-btn drawer-btn-dark">Save to Catalog</button>
+
+          <div class="form-group">
+            <label for="newProdDescription">Product Description</label>
+            <textarea
+              id="newProdDescription"
+              class="form-control"
+              rows="4"
+              placeholder="Describe the product, materials, design and key features..."></textarea>
           </div>
-        </form>
-      </div>
+
+          <div class="form-group">
+            <label for="newProdStock">Initial Stock Quantity</label>
+            <input
+              type="number"
+              id="newProdStock"
+              class="form-control"
+              value="15"
+              min="0"
+              required>
+          </div>
+
+          <div class="form-group">
+  <label for="newProdImage">Main Product Image</label>
+
+  <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+    <button
+      type="button"
+      class="drawer-btn drawer-btn-dark"
+      onclick="document.getElementById('newProdImageFile').click()">
+      Upload Image
+    </button>
+
+    <button
+      type="button"
+      class="drawer-btn"
+      style="background: #eee;"
+      onclick="document.getElementById('newProdImage').focus()">
+      Use Image URL
+    </button>
+  </div>
+
+  <input
+    type="file"
+    id="newProdImageFile"
+    accept="image/*"
+    style="display: none;">
+
+  <input
+    type="url"
+    id="newProdImage"
+    class="form-control"
+    placeholder="https://images.pexels.com/..."
+    value="https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=300&w=300">
+
+  <small style="display: block; margin-top: 6px; color: #777;">
+    Upload an image from your device or paste an image URL.
+  </small>
+</div>
+
+<div style="display: flex; gap: 14px;">
+
+  <div class="form-group" style="flex: 1;">
+    <label for="newProdImage2">Gallery Image 2</label>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+      <button
+        type="button"
+        class="drawer-btn drawer-btn-dark"
+        onclick="document.getElementById('newProdImage2File').click()">
+        Upload
+      </button>
+
+      <button
+        type="button"
+        class="drawer-btn"
+        style="background: #eee;"
+        onclick="document.getElementById('newProdImage2').focus()">
+        URL
+      </button>
     </div>
+
+    <input
+      type="file"
+      id="newProdImage2File"
+      accept="image/*"
+      style="display: none;">
+
+    <input
+      type="url"
+      id="newProdImage2"
+      class="form-control"
+      placeholder="https://example.com/image-2.jpg">
+  </div>
+
+  <div class="form-group" style="flex: 1;">
+    <label for="newProdImage3">Gallery Image 3</label>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+      <button
+        type="button"
+        class="drawer-btn drawer-btn-dark"
+        onclick="document.getElementById('newProdImage3File').click()">
+        Upload
+      </button>
+
+      <button
+        type="button"
+        class="drawer-btn"
+        style="background: #eee;"
+        onclick="document.getElementById('newProdImage3').focus()">
+        URL
+      </button>
+    </div>
+
+    <input
+      type="file"
+      id="newProdImage3File"
+      accept="image/*"
+      style="display: none;">
+
+    <input
+      type="url"
+      id="newProdImage3"
+      class="form-control"
+      placeholder="https://example.com/image-3.jpg">
+  </div>
+
+</div>
+          <div style="display: flex; gap: 14px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdRating">Rating</label>
+              <input
+                type="number"
+                id="newProdRating"
+                class="form-control"
+                value="5"
+                min="0"
+                max="5"
+                step="0.1"
+                placeholder="5">
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label for="newProdReviews">Reviews Count</label>
+              <input
+                type="number"
+                id="newProdReviews"
+                class="form-control"
+                value="0"
+                min="0"
+                placeholder="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newProdSizes">Available Sizes</label>
+            <input
+              type="text"
+              id="newProdSizes"
+              class="form-control"
+              placeholder="e.g. S, M, L, XL">
+          </div>
+
+          <div class="form-group">
+            <label for="newProdDetails">Product Details</label>
+            <textarea
+              id="newProdDetails"
+              class="form-control"
+              rows="4"
+              placeholder="Materials, dimensions, specifications and other product details..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="newProdDelivery">Delivery Information</label>
+            <textarea
+              id="newProdDelivery"
+              class="form-control"
+              rows="3"
+              placeholder="e.g. Delivered within 3–5 business days. Free delivery on orders over R1,000."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="newProdCare">Care Instructions</label>
+            <textarea
+              id="newProdCare"
+              class="form-control"
+              rows="3"
+              placeholder="Enter product care and maintenance instructions..."></textarea>
+          </div>
+
+        </div>
+
+        <div class="dash-modal-footer">
+          <button
+            type="button"
+            class="drawer-btn"
+            style="background: #eee;"
+            onclick="window.closeNewProductModal()">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="drawer-btn drawer-btn-dark">
+            Save to Catalog
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
     <div class="dash-modal-backdrop" id="newCustomerModal">
       <div class="dash-modal">

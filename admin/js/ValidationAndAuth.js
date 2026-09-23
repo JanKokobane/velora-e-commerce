@@ -9,6 +9,9 @@ const VELORA_SESSION_KEY =
 
 const VELORA_REMEMBER_DAYS = 30;
 
+const VELORA_CACHE_PREFIX =
+  "velora_cache_";
+
 const adminAuthApi = {
   async register({
     full_name,
@@ -82,6 +85,7 @@ const adminAuthApi = {
       );
     }
 
+    // Persist authentication tokens and administrator profile
     localStorage.setItem(
       "velora_admin_token",
       data.token
@@ -99,6 +103,12 @@ const adminAuthApi = {
 
     localStorage.setItem(
       "admin",
+      JSON.stringify(data.admin)
+    );
+
+    // Cache /me profile immediately so reloads don't require an initial network wait
+    localStorage.setItem(
+      `${VELORA_CACHE_PREFIX}/api/admin/auth/me`,
       JSON.stringify(data.admin)
     );
 
@@ -170,11 +180,27 @@ const adminAuthApi = {
     sessionStorage.removeItem(
       "velora_admin_session"
     );
+
+    // Clear API caches on explicit logout
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith(VELORA_CACHE_PREFIX)) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      // ignore
+    }
   },
 
   getToken() {
-    return localStorage.getItem(
-      "velora_admin_token"
+    return (
+      localStorage.getItem(
+        "velora_admin_token"
+      ) ||
+      localStorage.getItem(
+        "token"
+      )
     );
   },
 
@@ -182,6 +208,9 @@ const adminAuthApi = {
     const admin =
       localStorage.getItem(
         "velora_admin"
+      ) ||
+      localStorage.getItem(
+        "admin"
       );
 
     if (!admin) {
@@ -246,7 +275,31 @@ const adminAuthApi = {
       return true;
     }
 
-    return false;
+    // FIX: Maintain active session across tab refreshes if token & admin exist
+    return Boolean(token && this.getAdmin());
+  },
+
+  // Cache helper to store and retrieve fetched API responses across page refreshes
+  getCachedData(endpoint) {
+    try {
+      const cached = localStorage.getItem(
+        `${VELORA_CACHE_PREFIX}${endpoint}`
+      );
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  setCachedData(endpoint, data) {
+    try {
+      localStorage.setItem(
+        `${VELORA_CACHE_PREFIX}${endpoint}`,
+        JSON.stringify(data)
+      );
+    } catch (e) {
+      console.warn("Storage write error:", e);
+    }
   },
 
   async request(
@@ -267,25 +320,67 @@ const adminAuthApi = {
         `Bearer ${token}`;
     }
 
-    const response = await fetch(
-      `${VELORA_API_URL}${endpoint}`,
-      {
-        ...options,
-        headers,
-      }
-    );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message ||
-          "Request failed."
+    try {
+      const response = await fetch(
+        `${VELORA_API_URL}${endpoint}`,
+        {
+          ...options,
+          headers,
+        }
       );
-    }
 
-    return data;
+      const data =
+        await response.json().catch(() => null);
+
+      if (!response.ok) {
+        // ONLY log out if backend returns 401 Unauthorized
+        if (response.status === 401) {
+          console.warn(
+            "[Velora Admin] Session expired (401)."
+          );
+          this.logout();
+          if (
+            typeof openVeloraAuthScreen === "function"
+          ) {
+            openVeloraAuthScreen();
+          }
+        }
+
+        throw new Error(
+          (data && data.message) ||
+            `Request failed with status ${response.status}.`
+        );
+      }
+
+      // Automatically cache GET responses so refresh never loses fetched data
+      if (
+        !options.method ||
+        options.method.toUpperCase() === "GET"
+      ) {
+        this.setCachedData(endpoint, data);
+      }
+
+      return data;
+    } catch (error) {
+      // FIX: If network is offline or Render is spinning up, return cached data
+      // instead of throwing and forcing the caller to fall back to mock data
+      if (
+        !options.method ||
+        options.method.toUpperCase() === "GET"
+      ) {
+        const cached =
+          this.getCachedData(endpoint);
+        if (cached !== null) {
+          console.warn(
+            `[Velora Admin] Network issue; using cached data for ${endpoint}:`,
+            error
+          );
+          return cached;
+        }
+      }
+
+      throw error;
+    }
   },
 };
 
@@ -304,6 +399,10 @@ function getAdminInitials(
       .trim()
       .split(/\s+/)
       .filter(Boolean);
+
+  if (nameParts.length === 0) {
+    return "AD";
+  }
 
   if (nameParts.length === 1) {
     return nameParts[0]
@@ -364,6 +463,7 @@ function updateAdminProfilePill(
     admin.full_name ||
     admin.fullName ||
     admin.name ||
+    admin.email ||
     "Administrator";
 
   const email =
@@ -416,8 +516,17 @@ async function fetchLoggedInAdmin() {
     console.warn(
       "[Velora Admin] No authentication token found."
     );
-
     return null;
+  }
+
+  // FIX: Immediately load and show locally stored admin so UI doesn't flicker with mock data
+  const cachedAdmin =
+    window.adminAuthApi.getAdmin();
+
+  if (cachedAdmin) {
+    updateAdminProfilePill(
+      cachedAdmin
+    );
   }
 
   try {
@@ -433,8 +542,7 @@ async function fetchLoggedInAdmin() {
       console.warn(
         "[Velora Admin] Backend did not return admin data."
       );
-
-      return null;
+      return cachedAdmin || null;
     }
 
     localStorage.setItem(
@@ -462,6 +570,12 @@ async function fetchLoggedInAdmin() {
       "[Velora Admin] Failed to fetch authenticated admin from /me:",
       error
     );
+
+    // FIX: DO NOT return null if we have cached admin in localStorage!
+    // Returning null caused logout() to wipe credentials when Render was spinning up.
+    if (cachedAdmin) {
+      return cachedAdmin;
+    }
 
     return null;
   }
@@ -647,7 +761,7 @@ function isKinderEmailValid(
 
 window.handleKinderAuthSubmit =
   async function (event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     clearKinderValidationMessage();
 
@@ -684,7 +798,6 @@ window.handleKinderAuthSubmit =
       console.error(
         "Email or password input could not be found."
       );
-
       return;
     }
 
@@ -893,7 +1006,6 @@ window.handleKinderAuthSubmit =
         console.error(
           "One or more signup fields could not be found."
         );
-
         return;
       }
 
@@ -1024,7 +1136,6 @@ window.handleKinderAuthSubmit =
       if (firstErrorInput) {
         firstErrorInput.focus();
       }
-
       return;
     }
 
@@ -1137,15 +1248,7 @@ window.handleKinderAuthSubmit =
       );
 
       setTimeout(() => {
-        const authScreen =
-          document.getElementById(
-            "adminAuthScreen"
-          );
-
-        if (authScreen) {
-          authScreen.style.display =
-            "none";
-        }
+        closeVeloraAuthScreen();
 
         if (
           typeof window.closeAuthGate ===
@@ -1153,8 +1256,6 @@ window.handleKinderAuthSubmit =
         ) {
           window.closeAuthGate();
         }
-
-        closeVeloraAuthScreen();
 
         window.dispatchEvent(
           new CustomEvent(
@@ -1226,25 +1327,25 @@ function closeVeloraAuthScreen() {
   );
 }
 
+window.openVeloraAuthScreen =
+  openVeloraAuthScreen;
+
+window.closeVeloraAuthScreen =
+  closeVeloraAuthScreen;
+
+// FIX: Restores admin session on refresh WITHOUT flashing the auth modal
+// and WITHOUT reverting to mock data on network latency or sleep.
 async function restoreVeloraAdminSession() {
-  const authScreen =
-    document.getElementById(
-      "adminAuthScreen"
-    );
-
-  if (!authScreen) {
-    return;
-  }
-
-  openVeloraAuthScreen();
-
   const token =
     window.adminAuthApi.getToken();
 
+  // 1. If no token at all, open the login modal
   if (!token) {
+    openVeloraAuthScreen();
     return;
   }
 
+  // 2. If remembered session is explicitly expired, log out
   if (
     !window.adminAuthApi.isAuthenticated()
   ) {
@@ -1253,60 +1354,71 @@ async function restoreVeloraAdminSession() {
     return;
   }
 
-  const admin =
-    await fetchLoggedInAdmin();
-
-  if (!admin) {
-    window.adminAuthApi.logout();
-    openVeloraAuthScreen();
-    return;
-  }
-
-  updateAdminProfilePill(
-    admin
-  );
-
-  setTimeout(() => {
-    const currentAdmin =
-      window.adminAuthApi.getAdmin();
-
-    if (currentAdmin) {
-      updateAdminProfilePill(
-        currentAdmin
-      );
-    }
-  }, 0);
-
-  setTimeout(() => {
-    const currentAdmin =
-      window.adminAuthApi.getAdmin();
-
-    if (currentAdmin) {
-      updateAdminProfilePill(
-        currentAdmin
-      );
-    }
-  }, 300);
-
+  // 3. User is authenticated! DO NOT open or flash the auth screen!
   closeVeloraAuthScreen();
 
-  window.dispatchEvent(
-    new CustomEvent(
-      "veloraAdminSessionRestored",
-      {
-        detail: admin,
-      }
-    )
-  );
+  // 4. INSTANT RESTORE: Immediately populate the UI with cached admin data!
+  const cachedAdmin =
+    window.adminAuthApi.getAdmin();
 
-  window.dispatchEvent(
-    new CustomEvent(
-      "veloraAdminLogin",
-      {
-        detail: admin,
-      }
-    )
-  );
+  if (cachedAdmin) {
+    updateAdminProfilePill(
+      cachedAdmin
+    );
+
+    // Notify listeners immediately so dashboard displays real cached data right away
+    window.dispatchEvent(
+      new CustomEvent(
+        "veloraAdminSessionRestored",
+        {
+          detail: cachedAdmin,
+        }
+      )
+    );
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "veloraAdminLogin",
+        {
+          detail: cachedAdmin,
+        }
+      )
+    );
+  }
+
+  // 5. Silently verify with /me in the background (without clearing data if network lags)
+  try {
+    const admin =
+      await fetchLoggedInAdmin();
+
+    if (admin) {
+      updateAdminProfilePill(
+        admin
+      );
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "veloraAdminSessionRestored",
+          {
+            detail: admin,
+          }
+        )
+      );
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "veloraAdminLogin",
+          {
+            detail: admin,
+          }
+        )
+      );
+    }
+  } catch (err) {
+    console.warn(
+      "[Velora Admin] Background sync skipped, keeping active session."
+    );
+  }
 }
 
 function initializeVeloraAdminSession() {
