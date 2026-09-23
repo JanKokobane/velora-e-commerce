@@ -27,6 +27,12 @@ router.post(
 );
 
 router.get(
+  "/me",
+  adminAuthMiddleware,
+  getCurrentAdmin
+);
+
+router.get(
   "/",
   adminAuthMiddleware,
   getAdmins
@@ -48,12 +54,6 @@ router.delete(
   "/:id",
   adminAuthMiddleware,
   removeAdmin
-);
-
-router.get(
-  "/me",
-  adminAuthMiddleware,
-  getCurrentAdmin
 );
 
 module.exports = router;
