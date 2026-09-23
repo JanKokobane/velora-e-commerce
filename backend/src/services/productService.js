@@ -109,7 +109,7 @@ const createProduct = async ({
   return result.rows[0];
 };
 
-const getProductsByAdminId = async (admin_id) => {
+const getProducts = async () => {
   const result = await query(
     `
       SELECT
@@ -138,19 +138,14 @@ const getProductsByAdminId = async (admin_id) => {
         created_at,
         updated_at
       FROM products
-      WHERE admin_id = $1
       ORDER BY created_at DESC
-    `,
-    [admin_id]
+    `
   );
 
   return result.rows;
 };
 
-const getProductById = async (
-  id,
-  admin_id
-) => {
+const getProductById = async (id) => {
   const result = await query(
     `
       SELECT
@@ -180,10 +175,9 @@ const getProductById = async (
         updated_at
       FROM products
       WHERE id = $1
-        AND admin_id = $2
       LIMIT 1
     `,
-    [id, admin_id]
+    [id]
   );
 
   return result.rows[0] || null;
@@ -191,7 +185,6 @@ const getProductById = async (
 
 const updateProduct = async (
   id,
-  admin_id,
   {
     title,
     eyebrow,
@@ -241,7 +234,6 @@ const updateProduct = async (
         reviews = $20,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $21
-        AND admin_id = $22
       RETURNING
         id,
         admin_id,
@@ -290,29 +282,24 @@ const updateProduct = async (
       rating,
       reviews,
       id,
-      admin_id,
     ]
   );
 
   return result.rows[0] || null;
 };
 
-const deleteProduct = async (
-  id,
-  admin_id
-) => {
+const deleteProduct = async (id) => {
   const result = await query(
     `
       DELETE FROM products
       WHERE id = $1
-        AND admin_id = $2
       RETURNING
         id,
         admin_id,
         title,
         category
     `,
-    [id, admin_id]
+    [id]
   );
 
   return result.rows[0] || null;
@@ -320,9 +307,8 @@ const deleteProduct = async (
 
 module.exports = {
   createProduct,
-  getProductsByAdminId,
+  getProducts,
   getProductById,
   updateProduct,
   deleteProduct,
 };
-

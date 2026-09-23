@@ -1,6 +1,6 @@
 const {
   createProduct,
-  getProductsByAdminId,
+  getProducts,
   getProductById,
   updateProduct,
   deleteProduct,
@@ -431,9 +431,7 @@ const getProducts = async (
     }
 
     const products =
-      await getProductsByAdminId(
-        adminId
-      );
+      await getProducts();
 
     return res.status(200).json({
       products,
@@ -476,8 +474,7 @@ const getProduct = async (
 
     const product =
       await getProductById(
-        Number(id),
-        adminId
+        Number(id)
       );
 
     if (!product) {
@@ -527,8 +524,7 @@ const editProduct = async (
 
     const existingProduct =
       await getProductById(
-        Number(id),
-        adminId
+        Number(id)
       );
 
     if (!existingProduct) {
@@ -591,7 +587,6 @@ const editProduct = async (
     const product =
       await updateProduct(
         Number(id),
-        adminId,
         productData
       );
 
@@ -644,8 +639,7 @@ const removeProduct = async (
 
     const product =
       await deleteProduct(
-        Number(id),
-        adminId
+        Number(id)
       );
 
     if (!product) {
@@ -680,4 +674,3 @@ module.exports = {
   editProduct,
   removeProduct,
 };
-
