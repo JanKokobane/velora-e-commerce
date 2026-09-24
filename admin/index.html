@@ -2380,23 +2380,29 @@
   </div>
 </div>
 
-  <!-- Product Detail & Customer Presentation Modal -->
+  <!-- Product Detail & Customer Presentation Modal (Unified Studio Modal) -->
   <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true"
     aria-labelledby="productTitle">
-    <div class="dash-modal product-detail-modal-container">
+    <div class="dash-modal studio-modal-container pv-modal-container">
 
-      <!-- Header Bar -->
-      <div class="product-detail-modal-topbar">
-        <!-- Breadcrumbs matching user template -->
-        <div class="breadcrumbs" id="pvBreadcrumbs">
-          <span class="breadcrumb-link" onclick="window.closeProductDetailModal()">Catalog</span>
-          <span class="breadcrumb-sep">/</span>
-          <span id="breadcrumbCategory" class="breadcrumb-cat">Footwear</span>
-          <span class="breadcrumb-sep">/</span>
-          <span id="breadcrumbTitle" class="breadcrumb-title">Cloud-step sneakers</span>
+      <!-- 1. Header (Matching Studio Modal Header) -->
+      <div class="studio-modal-header pv-studio-header">
+        <div class="studio-modal-title-group">
+          <!-- Breadcrumbs / Eyebrow metadata -->
+          <div class="pv-header-breadcrumbs" id="pvBreadcrumbs">
+            <span class="pv-breadcrumb-root" onclick="window.closeProductDetailModal()">Catalog</span>
+            <span class="pv-breadcrumb-sep">/</span>
+            <span id="breadcrumbCategory" class="pv-breadcrumb-cat">Footwear</span>
+            <span class="pv-breadcrumb-sep">/</span>
+            <span id="breadcrumbTitle" class="pv-breadcrumb-title">Cloud-step sneakers</span>
+          </div>
+          <h3 class="studio-modal-heading" id="pvHeaderHeading">Product Overview & Specifications</h3>
+          <p class="studio-modal-subheading">
+            Live catalog presentation, store inventory levels, and merchandising specifications.
+          </p>
         </div>
 
-        <div class="product-detail-modal-actions">
+        <div class="pv-header-actions">
           <span id="pvStockBadge" class="product-stock-badge stock-in">In Stock</span>
           <button type="button" class="pv-header-action-btn pv-edit-btn" id="pvHeaderEditBtn"
             title="Edit specifications">
@@ -2407,135 +2413,230 @@
             </svg>
             <span>Edit Piece</span>
           </button>
-          <button type="button" class="pv-header-action-btn pv-close-btn" onclick="window.closeProductDetailModal()"
+          <button type="button" class="pv-header-action-btn pv-delete-header-btn" id="pvHeaderDeleteBtn"
+            title="Delete product piece">
+            <span>Delete Piece</span>
+          </button>
+          <button type="button" class="studio-modal-close-btn" onclick="window.closeProductDetailModal()"
             aria-label="Close dialog">
             ✕
           </button>
         </div>
       </div>
 
-      <div class="product-detail-modal-scrollable">
-        <!-- Product detail: gallery + copy (matching user layout) -->
-        <section class="product-detail" id="productInfo">
+      <!-- 2. Scrollable Body with 2 Generous Columns -->
+      <div class="studio-modal-scrollable-body pv-modal-body">
+        <div class="pv-detail-layout" id="productInfo">
 
-          <!-- Gallery -->
-          <div class="product-gallery" id="pvProductGallery">
-            <div class="gallery-main">
-              <img id="mainProductImage"
-                src="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                alt="Product view">
-            </div>
-            <div class="gallery-thumbs" id="galleryThumbs">
-              <!-- Injected dynamically based on item images -->
-            </div>
-            <div class="rotate-badge" id="rotateBadge">
-              <span class="rotate-dot"></span>
-              <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
-            </div>
+          <!-- Left Column: Gallery Showcase + Economics & Inventory -->
+          <div class="pv-col-left">
+
+            <!-- Showcase Gallery Card -->
+            <section class="studio-form-card pv-gallery-card">
+              <div class="studio-card-simple-title pv-card-header-row">
+                <div>
+                  <h4>Visual Gallery</h4>
+                  <p>Catalog imagery and multi-angle presentation</p>
+                </div>
+                <div class="rotate-badge" id="rotateBadge">
+                  <span class="rotate-dot"></span>
+                  <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
+                </div>
+              </div>
+
+              <div class="product-gallery" id="pvProductGallery">
+                <div class="gallery-main">
+                  <img id="mainProductImage"
+                    src="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+                    alt="Product view">
+                </div>
+                <div class="gallery-thumbs" id="galleryThumbs">
+                  <!-- Injected dynamically based on item images -->
+                </div>
+              </div>
+            </section>
+
+            <!-- Economics & Inventory Card -->
+            <section class="studio-form-card pv-metrics-card">
+              <div class="studio-card-simple-title">
+                <h4>Inventory & Unit Economics</h4>
+                <p>Real-time stock balance, procurement cost, and margin</p>
+              </div>
+
+              <div class="pv-admin-metrics-grid">
+                <div class="pv-metric-tile">
+                  <span class="pv-metric-label">Units in Stock</span>
+                  <strong class="pv-metric-val" id="pvMetricStock">35</strong>
+                  <span class="pv-metric-sub">Current floor balance</span>
+                </div>
+                <div class="pv-metric-tile">
+                  <span class="pv-metric-label">Unit Cost</span>
+                  <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
+                  <span class="pv-metric-sub">Procurement cost</span>
+                </div>
+                <div class="pv-metric-tile">
+                  <span class="pv-metric-label">Gross Margin</span>
+                  <strong class="pv-metric-val pv-margin-high" id="pvMetricMargin">60%</strong>
+                  <span class="pv-metric-sub">Markup yield</span>
+                </div>
+                <div class="pv-metric-tile">
+                  <span class="pv-metric-label">Catalog ID</span>
+                  <strong class="pv-metric-val" id="pvMetricId">#1</strong>
+                  <span class="pv-metric-sub">SKU reference</span>
+                </div>
+              </div>
+            </section>
+
           </div>
 
-          <!-- Copy / purchase -->
-          <div class="product-copy">
-            <p class="eyebrow" id="productEyebrow">Weekend Uniform</p>
-            <h1 id="productTitle">Cloud-step <em>sneakers.</em></h1>
+          <!-- Right Column: Product Overview, Sizing & Details -->
+          <div class="pv-col-right">
 
-            <div class="rating">
-              <span id="productRatingStars">★★★★★</span>
-              <u id="productReviewsCount">12 reviews</u>
-            </div>
+            <!-- Primary Overview Card -->
+            <section class="studio-form-card pv-overview-card">
+              <div class="pv-title-meta-row">
+                <span class="eyebrow" id="productEyebrow">Weekend Uniform</span>
+                <div class="rating">
+                  <span id="productRatingStars">★★★★★</span>
+                  <u id="productReviewsCount">12 reviews</u>
+                </div>
+              </div>
 
-            <div class="detail-price-wrap">
-              <p class="detail-price" id="productPrice">R1 150</p>
-              <span class="detail-compare-price" id="productComparePrice"></span>
-            </div>
+              <h1 class="pv-hero-title" id="productTitle">Cloud-step <em>sneakers.</em></h1>
 
-            <p class="detail-description" id="productDesc">
-              A light, considered everyday sneaker with a soft step and a clean silhouette.
-              Made for long walks, slow mornings, and everything in between.
-            </p>
+              <div class="detail-price-wrap">
+                <p class="detail-price" id="productPrice">R1 150</p>
+                <span class="detail-compare-price" id="productComparePrice"></span>
+              </div>
 
-            <div class="detail-rule"></div>
+              <p class="detail-description" id="productDesc">
+                A light, considered everyday sneaker with a soft step and a clean silhouette.
+                Made for long walks, slow mornings, and everything in between.
+              </p>
+            </section>
 
-            <div class="option-row">
-              <span>Select size</span>
-              <span class="detail-fit-badge" id="productFitBadge">Regular Classic Fit</span>
-            </div>
-
-            <div class="size-options" id="productSizesContainer">
-              <button type="button" class="selected">36</button>
-              <button type="button">37</button>
-              <button type="button">38</button>
-              <button type="button">39</button>
-              <button type="button">40</button>
-            </div>
-
-            <div class="detail-colors-wrap" id="productColorsWrap" style="margin-top: 14px;">
+            <!-- Sizing & Variants Card -->
+            <section class="studio-form-card pv-variants-card">
               <div class="option-row">
-                <span>Available colors</span>
+                <label class="studio-label">Available Sizing</label>
+                <span class="detail-fit-badge" id="productFitBadge">Regular Classic Fit</span>
               </div>
-              <div class="color-options" id="productColorsContainer">
-                <!-- Color pills -->
-              </div>
-            </div>
 
-            <div class="purchase-row admin-preview-actions">
-              <div class="quantity">
-                <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
-                <span id="quantity">1</span>
-                <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
+              <div class="size-options" id="productSizesContainer">
+                <button type="button" class="selected">36</button>
+                <button type="button">37</button>
+                <button type="button">38</button>
+                <button type="button">39</button>
+                <button type="button">40</button>
               </div>
-              <button class="add-to-bag" id="addToBag" type="button">
-                Edit Specifications <span>↗</span>
-              </button>
-              <button class="buy-now-btn pv-delete-btn" id="buyNowBtn" type="button">
-                Delete Piece <span>🗑</span>
-              </button>
-            </div>
 
-            <p class="added-feedback" id="addedFeedback" role="status"></p>
+              <div class="detail-colors-wrap" id="productColorsWrap">
+                <div class="option-row" style="margin-top: 14px;">
+                  <label class="studio-label">Colour Palette</label>
+                </div>
+                <div class="color-options" id="productColorsContainer">
+                  <!-- Color pills -->
+                </div>
+              </div>
+            </section>
 
-            <!-- Accordions matching user template -->
-            <div class="detail-accordions">
-              <details open id="accordionDetails">
-                <summary>Product details <span>＋</span></summary>
-                <p id="detailsContent">Breathable textile upper, cushioned footbed, and durable rubber sole. Designed in
-                  Cape Town and made for daily wear.</p>
-              </details>
-              <details id="accordionDelivery">
-                <summary>Delivery &amp; returns <span>＋</span></summary>
-                <p id="deliveryContent">Complimentary delivery over R800. Returns are accepted within 14 days of
-                  delivery in pristine original condition.</p>
-              </details>
-              <details id="accordionCare">
-                <summary>Care notes <span>＋</span></summary>
-                <p id="careContent">Wipe gently with a soft, damp cloth. Allow to air dry away from direct heat.</p>
-              </details>
-            </div>
+            <!-- Specifications & Delivery Card -->
+            <section class="studio-form-card pv-accordions-card">
+              <div class="studio-card-simple-title">
+                <h4>Product Details & Policies</h4>
+                <p>Customer-facing materials, packaging, and care guidelines</p>
+              </div>
 
-            <!-- Admin Quick Specs Meta Card -->
-            <div class="pv-admin-metrics-card">
-              <div class="pv-metric-col">
-                <span class="pv-metric-label">Units in Stock</span>
-                <strong class="pv-metric-val" id="pvMetricStock">35</strong>
+              <div class="detail-accordions">
+                <details open id="accordionDetails" class="pv-accordion-item">
+                  <summary>Product details <span>＋</span></summary>
+                  <p id="detailsContent">Breathable textile upper, cushioned footbed, and durable rubber sole. Designed in
+                    Cape Town and made for daily wear.</p>
+                </details>
+                <details id="accordionDelivery" class="pv-accordion-item">
+                  <summary>Delivery &amp; returns <span>＋</span></summary>
+                  <p id="deliveryContent">Complimentary delivery over R800. Returns are accepted within 14 days of
+                    delivery in pristine original condition.</p>
+                </details>
+                <details id="accordionCare" class="pv-accordion-item">
+                  <summary>Care notes <span>＋</span></summary>
+                  <p id="careContent">Wipe gently with a soft, damp cloth. Allow to air dry away from direct heat.</p>
+                </details>
               </div>
-              <div class="pv-metric-col">
-                <span class="pv-metric-label">Unit Cost</span>
-                <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
-              </div>
-              <div class="pv-metric-col">
-                <span class="pv-metric-label">Gross Margin</span>
-                <strong class="pv-metric-val" id="pvMetricMargin">60%</strong>
-              </div>
-              <div class="pv-metric-col">
-                <span class="pv-metric-label">Catalog ID</span>
-                <strong class="pv-metric-val" id="pvMetricId">#1</strong>
-              </div>
-            </div>
+            </section>
 
           </div>
-        </section>
+
+        </div>
       </div>
 
+      <!-- 3. Footer Bar (Matching Studio Modal Footer) -->
+      <div class="studio-modal-footer pv-studio-footer">
+        <div class="studio-footer-status pv-footer-left">
+          <span class="pv-footer-qty-label">Quantity preview:</span>
+          <div class="quantity">
+            <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
+            <span id="quantity">1</span>
+            <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
+          </div>
+          <p class="added-feedback" id="addedFeedback" role="status"></p>
+        </div>
+
+        <div class="studio-footer-actions pv-footer-right">
+          <button type="button" class="studio-btn-discard pv-delete-btn" id="buyNowBtn" title="Delete product piece">
+            <span>Delete Piece</span>
+          </button>
+          <button type="button" class="studio-btn-discard" onclick="window.closeProductDetailModal()">
+            Close
+          </button>
+          <button type="button" class="studio-btn-publish" id="addToBag">
+            <span>Edit Specifications</span>
+            <span class="studio-btn-arrow">↗</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Velora Studio Global Confirmation Modal -->
+  <div class="dash-modal-backdrop" id="veloraConfirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="dash-modal velora-confirm-dialog">
+      <div class="confirm-dialog-header">
+        <div class="confirm-dialog-icon-wrap" id="confirmDialogIconWrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="confirm-dialog-titles">
+          <h3 id="confirmModalTitle">Confirm Action</h3>
+          <p id="confirmModalSubtitle">Please verify before proceeding.</p>
+        </div>
+        <button type="button" class="studio-modal-close-btn confirm-dialog-close" id="confirmModalCloseBtn" aria-label="Close dialog">✕</button>
+      </div>
+
+      <div class="confirm-dialog-body">
+        <p id="confirmModalMessage" class="confirm-modal-message">
+          Are you sure you want to proceed with this action?
+        </p>
+        <div class="confirm-item-preview" id="confirmItemPreview" style="display: none;">
+          <div class="confirm-item-thumb">
+            <img id="confirmItemImg" src="" alt="Item preview">
+          </div>
+          <div class="confirm-item-info">
+            <span class="confirm-item-cat" id="confirmItemCat">Footwear</span>
+            <strong class="confirm-item-title" id="confirmItemTitle">Product Title</strong>
+            <span class="confirm-item-meta" id="confirmItemMeta">Stock: 12 · Price: R1,150</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="confirm-dialog-footer">
+        <button type="button" class="confirm-btn-cancel" id="confirmModalCancelBtn">Cancel</button>
+        <button type="button" class="confirm-btn-action is-danger" id="confirmModalActionBtn">Confirm Delete</button>
+      </div>
     </div>
   </div>
 
@@ -2613,7 +2714,6 @@
   <script src="./js/settings.js"></script>
   <script src="./js/modals.js"></script>
   <script src="./js/search.js"></script>
-  <script src="./js/auth.js"></script>
   <script src="./js/formLogic.js"></script>
   <script src="./js/ValidationAndAuth.js"></script>
   <script src="./js/productLogic.js"></script>

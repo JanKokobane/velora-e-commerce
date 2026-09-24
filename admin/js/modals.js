@@ -381,6 +381,121 @@ window.initModals = function() {
   });
 };
 
+/**
+ * Global Studio Confirmation Modal
+ * Returns a Promise<boolean> that resolves to true if confirmed, false if cancelled.
+ */
+window.showConfirmModal = function({
+  title = 'Confirm Action',
+  subtitle = 'Please verify before proceeding.',
+  message = 'Are you sure you want to proceed?',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  danger = true,
+  item = null
+} = {}) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('veloraConfirmModal');
+    if (!modal) {
+      const fallback = window.confirm(`${title}\n\n${message}`);
+      resolve(fallback);
+      return;
+    }
+
+    const titleEl = document.getElementById('confirmModalTitle');
+    const subtitleEl = document.getElementById('confirmModalSubtitle');
+    const msgEl = document.getElementById('confirmModalMessage');
+    const cancelBtn = document.getElementById('confirmModalCancelBtn');
+    const actionBtn = document.getElementById('confirmModalActionBtn');
+    const closeBtn = document.getElementById('confirmModalCloseBtn');
+    const previewEl = document.getElementById('confirmItemPreview');
+
+    if (titleEl) titleEl.textContent = title;
+    if (subtitleEl) subtitleEl.textContent = subtitle;
+    if (msgEl) msgEl.textContent = message;
+    if (cancelBtn) cancelBtn.textContent = cancelText;
+
+    if (actionBtn) {
+      actionBtn.textContent = confirmText;
+      actionBtn.className = danger ? 'confirm-btn-action is-danger' : 'confirm-btn-action';
+    }
+
+    if (previewEl) {
+      if (item && (item.title || item.image)) {
+        previewEl.style.display = 'flex';
+        const imgEl = document.getElementById('confirmItemImg');
+        const catEl = document.getElementById('confirmItemCat');
+        const titEl = document.getElementById('confirmItemTitle');
+        const metaEl = document.getElementById('confirmItemMeta');
+
+        if (imgEl) {
+          imgEl.src = item.image || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=150&w=150';
+          imgEl.alt = item.title || 'Product';
+        }
+        if (catEl) catEl.textContent = item.category || 'Piece';
+        if (titEl) titEl.textContent = item.title || '';
+        if (metaEl) {
+          const parts = [];
+          if (item.stock !== undefined) parts.push(`${item.stock} in stock`);
+          if (item.price !== undefined) {
+            parts.push(typeof window.fmtPrice === 'function' ? window.fmtPrice(item.price) : `R${item.price}`);
+          }
+          metaEl.textContent = parts.join(' · ') || '';
+        }
+      } else {
+        previewEl.style.display = 'none';
+      }
+    }
+
+    let settled = false;
+
+    const cleanup = (result) => {
+      if (settled) return;
+      settled = true;
+      modal.classList.remove('open');
+      if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+      if (actionBtn) actionBtn.removeEventListener('click', onConfirm);
+      if (closeBtn) closeBtn.removeEventListener('click', onCancel);
+      window.removeEventListener('keydown', onKeyDown);
+      modal.removeEventListener('click', onBackdropClick);
+      resolve(result);
+    };
+
+    const onCancel = (e) => {
+      if (e) e.preventDefault();
+      cleanup(false);
+    };
+
+    const onConfirm = (e) => {
+      if (e) e.preventDefault();
+      cleanup(true);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onCancel(e);
+      } else if (e.key === 'Enter') {
+        onConfirm(e);
+      }
+    };
+
+    const onBackdropClick = (e) => {
+      if (e.target === modal) {
+        onCancel(e);
+      }
+    };
+
+    if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+    if (actionBtn) actionBtn.addEventListener('click', onConfirm);
+    if (closeBtn) closeBtn.addEventListener('click', onCancel);
+    window.addEventListener('keydown', onKeyDown);
+    modal.addEventListener('click', onBackdropClick);
+
+    modal.classList.add('open');
+    if (actionBtn) actionBtn.focus();
+  });
+};
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', window.initModals);
 } else {

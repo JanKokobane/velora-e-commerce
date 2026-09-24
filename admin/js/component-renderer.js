@@ -53,7 +53,9 @@
     './js/settings.js',
     './js/modals.js',
     './js/search.js',
-    './js/auth.js',
+    './js/formLogic.js',
+    './js/ValidationAndAuth.js',
+    './js/productLogic.js',
     './js/app.js',
     './dashboard.js'
   ];

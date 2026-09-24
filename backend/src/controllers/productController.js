@@ -6,6 +6,10 @@ const {
   deleteProduct,
 } = require("../services/productService");
 
+const {
+  createNotification,
+} = require("../services/notificationService");
+
 const getAdminId = (req) => {
   return req.admin?.admin_id;
 };
@@ -378,6 +382,25 @@ const createNewProduct = async (req, res) => {
         ...productData,
       });
 
+    try {
+      await createNotification({
+        type: "product_created",
+        category: "inventory",
+        title: "New Product Added",
+        message:
+          `${product.title} was added to the product catalogue.`,
+        entityType: "product",
+        entityId: product.id,
+        actionUrl: `/products/${product.id}`,
+        isActionable: false,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Create product notification error:",
+        notificationError
+      );
+    }
+
     return res.status(201).json({
       message:
         "Product created successfully.",
@@ -562,6 +585,25 @@ const editProduct = async (req, res) => {
       });
     }
 
+    try {
+      await createNotification({
+        type: "product_updated",
+        category: "inventory",
+        title: "Product Updated",
+        message:
+          `${product.title} was updated.`,
+        entityType: "product",
+        entityId: product.id,
+        actionUrl: `/products/${product.id}`,
+        isActionable: false,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Update product notification error:",
+        notificationError
+      );
+    }
+
     return res.status(200).json({
       message:
         "Product updated successfully.",
@@ -611,6 +653,25 @@ const removeProduct = async (req, res) => {
       });
     }
 
+    try {
+      await createNotification({
+        type: "product_deleted",
+        category: "inventory",
+        title: "Product Deleted",
+        message:
+          `${product.title} was removed from the product catalogue.`,
+        entityType: "product",
+        entityId: product.id,
+        actionUrl: null,
+        isActionable: false,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Delete product notification error:",
+        notificationError
+      );
+    }
+
     return res.status(200).json({
       message:
         "Product deleted successfully.",
@@ -636,3 +697,4 @@ module.exports = {
   editProduct,
   removeProduct,
 };
+

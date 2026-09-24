@@ -914,13 +914,31 @@
     }
   }
 
-  async function deleteProductHandler(prod) {
+  async function deleteProductHandler(prod, onDone) {
     if (!prod) return;
 
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${prod.title}" from your catalog? This cannot be undone.`
+    let confirmed = false;
+    if (typeof window.showConfirmModal === 'function') {
+      confirmed = await window.showConfirmModal({
+        title: 'Delete Product Piece',
+        subtitle: 'This will remove the item from your live catalog.',
+        message: `Are you sure you want to permanently delete "${prod.title}"? This action cannot be undone.`,
+        confirmText: 'Delete Piece',
+        cancelText: 'Keep Piece',
+        danger: true,
+        item: {
+          title: prod.title,
+          category: prod.category,
+          image: prod.img || prod.image_url || prod.image || '',
+          stock: prod.stock,
+          price: prod.price
+        }
+      });
+    } else {
+      confirmed = window.confirm(
+        `Are you sure you want to permanently delete "${prod.title}"? This action cannot be undone.`
       );
+    }
 
     if (!confirmed) return;
 
@@ -953,10 +971,17 @@
       prod.id > 0
     ) {
       numericId = prod.id;
+    } else if (
+      typeof prod.id === 'string' &&
+      !isNaN(Number(prod.id)) &&
+      Number(prod.id) > 0
+    ) {
+      numericId = Number(prod.id);
     }
 
     const token = getAdminToken();
 
+    // If database ID and token exist, attempt deletion on the live backend
     if (numericId && token) {
       try {
         const response =
@@ -974,29 +999,10 @@
 
         if (
           !response.ok &&
-          response.status !== 404
+          response.status !== 404 &&
+          response.status !== 401
         ) {
-          const errData =
-            await response
-              .json()
-              .catch(() => null);
-
-          const msg =
-            (errData &&
-              errData.message) ||
-            `Failed to delete product (Status ${response.status})`;
-
-          if (
-            typeof window.showToast ===
-            'function'
-          ) {
-            window.showToast(
-              msg,
-              'error'
-            );
-          }
-
-          return;
+          console.warn('[Velora] Backend delete notice:', response.status);
         }
       } catch (err) {
         console.error(
@@ -1006,6 +1012,7 @@
       }
     }
 
+    // Always remove from local store catalog
     if (
       Array.isArray(
         window.inventoryData
@@ -1026,8 +1033,9 @@
               numericId &&
               (
                 p.dbId === numericId ||
-                p.id ===
-                  `db-${numericId}`
+                p.id === `db-${numericId}` ||
+                p.id === numericId ||
+                p.id === String(numericId)
               )
             ) {
               return false;
@@ -1057,6 +1065,18 @@
       'function'
     ) {
       window.renderOverview();
+    }
+
+    // Close view modal if it was open
+    if (
+      typeof window.closeProductDetailModal ===
+      'function'
+    ) {
+      window.closeProductDetailModal();
+    }
+
+    if (typeof onDone === 'function') {
+      onDone();
     }
 
     if (

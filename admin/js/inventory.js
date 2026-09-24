@@ -143,13 +143,7 @@ function renderCardsView(container, products) {
     viewBtn.type = 'button';
     viewBtn.className = 'prod-action-btn prod-view-btn';
     viewBtn.title = 'View product showcase';
-    viewBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-        <circle cx="12" cy="12" r="3"></circle>
-      </svg>
-      <span>View</span>
-    `;
+    viewBtn.textContent = 'View';
     viewBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       window.openProductDetailModal(prod);
@@ -160,13 +154,7 @@ function renderCardsView(container, products) {
     editBtn.type = 'button';
     editBtn.className = 'prod-action-btn prod-edit-btn';
     editBtn.title = 'Edit product specifications';
-    editBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-      </svg>
-      <span>Edit</span>
-    `;
+    editBtn.textContent = 'Edit';
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof window.openEditProductModal === 'function') {
@@ -179,13 +167,7 @@ function renderCardsView(container, products) {
     deleteBtn.type = 'button';
     deleteBtn.className = 'prod-action-btn prod-delete-btn';
     deleteBtn.title = 'Delete product from store';
-    deleteBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-      </svg>
-      <span>Delete</span>
-    `;
+    deleteBtn.textContent = 'Delete';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof window.deleteProductHandler === 'function') {
@@ -205,7 +187,7 @@ function renderCardsView(container, products) {
 }
 
 /**
- * 2. List View Mode
+ * 2. List View Mode (Responsive Table)
  */
 function renderListView(container, products) {
   container.className = 'product-inventory-list-wrap';
@@ -217,12 +199,12 @@ function renderListView(container, products) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th style="min-width: 240px;">Product Piece</th>
-        <th>Category</th>
-        <th>Retail Price</th>
-        <th>Stock Threshold</th>
-        <th>Specifications</th>
-        <th style="text-align: right; min-width: 170px;">Actions</th>
+        <th class="inv-th-product">Product Piece</th>
+        <th class="inv-th-category">Category</th>
+        <th class="inv-th-price">Retail Price</th>
+        <th class="inv-th-stock">Stock Threshold</th>
+        <th class="inv-th-specs">Specifications</th>
+        <th class="inv-th-actions">Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -243,6 +225,9 @@ function renderListView(container, products) {
 
     // 1. Product cell (Image + Title + Eyebrow)
     const productCell = document.createElement('td');
+    productCell.className = 'inv-td-product';
+    productCell.setAttribute('data-label', 'Product Piece');
+
     const productWrap = document.createElement('div');
     productWrap.className = 'inv-cell-product';
 
@@ -275,6 +260,8 @@ function renderListView(container, products) {
 
     // 2. Category cell
     const catCell = document.createElement('td');
+    catCell.className = 'inv-td-category';
+    catCell.setAttribute('data-label', 'Category');
     const catTag = document.createElement('span');
     catTag.className = 'product-category-tag';
     catTag.style.margin = '0';
@@ -283,21 +270,29 @@ function renderListView(container, products) {
 
     // 3. Price cell
     const priceCell = document.createElement('td');
+    priceCell.className = 'inv-td-price';
+    priceCell.setAttribute('data-label', 'Retail Price');
+
+    const priceWrap = document.createElement('div');
+    priceWrap.className = 'inv-price-wrap';
+
     const priceSpan = document.createElement('span');
-    priceSpan.style.fontWeight = '700';
-    priceSpan.style.color = '#0f172a';
+    priceSpan.className = 'inv-price-main';
     priceSpan.textContent = window.fmtPrice ? window.fmtPrice(prod.price) : `R${prod.price}`;
-    priceCell.appendChild(priceSpan);
+    priceWrap.appendChild(priceSpan);
 
     if (prod.compareAtPrice && prod.compareAtPrice > prod.price) {
       const strike = document.createElement('span');
-      strike.style.cssText = 'font-size: 11.5px; color: #94a3b8; text-decoration: line-through; margin-left: 6px;';
+      strike.className = 'inv-price-strike';
       strike.textContent = window.fmtPrice ? window.fmtPrice(prod.compareAtPrice) : `R${prod.compareAtPrice}`;
-      priceCell.appendChild(strike);
+      priceWrap.appendChild(strike);
     }
+    priceCell.appendChild(priceWrap);
 
     // 4. Stock cell
     const stockCell = document.createElement('td');
+    stockCell.className = 'inv-td-stock';
+    stockCell.setAttribute('data-label', 'Stock');
     const badge = document.createElement('span');
     let badgeClass = 'stock-in';
     let badgeText = `${prod.stock} in stock`;
@@ -316,6 +311,8 @@ function renderListView(container, products) {
 
     // 5. Specs / variants cell
     const specsCell = document.createElement('td');
+    specsCell.className = 'inv-td-specs';
+    specsCell.setAttribute('data-label', 'Specifications');
     let specsText = '';
     if (prod.sizes) {
       const count = prod.sizes.split(',').filter(Boolean).length;
@@ -325,17 +322,18 @@ function renderListView(container, products) {
       specsText += specsText ? ` • ${prod.colors}` : prod.colors;
     }
     if (!specsText) specsText = 'Standard fit';
-    specsCell.style.color = '#64748b';
-    specsCell.style.fontSize = '12px';
-    specsCell.textContent = specsText;
+    const specsSpan = document.createElement('span');
+    specsSpan.className = 'inv-specs-text';
+    specsSpan.textContent = specsText;
+    specsCell.appendChild(specsSpan);
 
     // 6. Actions cell
     const actionsCell = document.createElement('td');
-    actionsCell.style.textAlign = 'right';
+    actionsCell.className = 'inv-td-actions';
+    actionsCell.setAttribute('data-label', 'Actions');
 
     const actionsWrap = document.createElement('div');
     actionsWrap.className = 'inv-list-actions';
-    actionsWrap.style.justifyContent = 'flex-end';
 
     // View button
     const viewBtn = document.createElement('button');
@@ -550,15 +548,8 @@ function renderDetailsView(container, products) {
     const viewBtn = document.createElement('button');
     viewBtn.type = 'button';
     viewBtn.className = 'prod-action-btn prod-view-btn';
-    viewBtn.style.padding = '0 12px';
-    viewBtn.style.height = '28px';
-    viewBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-        <circle cx="12" cy="12" r="3"></circle>
-      </svg>
-      <span>View Product Showcase</span>
-    `;
+    viewBtn.title = 'View product showcase';
+    viewBtn.textContent = 'View';
     viewBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       window.openProductDetailModal(prod);
@@ -567,15 +558,8 @@ function renderDetailsView(container, products) {
     const editBtn = document.createElement('button');
     editBtn.type = 'button';
     editBtn.className = 'prod-action-btn prod-edit-btn';
-    editBtn.style.padding = '0 10px';
-    editBtn.style.height = '28px';
-    editBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-      </svg>
-      <span>Edit</span>
-    `;
+    editBtn.title = 'Edit specifications';
+    editBtn.textContent = 'Edit';
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof window.openEditProductModal === 'function') {
@@ -586,15 +570,8 @@ function renderDetailsView(container, products) {
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
     deleteBtn.className = 'prod-action-btn prod-delete-btn';
-    deleteBtn.style.padding = '0 10px';
-    deleteBtn.style.height = '28px';
-    deleteBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-      </svg>
-      <span>Delete</span>
-    `;
+    deleteBtn.title = 'Delete product';
+    deleteBtn.textContent = 'Delete';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof window.deleteProductHandler === 'function') {
@@ -842,27 +819,32 @@ window.openProductDetailModal = function(prod) {
   }
 
   // 7. Quantity Stepper
-  let currentQty = 1;
   const qtySpan = document.getElementById('quantity');
   const qtyMinus = document.getElementById('pvQtyMinus');
   const qtyPlus = document.getElementById('pvQtyPlus');
-  if (qtySpan) qtySpan.textContent = currentQty;
+  if (qtySpan) qtySpan.textContent = '1';
 
   if (qtyMinus && !qtyMinus._bound) {
     qtyMinus._bound = true;
-    qtyMinus.addEventListener('click', () => {
-      if (currentQty > 1) {
-        currentQty--;
-        if (qtySpan) qtySpan.textContent = currentQty;
+    qtyMinus.addEventListener('click', (e) => {
+      e.preventDefault();
+      const qEl = document.getElementById('quantity');
+      if (qEl) {
+        let q = parseInt(qEl.textContent, 10) || 1;
+        if (q > 1) qEl.textContent = String(q - 1);
       }
     });
   }
 
   if (qtyPlus && !qtyPlus._bound) {
     qtyPlus._bound = true;
-    qtyPlus.addEventListener('click', () => {
-      currentQty++;
-      if (qtySpan) qtySpan.textContent = currentQty;
+    qtyPlus.addEventListener('click', (e) => {
+      e.preventDefault();
+      const qEl = document.getElementById('quantity');
+      if (qEl) {
+        let q = parseInt(qEl.textContent, 10) || 1;
+        qEl.textContent = String(q + 1);
+      }
     });
   }
 
@@ -909,10 +891,11 @@ window.openProductDetailModal = function(prod) {
     metricId.textContent = prod.dbId ? `#${prod.dbId}` : (prod.id || '#1');
   }
 
-  // 10. Action Buttons (Header Edit, Body Edit, Body Delete)
+  // 10. Action Buttons (Header Edit, Header Delete, Body Edit, Body Delete)
   const headerEditBtn = document.getElementById('pvHeaderEditBtn');
   if (headerEditBtn) {
-    headerEditBtn.onclick = () => {
+    headerEditBtn.onclick = (e) => {
+      if (e) e.preventDefault();
       window.closeProductDetailModal();
       if (typeof window.openEditProductModal === 'function') {
         window.openEditProductModal(prod);
@@ -920,9 +903,20 @@ window.openProductDetailModal = function(prod) {
     };
   }
 
+  const headerDeleteBtn = document.getElementById('pvHeaderDeleteBtn');
+  if (headerDeleteBtn) {
+    headerDeleteBtn.onclick = (e) => {
+      if (e) e.preventDefault();
+      if (typeof window.deleteProductHandler === 'function') {
+        window.deleteProductHandler(prod);
+      }
+    };
+  }
+
   const bodyEditBtn = document.getElementById('addToBag');
   if (bodyEditBtn) {
-    bodyEditBtn.onclick = () => {
+    bodyEditBtn.onclick = (e) => {
+      if (e) e.preventDefault();
       window.closeProductDetailModal();
       if (typeof window.openEditProductModal === 'function') {
         window.openEditProductModal(prod);
@@ -932,8 +926,8 @@ window.openProductDetailModal = function(prod) {
 
   const bodyDeleteBtn = document.getElementById('buyNowBtn');
   if (bodyDeleteBtn) {
-    bodyDeleteBtn.onclick = () => {
-      window.closeProductDetailModal();
+    bodyDeleteBtn.onclick = (e) => {
+      if (e) e.preventDefault();
       if (typeof window.deleteProductHandler === 'function') {
         window.deleteProductHandler(prod);
       }
