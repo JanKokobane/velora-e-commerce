@@ -8,18 +8,38 @@ const {
   clearAllAdminNotifications,
 } = require("../controllers/notificationController");
 
-const adminAuth = require("../middleware/adminAuth");
+const adminAuthMiddleware = require("../middleware/adminAuthMiddleware");
 
 const router = express.Router();
 
-router.get("/", adminAuth, getAdminNotifications);
+router.get(
+  "/",
+  adminAuthMiddleware,
+  getAdminNotifications
+);
 
-router.put("/:id/read", adminAuth, markNotificationRead);
+router.put(
+  "/read-all",
+  adminAuthMiddleware,
+  markAllNotificationsRead
+);
 
-router.put("/read-all", adminAuth, markAllNotificationsRead);
+router.put(
+  "/clear-all",
+  adminAuthMiddleware,
+  clearAllAdminNotifications
+);
 
-router.put("/:id/clear", adminAuth, clearAdminNotification);
+router.put(
+  "/:id/read",
+  adminAuthMiddleware,
+  markNotificationRead
+);
 
-router.put("/clear-all", adminAuth, clearAllAdminNotifications);
+router.put(
+  "/:id/clear",
+  adminAuthMiddleware,
+  clearAdminNotification
+);
 
 module.exports = router;
