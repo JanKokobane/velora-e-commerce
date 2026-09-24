@@ -3063,6 +3063,7 @@ body.sidebar-drawer-active {
   font-size: 13px;
   font-weight: 600;
   border-radius: 50px;
+  margin-right: 5px;
 }
 
 .product-inventory-grid {

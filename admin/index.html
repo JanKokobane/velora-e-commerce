@@ -731,7 +731,7 @@
                 title="Change country & currency">
                 <span class="country-flag-icon" id="headerSelectedFlag">🇿🇦</span>
                 <span class="country-code-pill" id="headerSelectedCode">ZAR</span>
-                
+
               </button>
 
               <div class="country-dropdown-popover" id="countryCurrencyDropdown" style="display: none;" role="menu">
@@ -1210,13 +1210,22 @@
               <div class="inventory-header-bar">
                 <div>
                   <h3 class="inventory-title">Catalog &amp; Stock Inventory</h3>
-                  <p class="inventory-subtitle">Manage store pieces, stock thresholds, pricing, and visual presentation</p>
+                  <p class="inventory-subtitle">Manage store pieces, stock thresholds, pricing, and visual presentation
+                  </p>
                 </div>
                 <div class="inventory-header-actions">
                   <!-- View Switcher: Cards, List, Details -->
                   <div class="inv-view-toggle" id="invViewToggle" role="group" aria-label="Catalog view style">
-                    <button type="button" class="inv-toggle-btn active" data-view="cards" title="Cards Grid View" onclick="window.setInventoryViewMode('cards')">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                    <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn"
+                      onclick="window.openNewProductModal()">
+                      ＋ Add New Product
+                    </button>
+
+                    <button type="button" class="inv-toggle-btn active" data-view="cards" title="Cards Grid View"
+                      onclick="window.setInventoryViewMode('cards')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
                         <rect x="14" y="14" width="7" height="7"></rect>
@@ -1224,8 +1233,10 @@
                       </svg>
                       <span>Cards</span>
                     </button>
-                    <button type="button" class="inv-toggle-btn" data-view="list" title="Compact List View" onclick="window.setInventoryViewMode('list')">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="inv-toggle-btn" data-view="list" title="Compact List View"
+                      onclick="window.setInventoryViewMode('list')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"></line>
                         <line x1="8" y1="12" x2="21" y2="12"></line>
                         <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -1235,20 +1246,21 @@
                       </svg>
                       <span>List</span>
                     </button>
-                    <button type="button" class="inv-toggle-btn" data-view="details" title="Expanded Detailed View" onclick="window.setInventoryViewMode('details')">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="inv-toggle-btn" data-view="details" title="Expanded Detailed View"
+                      onclick="window.setInventoryViewMode('details')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="3" y1="9" x2="21" y2="9"></line>
                         <line x1="9" y1="21" x2="9" y2="9"></line>
                       </svg>
                       <span>Details</span>
                     </button>
+
+
+
                   </div>
 
-                  <button type="button" class="drawer-btn drawer-btn-dark inventory-add-btn"
-                    onclick="window.openNewProductModal()">
-                    ＋ Add New Product
-                  </button>
                 </div>
               </div>
 
@@ -1957,579 +1969,468 @@
     </div>
   </div>
 
-<!-- 12. Modals Component -->
-<div id="componentModals" data-component="modals">
-  <div class="dash-modal-backdrop" id="newProductModal">
-    <div class="dash-modal studio-modal-container">
-      
-      <!-- 1. E-Commerce Product Header -->
-      <div class="studio-modal-header">
-        <div class="studio-modal-title-group">
-          <h3 class="studio-modal-heading" id="productModalTitle">Add New Product</h3>
-          <p class="studio-modal-subheading" id="productModalSubheading">
-            Fill in the details to publish a new piece to your store catalog.
-          </p>
+  <!-- 12. Modals Component -->
+  <div id="componentModals" data-component="modals">
+    <div class="dash-modal-backdrop" id="newProductModal">
+      <div class="dash-modal studio-modal-container">
+
+        <!-- 1. E-Commerce Product Header -->
+        <div class="studio-modal-header">
+          <div class="studio-modal-title-group">
+            <h3 class="studio-modal-heading" id="productModalTitle">Add New Product</h3>
+            <p class="studio-modal-subheading" id="productModalSubheading">
+              Fill in the details to publish a new piece to your store catalog.
+            </p>
+          </div>
+
+          <div class="studio-modal-header-actions">
+
+
+            <button type="button" class="studio-modal-close-btn" onclick="window.closeNewProductModal()"
+              aria-label="Close dialog">
+              ✕
+            </button>
+          </div>
         </div>
 
-        <div class="studio-modal-header-actions">
-          
+        <!-- 2. Form Body -->
+        <form id="newProductForm" class="studio-modal-form" novalidate>
+          <div class="studio-modal-scrollable-body">
+            <!-- Inline Form Notification Banner for Validation & API Feedback -->
+            <div id="productFormAlert" class="studio-form-alert" style="display: none;" role="alert"></div>
 
-          <button
-            type="button"
-            class="studio-modal-close-btn"
-            onclick="window.closeNewProductModal()"
+            <div class="studio-form-columns studio-single-column">
+
+              <!-- Section 1: Basic Information -->
+              <section class="studio-form-card">
+                <div class="studio-card-simple-title">
+                  <h4>Basic Information</h4>
+                  <p>Primary title, category and collection</p>
+                </div>
+
+                <div class="studio-input-group">
+                  <label for="newProdTitle" class="studio-label">
+                    Product Name / Title <span class="studio-req">*</span>
+                  </label>
+                  <input type="text" id="newProdTitle" class="studio-input"
+                    placeholder="e.g. Vintage Heavyweight Boxy T-Shirt">
+                </div>
+
+                <div class="studio-grid-2">
+                  <div class="studio-input-group">
+                    <label for="newProdCategory" class="studio-label">
+                      Category <span class="studio-req">*</span>
+                    </label>
+                    <div class="studio-select-wrapper">
+                      <select id="newProdCategory" class="studio-select">
+                        <option value="T-Shirts" selected>T-Shirts</option>
+                        <option value="Jeans">Jeans</option>
+                        <option value="Shirts">Shirts</option>
+                        <option value="Hoodies & Sweaters">Hoodies &amp; Sweaters</option>
+                        <option value="Jackets & Outerwear">Jackets &amp; Outerwear</option>
+                        <option value="Trousers & Pants">Trousers &amp; Pants</option>
+                        <option value="Bags">Bags</option>
+                        <option value="Footwear">Footwear</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Objects">Objects &amp; Lifestyle</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
+                    <input type="text" id="newProdEyebrow" class="studio-input" placeholder="e.g. Velora Essentials">
+                  </div>
+                </div>
+              </section>
+
+              <!-- Section 2: Pricing & Inventory -->
+              <section class="studio-form-card">
+                <div class="studio-card-simple-title">
+                  <h4>Pricing &amp; Inventory</h4>
+                  <p>Retail pricing and available warehouse stock</p>
+                </div>
+
+                <div class="studio-grid-3">
+                  <div class="studio-input-group">
+                    <label for="newProdPrice" class="studio-label">
+                      Retail Price (ZAR) <span class="studio-req">*</span>
+                    </label>
+                    <div class="studio-prefix-input">
+                      <span class="studio-input-prefix">R</span>
+                      <input type="number" id="newProdPrice" class="studio-input studio-input-with-prefix"
+                        placeholder="450" min="0" step="0.01">
+                    </div>
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdComparePrice" class="studio-label">Compare-at Price (ZAR)</label>
+                    <div class="studio-prefix-input">
+                      <span class="studio-input-prefix">R</span>
+                      <input type="number" id="newProdComparePrice" class="studio-input studio-input-with-prefix"
+                        placeholder="590" min="0" step="0.01">
+                    </div>
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdCostPrice" class="studio-label">Cost per Item (ZAR)</label>
+                    <div class="studio-prefix-input">
+                      <span class="studio-input-prefix">R</span>
+                      <input type="number" id="newProdCostPrice" class="studio-input studio-input-with-prefix"
+                        placeholder="180" min="0" step="0.01">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studio-grid-2" style="margin-top: 14px;">
+                  <div class="studio-input-group">
+                    <label for="newProdStock" class="studio-label">
+                      Stock Quantity <span class="studio-req">*</span>
+                    </label>
+                    <input type="number" id="newProdStock" class="studio-input" placeholder="15" min="0">
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdStockStatus" class="studio-label">Inventory Status</label>
+                    <div class="studio-select-wrapper">
+                      <select id="newProdStockStatus" class="studio-select">
+                        <option value="in_stock" selected>In Stock (Ready to fulfill)</option>
+                        <option value="low_stock">Low Stock Warning</option>
+                        <option value="preorder">Pre-Order / Made to Order</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Section 3: Product Imagery -->
+              <section class="studio-form-card">
+                <div class="studio-card-simple-title">
+                  <h4>Product Images</h4>
+                  <p>Direct image links to showcase your product</p>
+                </div>
+
+                <div class="studio-input-group">
+                  <label for="newProdImage" class="studio-label">
+                    Main Product Image URL <span class="studio-req">*</span>
+                  </label>
+                  <input type="url" id="newProdImage" class="studio-input" placeholder="https://images.pexels.com/...">
+                  <input type="file" id="newProdImageFile" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="studio-grid-2">
+                  <div class="studio-input-group">
+                    <label for="newProdImage2" class="studio-label">Gallery Image 2 (Optional)</label>
+                    <input type="url" id="newProdImage2" class="studio-input" placeholder="https://...">
+                    <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdImage3" class="studio-label">Gallery Image 3 (Optional)</label>
+                    <input type="url" id="newProdImage3" class="studio-input" placeholder="https://...">
+                    <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
+                  </div>
+                </div>
+              </section>
+
+              <!-- Section 4: Variants, Specifications & Details -->
+              <section class="studio-form-card">
+                <div class="studio-card-simple-title">
+                  <h4>Variants &amp; Details</h4>
+                  <p>Sizes, colors, silhouette and care instructions</p>
+                </div>
+
+                <div class="studio-grid-2">
+                  <div class="studio-input-group">
+                    <label for="newProdSizes" class="studio-label">Available Sizes</label>
+                    <input type="text" id="newProdSizes" class="studio-input"
+                      placeholder="e.g. S, M, L, XL or 28, 30, 32">
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdColors" class="studio-label">Available Colors</label>
+                    <input type="text" id="newProdColors" class="studio-input"
+                      placeholder="e.g. Washed Black, Vintage White">
+                  </div>
+                </div>
+
+                <div class="studio-grid-2" style="margin-top: 14px;">
+                  <div class="studio-input-group">
+                    <label for="newProdFit" class="studio-label">Fit / Silhouette</label>
+                    <input type="text" id="newProdFit" class="studio-input" placeholder="e.g. Boxy Oversized Fit">
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdDetails" class="studio-label">Fabric &amp; Specifications</label>
+                    <input type="text" id="newProdDetails" class="studio-input"
+                      placeholder="e.g. 100% Combed Cotton (240 GSM)">
+                  </div>
+                </div>
+
+                <div class="studio-input-group" style="margin-top: 14px;">
+                  <label for="newProdDescription" class="studio-label">Product Description</label>
+                  <textarea id="newProdDescription" class="studio-textarea" rows="3"
+                    placeholder="Describe the product styling, fit, texture, and everyday versatility..."></textarea>
+                </div>
+
+                <div class="studio-grid-2" style="margin-top: 14px;">
+                  <div class="studio-input-group">
+                    <label for="newProdCare" class="studio-label">Care Instructions</label>
+                    <textarea id="newProdCare" class="studio-textarea studio-textarea-compact" rows="2"
+                      placeholder="e.g. Cold wash with like colors. Hang dry."></textarea>
+                  </div>
+
+                  <div class="studio-input-group">
+                    <label for="newProdDelivery" class="studio-label">Shipping &amp; Fulfillment</label>
+                    <textarea id="newProdDelivery" class="studio-textarea studio-textarea-compact" rows="2"
+                      placeholder="e.g. Dispatched within 24 hours. Express courier."></textarea>
+                  </div>
+                </div>
+
+                <!-- Hidden inputs for backward compatibility -->
+                <input type="hidden" id="newProdRating" value="5">
+                <input type="hidden" id="newProdReviews" value="0">
+              </section>
+
+            </div>
+          </div>
+
+          <!-- 3. Modal Sticky Footer -->
+          <div class="studio-modal-footer">
+            <div class="studio-footer-status">
+              <span id="studioFooterStatus">Ready to publish to online store</span>
+            </div>
+
+            <div class="studio-footer-actions">
+              <button type="button" class="studio-btn-discard" onclick="window.closeNewProductModal()">
+                Discard
+              </button>
+              <button type="submit" class="studio-btn-publish" id="btnSubmitProduct">
+                <span class="studio-btn-text">Publish Product to Store</span>
+                <span class="studio-btn-arrow">↗</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Detail & Customer Presentation Modal -->
+  <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true"
+    aria-labelledby="productTitle">
+    <div class="dash-modal product-detail-modal-container">
+
+      <!-- Header Bar -->
+      <div class="product-detail-modal-topbar">
+        <!-- Breadcrumbs matching user template -->
+        <div class="breadcrumbs" id="pvBreadcrumbs">
+          <span class="breadcrumb-link" onclick="window.closeProductDetailModal()">Catalog</span>
+          <span class="breadcrumb-sep">/</span>
+          <span id="breadcrumbCategory" class="breadcrumb-cat">Footwear</span>
+          <span class="breadcrumb-sep">/</span>
+          <span id="breadcrumbTitle" class="breadcrumb-title">Cloud-step sneakers</span>
+        </div>
+
+        <div class="product-detail-modal-actions">
+          <span id="pvStockBadge" class="product-stock-badge stock-in">In Stock</span>
+          <button type="button" class="pv-header-action-btn pv-edit-btn" id="pvHeaderEditBtn"
+            title="Edit specifications">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <span>Edit Piece</span>
+          </button>
+          <button type="button" class="pv-header-action-btn pv-close-btn" onclick="window.closeProductDetailModal()"
             aria-label="Close dialog">
             ✕
           </button>
         </div>
       </div>
 
-      <!-- 2. Form Body -->
-      <form id="newProductForm" class="studio-modal-form" novalidate>
-        <div class="studio-modal-scrollable-body">
-          <!-- Inline Form Notification Banner for Validation & API Feedback -->
-          <div id="productFormAlert" class="studio-form-alert" style="display: none;" role="alert"></div>
+      <div class="product-detail-modal-scrollable">
+        <!-- Product detail: gallery + copy (matching user layout) -->
+        <section class="product-detail" id="productInfo">
 
-          <div class="studio-form-columns studio-single-column">
-
-            <!-- Section 1: Basic Information -->
-            <section class="studio-form-card">
-              <div class="studio-card-simple-title">
-                <h4>Basic Information</h4>
-                <p>Primary title, category and collection</p>
-              </div>
-
-              <div class="studio-input-group">
-                <label for="newProdTitle" class="studio-label">
-                  Product Name / Title <span class="studio-req">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="newProdTitle"
-                  class="studio-input"
-                  placeholder="e.g. Vintage Heavyweight Boxy T-Shirt">
-              </div>
-
-              <div class="studio-grid-2">
-                <div class="studio-input-group">
-                  <label for="newProdCategory" class="studio-label">
-                    Category <span class="studio-req">*</span>
-                  </label>
-                  <div class="studio-select-wrapper">
-                    <select id="newProdCategory" class="studio-select">
-                      <option value="T-Shirts" selected>T-Shirts</option>
-                      <option value="Jeans">Jeans</option>
-                      <option value="Shirts">Shirts</option>
-                      <option value="Hoodies & Sweaters">Hoodies &amp; Sweaters</option>
-                      <option value="Jackets & Outerwear">Jackets &amp; Outerwear</option>
-                      <option value="Trousers & Pants">Trousers &amp; Pants</option>
-                      <option value="Bags">Bags</option>
-                      <option value="Footwear">Footwear</option>
-                      <option value="Accessories">Accessories</option>
-                      <option value="Objects">Objects &amp; Lifestyle</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
-                  <input
-                    type="text"
-                    id="newProdEyebrow"
-                    class="studio-input"
-                    placeholder="e.g. Velora Essentials">
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 2: Pricing & Inventory -->
-            <section class="studio-form-card">
-              <div class="studio-card-simple-title">
-                <h4>Pricing &amp; Inventory</h4>
-                <p>Retail pricing and available warehouse stock</p>
-              </div>
-
-              <div class="studio-grid-3">
-                <div class="studio-input-group">
-                  <label for="newProdPrice" class="studio-label">
-                    Retail Price (ZAR) <span class="studio-req">*</span>
-                  </label>
-                  <div class="studio-prefix-input">
-                    <span class="studio-input-prefix">R</span>
-                    <input
-                      type="number"
-                      id="newProdPrice"
-                      class="studio-input studio-input-with-prefix"
-                      placeholder="450"
-                      min="0"
-                      step="0.01">
-                  </div>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdComparePrice" class="studio-label">Compare-at Price (ZAR)</label>
-                  <div class="studio-prefix-input">
-                    <span class="studio-input-prefix">R</span>
-                    <input
-                      type="number"
-                      id="newProdComparePrice"
-                      class="studio-input studio-input-with-prefix"
-                      placeholder="590"
-                      min="0"
-                      step="0.01">
-                  </div>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdCostPrice" class="studio-label">Cost per Item (ZAR)</label>
-                  <div class="studio-prefix-input">
-                    <span class="studio-input-prefix">R</span>
-                    <input
-                      type="number"
-                      id="newProdCostPrice"
-                      class="studio-input studio-input-with-prefix"
-                      placeholder="180"
-                      min="0"
-                      step="0.01">
-                  </div>
-                </div>
-              </div>
-
-              <div class="studio-grid-2" style="margin-top: 14px;">
-                <div class="studio-input-group">
-                  <label for="newProdStock" class="studio-label">
-                    Stock Quantity <span class="studio-req">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    id="newProdStock"
-                    class="studio-input"
-                    placeholder="15"
-                    min="0">
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdStockStatus" class="studio-label">Inventory Status</label>
-                  <div class="studio-select-wrapper">
-                    <select id="newProdStockStatus" class="studio-select">
-                      <option value="in_stock" selected>In Stock (Ready to fulfill)</option>
-                      <option value="low_stock">Low Stock Warning</option>
-                      <option value="preorder">Pre-Order / Made to Order</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 3: Product Imagery -->
-            <section class="studio-form-card">
-              <div class="studio-card-simple-title">
-                <h4>Product Images</h4>
-                <p>Direct image links to showcase your product</p>
-              </div>
-
-              <div class="studio-input-group">
-                <label for="newProdImage" class="studio-label">
-                  Main Product Image URL <span class="studio-req">*</span>
-                </label>
-                <input
-                  type="url"
-                  id="newProdImage"
-                  class="studio-input"
-                  placeholder="https://images.pexels.com/...">
-                <input type="file" id="newProdImageFile" accept="image/*" style="display: none;">
-              </div>
-
-              <div class="studio-grid-2">
-                <div class="studio-input-group">
-                  <label for="newProdImage2" class="studio-label">Gallery Image 2 (Optional)</label>
-                  <input
-                    type="url"
-                    id="newProdImage2"
-                    class="studio-input"
-                    placeholder="https://...">
-                  <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdImage3" class="studio-label">Gallery Image 3 (Optional)</label>
-                  <input
-                    type="url"
-                    id="newProdImage3"
-                    class="studio-input"
-                    placeholder="https://...">
-                  <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 4: Variants, Specifications & Details -->
-            <section class="studio-form-card">
-              <div class="studio-card-simple-title">
-                <h4>Variants &amp; Details</h4>
-                <p>Sizes, colors, silhouette and care instructions</p>
-              </div>
-
-              <div class="studio-grid-2">
-                <div class="studio-input-group">
-                  <label for="newProdSizes" class="studio-label">Available Sizes</label>
-                  <input
-                    type="text"
-                    id="newProdSizes"
-                    class="studio-input"
-                    placeholder="e.g. S, M, L, XL or 28, 30, 32">
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdColors" class="studio-label">Available Colors</label>
-                  <input
-                    type="text"
-                    id="newProdColors"
-                    class="studio-input"
-                    placeholder="e.g. Washed Black, Vintage White">
-                </div>
-              </div>
-
-              <div class="studio-grid-2" style="margin-top: 14px;">
-                <div class="studio-input-group">
-                  <label for="newProdFit" class="studio-label">Fit / Silhouette</label>
-                  <input
-                    type="text"
-                    id="newProdFit"
-                    class="studio-input"
-                    placeholder="e.g. Boxy Oversized Fit">
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdDetails" class="studio-label">Fabric &amp; Specifications</label>
-                  <input
-                    type="text"
-                    id="newProdDetails"
-                    class="studio-input"
-                    placeholder="e.g. 100% Combed Cotton (240 GSM)">
-                </div>
-              </div>
-
-              <div class="studio-input-group" style="margin-top: 14px;">
-                <label for="newProdDescription" class="studio-label">Product Description</label>
-                <textarea
-                  id="newProdDescription"
-                  class="studio-textarea"
-                  rows="3"
-                  placeholder="Describe the product styling, fit, texture, and everyday versatility..."></textarea>
-              </div>
-
-              <div class="studio-grid-2" style="margin-top: 14px;">
-                <div class="studio-input-group">
-                  <label for="newProdCare" class="studio-label">Care Instructions</label>
-                  <textarea
-                    id="newProdCare"
-                    class="studio-textarea studio-textarea-compact"
-                    rows="2"
-                    placeholder="e.g. Cold wash with like colors. Hang dry."></textarea>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdDelivery" class="studio-label">Shipping &amp; Fulfillment</label>
-                  <textarea
-                    id="newProdDelivery"
-                    class="studio-textarea studio-textarea-compact"
-                    rows="2"
-                    placeholder="e.g. Dispatched within 24 hours. Express courier."></textarea>
-                </div>
-              </div>
-
-              <!-- Hidden inputs for backward compatibility -->
-              <input type="hidden" id="newProdRating" value="5">
-              <input type="hidden" id="newProdReviews" value="0">
-            </section>
-
-          </div>
-        </div>
-
-        <!-- 3. Modal Sticky Footer -->
-        <div class="studio-modal-footer">
-          <div class="studio-footer-status">
-            <span id="studioFooterStatus">Ready to publish to online store</span>
+          <!-- Gallery -->
+          <div class="product-gallery" id="pvProductGallery">
+            <div class="gallery-main">
+              <img id="mainProductImage"
+                src="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+                alt="Product view">
+            </div>
+            <div class="gallery-thumbs" id="galleryThumbs">
+              <!-- Injected dynamically based on item images -->
+            </div>
+            <div class="rotate-badge" id="rotateBadge">
+              <span class="rotate-dot"></span>
+              <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
+            </div>
           </div>
 
-          <div class="studio-footer-actions">
-            <button
-              type="button"
-              class="studio-btn-discard"
-              onclick="window.closeNewProductModal()">
-              Discard
-            </button>
-            <button
-              type="submit"
-              class="studio-btn-publish"
-              id="btnSubmitProduct">
-              <span class="studio-btn-text">Publish Product to Store</span>
-              <span class="studio-btn-arrow">↗</span>
-            </button>
+          <!-- Copy / purchase -->
+          <div class="product-copy">
+            <p class="eyebrow" id="productEyebrow">Weekend Uniform</p>
+            <h1 id="productTitle">Cloud-step <em>sneakers.</em></h1>
+
+            <div class="rating">
+              <span id="productRatingStars">★★★★★</span>
+              <u id="productReviewsCount">12 reviews</u>
+            </div>
+
+            <div class="detail-price-wrap">
+              <p class="detail-price" id="productPrice">R1 150</p>
+              <span class="detail-compare-price" id="productComparePrice"></span>
+            </div>
+
+            <p class="detail-description" id="productDesc">
+              A light, considered everyday sneaker with a soft step and a clean silhouette.
+              Made for long walks, slow mornings, and everything in between.
+            </p>
+
+            <div class="detail-rule"></div>
+
+            <div class="option-row">
+              <span>Select size</span>
+              <span class="detail-fit-badge" id="productFitBadge">Regular Classic Fit</span>
+            </div>
+
+            <div class="size-options" id="productSizesContainer">
+              <button type="button" class="selected">36</button>
+              <button type="button">37</button>
+              <button type="button">38</button>
+              <button type="button">39</button>
+              <button type="button">40</button>
+            </div>
+
+            <div class="detail-colors-wrap" id="productColorsWrap" style="margin-top: 14px;">
+              <div class="option-row">
+                <span>Available colors</span>
+              </div>
+              <div class="color-options" id="productColorsContainer">
+                <!-- Color pills -->
+              </div>
+            </div>
+
+            <div class="purchase-row admin-preview-actions">
+              <div class="quantity">
+                <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
+                <span id="quantity">1</span>
+                <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
+              </div>
+              <button class="add-to-bag" id="addToBag" type="button">
+                Edit Specifications <span>↗</span>
+              </button>
+              <button class="buy-now-btn pv-delete-btn" id="buyNowBtn" type="button">
+                Delete Piece <span>🗑</span>
+              </button>
+            </div>
+
+            <p class="added-feedback" id="addedFeedback" role="status"></p>
+
+            <!-- Accordions matching user template -->
+            <div class="detail-accordions">
+              <details open id="accordionDetails">
+                <summary>Product details <span>＋</span></summary>
+                <p id="detailsContent">Breathable textile upper, cushioned footbed, and durable rubber sole. Designed in
+                  Cape Town and made for daily wear.</p>
+              </details>
+              <details id="accordionDelivery">
+                <summary>Delivery &amp; returns <span>＋</span></summary>
+                <p id="deliveryContent">Complimentary delivery over R800. Returns are accepted within 14 days of
+                  delivery in pristine original condition.</p>
+              </details>
+              <details id="accordionCare">
+                <summary>Care notes <span>＋</span></summary>
+                <p id="careContent">Wipe gently with a soft, damp cloth. Allow to air dry away from direct heat.</p>
+              </details>
+            </div>
+
+            <!-- Admin Quick Specs Meta Card -->
+            <div class="pv-admin-metrics-card">
+              <div class="pv-metric-col">
+                <span class="pv-metric-label">Units in Stock</span>
+                <strong class="pv-metric-val" id="pvMetricStock">35</strong>
+              </div>
+              <div class="pv-metric-col">
+                <span class="pv-metric-label">Unit Cost</span>
+                <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
+              </div>
+              <div class="pv-metric-col">
+                <span class="pv-metric-label">Gross Margin</span>
+                <strong class="pv-metric-val" id="pvMetricMargin">60%</strong>
+              </div>
+              <div class="pv-metric-col">
+                <span class="pv-metric-label">Catalog ID</span>
+                <strong class="pv-metric-val" id="pvMetricId">#1</strong>
+              </div>
+            </div>
+
           </div>
-        </div>
-      </form>
+        </section>
+      </div>
+
     </div>
   </div>
-</div>
 
-    <!-- Product Detail & Customer Presentation Modal -->
-    <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true" aria-labelledby="productTitle">
-      <div class="dash-modal product-detail-modal-container">
-        
-        <!-- Header Bar -->
-        <div class="product-detail-modal-topbar">
-          <!-- Breadcrumbs matching user template -->
-          <div class="breadcrumbs" id="pvBreadcrumbs">
-            <span class="breadcrumb-link" onclick="window.closeProductDetailModal()">Catalog</span>
-            <span class="breadcrumb-sep">/</span>
-            <span id="breadcrumbCategory" class="breadcrumb-cat">Footwear</span>
-            <span class="breadcrumb-sep">/</span>
-            <span id="breadcrumbTitle" class="breadcrumb-title">Cloud-step sneakers</span>
-          </div>
 
-          <div class="product-detail-modal-actions">
-            <span id="pvStockBadge" class="product-stock-badge stock-in">In Stock</span>
-            <button type="button" class="pv-header-action-btn pv-edit-btn" id="pvHeaderEditBtn" title="Edit specifications">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-              <span>Edit Piece</span>
-            </button>
-            <button type="button" class="pv-header-action-btn pv-close-btn" onclick="window.closeProductDetailModal()" aria-label="Close dialog">
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <div class="product-detail-modal-scrollable">
-          <!-- Product detail: gallery + copy (matching user layout) -->
-          <section class="product-detail" id="productInfo">
-
-            <!-- Gallery -->
-            <div class="product-gallery" id="pvProductGallery">
-              <div class="gallery-main">
-                <img id="mainProductImage"
-                  src="https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="Product view">
-              </div>
-              <div class="gallery-thumbs" id="galleryThumbs">
-                <!-- Injected dynamically based on item images -->
-              </div>
-              <div class="rotate-badge" id="rotateBadge">
-                <span class="rotate-dot"></span>
-                <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
-              </div>
-            </div>
-
-            <!-- Copy / purchase -->
-            <div class="product-copy">
-              <p class="eyebrow" id="productEyebrow">Weekend Uniform</p>
-              <h1 id="productTitle">Cloud-step <em>sneakers.</em></h1>
-
-              <div class="rating">
-                <span id="productRatingStars">★★★★★</span>
-                <u id="productReviewsCount">12 reviews</u>
-              </div>
-
-              <div class="detail-price-wrap">
-                <p class="detail-price" id="productPrice">R1 150</p>
-                <span class="detail-compare-price" id="productComparePrice"></span>
-              </div>
-
-              <p class="detail-description" id="productDesc">
-                A light, considered everyday sneaker with a soft step and a clean silhouette.
-                Made for long walks, slow mornings, and everything in between.
-              </p>
-
-              <div class="detail-rule"></div>
-
-              <div class="option-row">
-                <span>Select size</span>
-                <span class="detail-fit-badge" id="productFitBadge">Regular Classic Fit</span>
-              </div>
-
-              <div class="size-options" id="productSizesContainer">
-                <button type="button" class="selected">36</button>
-                <button type="button">37</button>
-                <button type="button">38</button>
-                <button type="button">39</button>
-                <button type="button">40</button>
-              </div>
-
-              <div class="detail-colors-wrap" id="productColorsWrap" style="margin-top: 14px;">
-                <div class="option-row">
-                  <span>Available colors</span>
-                </div>
-                <div class="color-options" id="productColorsContainer">
-                  <!-- Color pills -->
-                </div>
-              </div>
-
-              <div class="purchase-row admin-preview-actions">
-                <div class="quantity">
-                  <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
-                  <span id="quantity">1</span>
-                  <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
-                </div>
-                <button class="add-to-bag" id="addToBag" type="button">
-                  Edit Specifications <span>↗</span>
-                </button>
-                <button class="buy-now-btn pv-delete-btn" id="buyNowBtn" type="button">
-                  Delete Piece <span>🗑</span>
-                </button>
-              </div>
-
-              <p class="added-feedback" id="addedFeedback" role="status"></p>
-
-              <!-- Accordions matching user template -->
-              <div class="detail-accordions">
-                <details open id="accordionDetails">
-                  <summary>Product details <span>＋</span></summary>
-                  <p id="detailsContent">Breathable textile upper, cushioned footbed, and durable rubber sole. Designed in Cape Town and made for daily wear.</p>
-                </details>
-                <details id="accordionDelivery">
-                  <summary>Delivery &amp; returns <span>＋</span></summary>
-                  <p id="deliveryContent">Complimentary delivery over R800. Returns are accepted within 14 days of delivery in pristine original condition.</p>
-                </details>
-                <details id="accordionCare">
-                  <summary>Care notes <span>＋</span></summary>
-                  <p id="careContent">Wipe gently with a soft, damp cloth. Allow to air dry away from direct heat.</p>
-                </details>
-              </div>
-
-              <!-- Admin Quick Specs Meta Card -->
-              <div class="pv-admin-metrics-card">
-                <div class="pv-metric-col">
-                  <span class="pv-metric-label">Units in Stock</span>
-                  <strong class="pv-metric-val" id="pvMetricStock">35</strong>
-                </div>
-                <div class="pv-metric-col">
-                  <span class="pv-metric-label">Unit Cost</span>
-                  <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
-                </div>
-                <div class="pv-metric-col">
-                  <span class="pv-metric-label">Gross Margin</span>
-                  <strong class="pv-metric-val" id="pvMetricMargin">60%</strong>
-                </div>
-                <div class="pv-metric-col">
-                  <span class="pv-metric-label">Catalog ID</span>
-                  <strong class="pv-metric-val" id="pvMetricId">#1</strong>
-                </div>
-              </div>
-
-            </div>
-          </section>
-        </div>
-
+  <div class="dash-modal-backdrop" id="paymentReceiptModal">
+    <div class="dash-modal" style="max-width: 480px;">
+      <div class="dash-modal-header">
+        <h3>Payment Settlement Receipt</h3>
+        <button type="button" class="drawer-close-btn" onclick="window.closePaymentReceiptModal()">✕</button>
       </div>
-    </div>
-      <div class="dash-modal">
-        <div class="dash-modal-header">
-          <h3>Add New Velora Client</h3>
-          <button type="button" class="drawer-close-btn" onclick="window.closeNewCustomerModal()">✕</button>
-        </div>
-        <form id="newCustomerForm">
-          <div class="dash-modal-body">
-            <div class="form-group">
-              <label for="newCustName">Client Full Name</label>
-              <input type="text" id="newCustName" class="form-control" placeholder="e.g. Siyabonga Ndlovu" required>
-            </div>
-            <div style="display: flex; gap: 14px;">
-              <div class="form-group" style="flex: 1;">
-                <label for="newCustEmail">Email Address</label>
-                <input type="email" id="newCustEmail" class="form-control" placeholder="client@example.co.za" required>
-              </div>
-              <div class="form-group" style="flex: 1;">
-                <label for="newCustPhone">Mobile Phone</label>
-                <input type="tel" id="newCustPhone" class="form-control" placeholder="+27 82 123 4567" required>
-              </div>
-            </div>
-            <div style="display: flex; gap: 14px;">
-              <div class="form-group" style="flex: 1;">
-                <label for="newCustCity">City / Province</label>
-                <input type="text" id="newCustCity" class="form-control" placeholder="Johannesburg, GP" required>
-              </div>
-              <div class="form-group" style="flex: 1;">
-                <label for="newCustTier">Client Tier</label>
-                <select id="newCustTier" class="form-control">
-                  <option value="VIP Privilege">VIP Privilege</option>
-                  <option value="Gold Member">Gold Member</option>
-                  <option value="Standard">Standard</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="newCustInitialSpend">Initial Order Value (R)</label>
-              <input type="number" id="newCustInitialSpend" class="form-control" placeholder="850" value="0">
-            </div>
+      <div class="dash-modal-body" id="paymentReceiptContent">
+        <div class="receipt-card">
+          <div class="receipt-header">
+            <div class="receipt-status-pill" id="receiptStatusPill">Settled</div>
+            <div class="receipt-ref-code" id="receiptRefCode">PAY-ZA-000000</div>
           </div>
-          <div class="dash-modal-footer">
-            <button type="button" class="drawer-btn" style="background: #eee;"
-              onclick="window.closeNewCustomerModal()">Cancel</button>
-            <button type="submit" class="drawer-btn drawer-btn-dark">Register Client</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
-    <div class="dash-modal-backdrop" id="paymentReceiptModal">
-      <div class="dash-modal" style="max-width: 480px;">
-        <div class="dash-modal-header">
-          <h3>Payment Settlement Receipt</h3>
-          <button type="button" class="drawer-close-btn" onclick="window.closePaymentReceiptModal()">✕</button>
-        </div>
-        <div class="dash-modal-body" id="paymentReceiptContent">
-          <div class="receipt-card">
-            <div class="receipt-header">
-              <div class="receipt-status-pill" id="receiptStatusPill">Settled</div>
-              <div class="receipt-ref-code" id="receiptRefCode">PAY-ZA-000000</div>
+          <div class="receipt-details-list">
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Order Reference:</span>
+              <span class="receipt-detail-value" id="receiptOrderId">#000000</span>
             </div>
-
-            <div class="receipt-details-list">
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Order Reference:</span>
-                <span class="receipt-detail-value" id="receiptOrderId">#000000</span>
-              </div>
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Timestamp:</span>
-                <span class="receipt-detail-value" id="receiptTimestamp">--</span>
-              </div>
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Customer:</span>
-                <span class="receipt-detail-value" id="receiptCustomer">--</span>
-              </div>
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Payment Gateway:</span>
-                <span class="receipt-detail-value" id="receiptGateway">Ozow Instant EFT</span>
-              </div>
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Settlement Bank:</span>
-                <span class="receipt-detail-value" id="receiptBank">Standard Bank of SA</span>
-              </div>
-              <div class="receipt-detail-row receipt-total-row">
-                <span class="receipt-detail-label">Gross Amount:</span>
-                <span class="receipt-detail-value" id="receiptGrossAmount">R0.00</span>
-              </div>
-              <div class="receipt-detail-row">
-                <span class="receipt-detail-label">Gateway Fee (est.):</span>
-                <span class="receipt-detail-value" id="receiptFeeAmount">-R0.00</span>
-              </div>
-              <div class="receipt-detail-row receipt-net-row">
-                <span class="receipt-detail-label">Net Settlement:</span>
-                <span class="receipt-detail-value receipt-net-value" id="receiptNetAmount">R0.00</span>
-              </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Timestamp:</span>
+              <span class="receipt-detail-value" id="receiptTimestamp">--</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Customer:</span>
+              <span class="receipt-detail-value" id="receiptCustomer">--</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Payment Gateway:</span>
+              <span class="receipt-detail-value" id="receiptGateway">Ozow Instant EFT</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Settlement Bank:</span>
+              <span class="receipt-detail-value" id="receiptBank">Standard Bank of SA</span>
+            </div>
+            <div class="receipt-detail-row receipt-total-row">
+              <span class="receipt-detail-label">Gross Amount:</span>
+              <span class="receipt-detail-value" id="receiptGrossAmount">R0.00</span>
+            </div>
+            <div class="receipt-detail-row">
+              <span class="receipt-detail-label">Gateway Fee (est.):</span>
+              <span class="receipt-detail-value" id="receiptFeeAmount">-R0.00</span>
+            </div>
+            <div class="receipt-detail-row receipt-net-row">
+              <span class="receipt-detail-label">Net Settlement:</span>
+              <span class="receipt-detail-value receipt-net-value" id="receiptNetAmount">R0.00</span>
             </div>
           </div>
-        </div>
-        <div class="dash-modal-footer">
-          <button type="button" class="drawer-btn drawer-btn-dark"
-            onclick="window.closePaymentReceiptModal()">Done</button>
         </div>
       </div>
+      <div class="dash-modal-footer">
+        <button type="button" class="drawer-btn drawer-btn-dark"
+          onclick="window.closePaymentReceiptModal()">Done</button>
+      </div>
     </div>
+  </div>
   </div>
 
   <div class="velora-toast-container" id="veloraToastContainer"></div>
