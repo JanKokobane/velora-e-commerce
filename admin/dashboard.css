@@ -6114,6 +6114,7 @@ html.velora-authenticated #dashboardViewport {
    Velora Atelier Studio - "Add New Studio Product" Modal & Theme
    ========================================================================== */
 
+/* Modal Backdrop & Container */
 #newProductModal {
   z-index: 10000;
   backdrop-filter: blur(8px);
@@ -6128,15 +6129,13 @@ html.velora-authenticated #dashboardViewport {
 #newProductModal .dash-modal.studio-modal-container {
   background: #ffffff;
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   max-height: 90vh;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 
-    0 25px 65px -15px rgba(0, 0, 0, 0.45),
-    0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.15);
   border: none;
   outline: none;
   transform: translateY(12px) scale(0.99);
@@ -6147,7 +6146,7 @@ html.velora-authenticated #dashboardViewport {
   transform: translateY(0) scale(1);
 }
 
-/* 1. Header */
+/* Modal Header */
 .studio-modal-header {
   background: #14171a;
   color: #ffffff;
@@ -6157,47 +6156,10 @@ html.velora-authenticated #dashboardViewport {
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid rgba(201, 165, 122, 0.3);
-  position: relative;
-}
-
-.studio-modal-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 165, 122, 0.55), transparent);
 }
 
 .studio-modal-title-group {
   flex: 1;
-}
-
-.studio-modal-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #c9a57a;
-  margin-bottom: 6px;
-}
-
-.studio-badge-pulse {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #c9a57a;
-  box-shadow: 0 0 8px rgba(201, 165, 122, 0.8);
-  animation: studioPulse 2s infinite ease-in-out;
-}
-
-@keyframes studioPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.85); }
 }
 
 .studio-modal-heading {
@@ -6215,35 +6177,6 @@ html.velora-authenticated #dashboardViewport {
   color: #9ca3af;
   font-weight: 400;
   line-height: 1.4;
-}
-
-.studio-modal-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.studio-sample-btn {
-  background: rgba(201, 165, 122, 0.12);
-  border: 1px solid rgba(201, 165, 122, 0.35);
-  color: #e5c69a;
-  padding: 8px 14px;
-  font-size: 11.5px;
-  font-weight: 600;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.studio-sample-btn:hover {
-  background: rgba(201, 165, 122, 0.22);
-  color: #ffffff;
-  border-color: #c9a57a;
-  transform: translateY(-1px);
 }
 
 .studio-modal-close-btn {
@@ -6266,7 +6199,7 @@ html.velora-authenticated #dashboardViewport {
   color: #ffffff;
 }
 
-/* 2. Scrollable Body & Layout */
+/* Form Layout & Cards */
 .studio-modal-form {
   display: flex;
   flex-direction: column;
@@ -6284,23 +6217,6 @@ html.velora-authenticated #dashboardViewport {
   -webkit-overflow-scrolling: touch;
 }
 
-.studio-modal-scrollable-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.studio-modal-scrollable-body::-webkit-scrollbar-track {
-  background: #f8f8f7;
-}
-
-.studio-modal-scrollable-body::-webkit-scrollbar-thumb {
-  background: #d4cfc5;
-  border-radius: 3px;
-}
-
-.studio-modal-scrollable-body::-webkit-scrollbar-thumb:hover {
-  background: #b5ad9e;
-}
-
 .studio-form-columns {
   display: flex;
   flex-direction: column;
@@ -6308,93 +6224,43 @@ html.velora-authenticated #dashboardViewport {
   width: 100%;
 }
 
-.studio-form-columns.studio-single-column {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 100%;
-}
-
-.studio-inputs-column {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 100%;
-}
-
-/* Cards & Legends */
 .studio-form-card {
   background: #ffffff;
   border: 1px solid rgba(27, 27, 26, 0.08);
   border-radius: 10px;
   padding: 18px 20px;
-  box-shadow: none;
 }
 
-.studio-card-legend {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(27, 27, 26, 0.06);
-}
-
-.studio-legend-number {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #14171a;
-  background: rgba(201, 165, 122, 0.18);
-  border: 1px solid rgba(201, 165, 122, 0.4);
-  padding: 3px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
-  font-family: inherit;
-}
-
-.studio-card-legend h4 {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #16181b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.studio-card-legend p {
-  margin: 2px 0 0;
-  font-size: 11.5px;
-  color: #78716c;
-}
-
-/* Input Elements */
-.studio-input-group {
+.studio-card-simple-title {
   margin-bottom: 14px;
 }
 
-.studio-input-group:last-child {
-  margin-bottom: 0;
+.studio-card-simple-title h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 2px 0;
+  letter-spacing: -0.01em;
+}
+
+.studio-card-simple-title p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.studio-input-group {
+  margin-bottom: 14px;
 }
 
 .studio-label {
   display: block;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #44403c;
   margin-bottom: 6px;
-}
-
-.studio-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.studio-label-row .studio-label {
-  margin-bottom: 0;
 }
 
 .studio-req {
@@ -6409,8 +6275,8 @@ html.velora-authenticated #dashboardViewport {
   padding: 10px 14px;
   background: #faf9f7;
   border: 1px solid rgba(27, 27, 26, 0.14);
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: 8px;
+  font-size: 13.5px;
   color: #1c1917;
   transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
   outline: none;
@@ -6425,45 +6291,6 @@ html.velora-authenticated #dashboardViewport {
   box-shadow: 0 0 0 2px rgba(201, 165, 122, 0.3);
 }
 
-.studio-input.is-invalid,
-.studio-select.is-invalid,
-.studio-textarea.is-invalid {
-  border-color: #dc2626 !important;
-  background-color: #fef2f2 !important;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18) !important;
-}
-
-.studio-form-alert {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  line-height: 1.45;
-  transition: all 0.2s ease;
-}
-
-.studio-form-alert.is-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-}
-
-.studio-form-alert.is-success {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-}
-
-.studio-form-alert.is-warning {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
-}
-
 .studio-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -6476,63 +6303,6 @@ html.velora-authenticated #dashboardViewport {
   gap: 14px;
 }
 
-.studio-input-hint {
-  font-size: 11px;
-  color: #78716c;
-  font-weight: 500;
-}
-
-/* Sizing presets */
-.studio-size-presets-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.studio-size-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.studio-size-group-label {
-  font-size: 11px;
-  color: #78716c;
-  font-weight: 600;
-  min-width: 95px;
-}
-
-.studio-size-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.studio-size-chip {
-  background: #f1efea;
-  border: 1px solid rgba(27, 27, 26, 0.12);
-  padding: 3px 9px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 4px;
-  color: #44403c;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.studio-size-chip:hover {
-  background: #e4e0d5;
-  color: #1c1917;
-}
-
-.studio-size-chip.active {
-  background: #14171a;
-  color: #ffffff;
-  border-color: #14171a;
-}
-
-/* Prefix Input */
 .studio-prefix-input {
   position: relative;
   display: flex;
@@ -6552,7 +6322,6 @@ html.velora-authenticated #dashboardViewport {
   padding-left: 30px;
 }
 
-/* Select wrapper */
 .studio-select-wrapper {
   position: relative;
 }
@@ -6566,233 +6335,394 @@ html.velora-authenticated #dashboardViewport {
   cursor: pointer;
 }
 
-/* Quick Categories */
-.studio-quick-cats {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.studio-quick-cats-label {
-  font-size: 10.5px;
-  color: #78716c;
-  font-weight: 500;
-  margin-right: 2px;
-}
-
-.studio-cat-chip {
-  background: #f1efea;
-  border: 1px solid rgba(27, 27, 26, 0.08);
-  padding: 3px 9px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 4px;
-  color: #44403c;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.studio-cat-chip:hover {
-  background: #e7e4dc;
-  color: #1c1917;
-}
-
-.studio-cat-chip.active {
-  background: #14171a;
-  color: #ffffff;
-  border-color: #14171a;
-}
-
-/* Stock Steppers */
-.studio-stock-input-wrap {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.studio-stock-quick-btns {
-  display: flex;
-  gap: 4px;
-}
-
-.studio-stock-step-btn {
-  background: #f1efea;
-  border: 1px solid rgba(27, 27, 26, 0.12);
-  padding: 8px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #292524;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.studio-stock-step-btn:hover {
-  background: #14171a;
-  color: #ffffff;
-  border-color: #14171a;
-}
-
-/* Image Mode Toggles */
-.studio-image-mode-toggles {
-  display: flex;
-  gap: 4px;
-}
-
-.studio-mini-tab {
-  padding: 3px 9px;
-  font-size: 10.5px;
-  font-weight: 600;
-  border: 1px solid rgba(27, 27, 26, 0.12);
-  border-radius: 4px;
-  background: #f1efea;
-  color: #57534e;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.studio-mini-tab:hover {
-  background: #e5e2d8;
-  color: #1c1917;
-}
-
-.studio-mini-tab.active {
-  background: #14171a;
-  color: #ffffff;
-  border-color: #14171a;
-}
-
-/* Dropzone */
-.studio-dropzone {
-  border: 2px dashed rgba(201, 165, 122, 0.5);
-  background: #faf8f5;
-  border-radius: 8px;
-  padding: 22px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.studio-dropzone:hover {
-  border-color: #c9a57a;
-  background: #fdfbf7;
-}
-
-.studio-dropzone-inner {
+/* =========================================
+   Product Imagery & Upload Slots
+   ========================================= */
+.studio-media-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: #a88358;
+  gap: 16px;
 }
 
-.studio-dropzone-text strong {
-  display: block;
-  font-size: 12.5px;
-  color: #1c1917;
-  font-weight: 600;
-}
-
-.studio-dropzone-text span {
-  font-size: 11px;
-  color: #78716c;
-}
-
-/* Preset Chips */
-.studio-preset-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.studio-preset-strip-title {
-  font-size: 10.5px;
-  color: #78716c;
-  font-weight: 500;
-  margin-right: 2px;
-}
-
-.studio-preset-chip {
-  background: #ffffff;
-  border: 1px solid rgba(27, 27, 26, 0.12);
-  padding: 3px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 4px;
-  color: #44403c;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.studio-preset-chip:hover {
-  background: #14171a;
-  color: #ffffff;
-  border-color: #14171a;
-}
-
-/* Gallery Row */
-.studio-gallery-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(27, 27, 26, 0.06);
-}
-
-.studio-gallery-slot {
-  background: #faf9f7;
-  border: 1px solid rgba(27, 27, 26, 0.08);
-  border-radius: 6px;
-  padding: 10px;
-}
-
-.studio-gallery-slot-header {
+.studio-media-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  gap: 12px;
 }
 
-.studio-slot-title {
-  font-size: 10.5px;
+.studio-media-badge {
+  font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #57534e;
+  color: #c9a57a;
+  background: rgba(201, 165, 122, 0.12);
+  border: 1px solid rgba(201, 165, 122, 0.3);
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
 }
 
-.studio-slot-upload-btn {
-  background: #f1efea;
+.studio-media-slot {
+  background: #faf9f7;
   border: 1px solid rgba(27, 27, 26, 0.1);
-  padding: 2px 7px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #44403c;
-  cursor: pointer;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.studio-slot-upload-btn:hover {
+.studio-media-slot:hover {
+  border-color: rgba(201, 165, 122, 0.45);
+}
+
+.studio-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.studio-slot-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-slot-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   background: #14171a;
   color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.studio-input-compact {
-  padding: 6px 10px;
+.studio-slot-label {
+  margin-bottom: 0 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #1c1917 !important;
+}
+
+.studio-media-mode-pills {
+  display: inline-flex;
+  align-items: center;
+  background: #eae7df;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.studio-mode-pill {
+  border: none;
+  background: transparent;
+  color: #57534e;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.studio-mode-pill:hover {
+  color: #14171a;
+}
+
+.studio-mode-pill.active {
+  background: #ffffff;
+  color: #14171a;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.studio-dropzone-box {
+  border: 2px dashed rgba(201, 165, 122, 0.5);
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.studio-dropzone-box:hover,
+.studio-dropzone-box.drag-over {
+  border-color: #c9a57a;
+  background: #fdfbf7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201, 165, 122, 0.18);
+}
+
+.studio-dropzone-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(201, 165, 122, 0.16);
+  color: #a88358;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.studio-dropzone-box:hover .studio-dropzone-icon {
+  transform: scale(1.06);
+}
+
+.studio-dropzone-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.studio-dropzone-cta {
+  font-size: 13px;
+  color: #1c1917;
+  line-height: 1.3;
+}
+
+.studio-dropzone-cta strong {
+  color: #a88358;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.studio-dropzone-sub {
+  font-size: 11px;
+  color: #78716c;
+}
+
+.studio-dropzone-compact {
+  padding: 14px 12px;
+  gap: 10px;
+}
+
+.studio-dropzone-compact .studio-dropzone-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.studio-dropzone-compact .studio-dropzone-cta {
   font-size: 12px;
 }
 
-.studio-textarea-compact {
-  font-size: 12px;
+.studio-dropzone-compact .studio-dropzone-sub {
+  font-size: 10.5px;
+}
+
+.studio-url-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.studio-url-field-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.studio-url-field-icon {
+  position: absolute;
+  left: 12px;
+  color: #78716c;
+  pointer-events: none;
+}
+
+.studio-input-with-icon {
+  padding-left: 36px !important;
+}
+
+.studio-sample-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.studio-preset-label {
+  font-size: 11px;
+  color: #78716c;
+  font-weight: 600;
+}
+
+.studio-preset-btn {
+  background: #ffffff;
+  border: 1px solid rgba(27, 27, 26, 0.14);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #44403c;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.studio-preset-btn:hover {
+  background: #14171a;
+  color: #ffffff;
+  border-color: #14171a;
+}
+
+/* Image Preview Cards */
+.studio-image-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(27, 27, 26, 0.14);
+  border-radius: 8px;
+  padding: 10px 14px;
+  animation: studioPreviewIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes studioPreviewIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.studio-preview-thumb-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.studio-preview-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f1efea;
+  border: 1px solid rgba(27, 27, 26, 0.1);
+  display: block;
+}
+
+.studio-preview-status-pill {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #14171a;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.studio-preview-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.studio-preview-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1917;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.studio-preview-sub {
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.studio-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.studio-preview-btn-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f4f3ef;
+  border: 1px solid rgba(27, 27, 26, 0.14);
+  color: #1c1917;
+  padding: 6px 11px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.studio-preview-btn-change:hover {
+  background: #14171a;
+  color: #ffffff;
+  border-color: #14171a;
+}
+
+.studio-preview-btn-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.studio-preview-btn-remove:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+
+.studio-preview-compact {
   padding: 8px 10px;
+  gap: 10px;
 }
 
-/* 3. Footer */
+.studio-preview-compact .studio-preview-thumb {
+  width: 46px;
+  height: 46px;
+}
+
+.studio-preview-compact .studio-preview-name {
+  font-size: 12px;
+}
+
+/* Modal Footer */
 .studio-modal-footer {
   background: #ffffff;
   border-top: 1px solid rgba(27, 27, 26, 0.1);
@@ -6801,8 +6731,6 @@ html.velora-authenticated #dashboardViewport {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  position: relative;
-  z-index: 10;
 }
 
 .studio-footer-status {
@@ -6811,12 +6739,6 @@ html.velora-authenticated #dashboardViewport {
   gap: 8px;
   font-size: 12px;
   color: #57534e;
-}
-
-.studio-status-icon {
-  color: #16a34a;
-  font-weight: 700;
-  font-size: 13px;
 }
 
 .studio-footer-actions {
@@ -6830,7 +6752,7 @@ html.velora-authenticated #dashboardViewport {
   border: 1px solid rgba(27, 27, 26, 0.18);
   color: #44403c;
   padding: 10px 18px;
-  border-radius: 1px;
+  border-radius: 8px;
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
@@ -6840,20 +6762,20 @@ html.velora-authenticated #dashboardViewport {
 .studio-btn-discard:hover {
   background: #f5f4ef;
   color: #1c1917;
-  border-color: none;
 }
 
 .studio-btn-publish {
   background: #14171a;
   color: #ffffff;
-  padding: 7px 24px;
-  border-radius: 1px;
+  padding: 10px 24px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border: none;
 }
 
 .studio-btn-publish:hover {
@@ -6861,64 +6783,73 @@ html.velora-authenticated #dashboardViewport {
   transform: translateY(-1px);
 }
 
-.studio-btn-publish:active {
-  transform: translateY(0);
-}
-
-/* Responsive adjustments */
+/* Mobile & Touch Responsiveness */
 @media (max-width: 768px) {
   #newProductModal .dash-modal.studio-modal-container {
     max-height: 94vh;
   }
-
   .studio-grid-3 {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
   #newProductModal {
     padding: 10px;
   }
-
   .studio-modal-header {
     padding: 16px 18px;
   }
-
   .studio-modal-scrollable-body {
-    padding: 16px 16px;
+    padding: 16px 14px;
   }
-
   .studio-modal-footer {
     padding: 14px 16px;
     flex-direction: column;
     align-items: stretch;
   }
-
   .studio-footer-actions {
     display: flex;
     width: 100%;
+    gap: 8px;
   }
-
   .studio-btn-discard {
     flex: 1;
     text-align: center;
   }
-
   .studio-btn-publish {
     flex: 1.5;
     justify-content: center;
   }
-
   .studio-grid-2,
-  .studio-grid-3 {
-    grid-template-columns: 1fr;
+  .studio-grid-3,
+  .studio-gallery-slots-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .studio-dropzone-box {
+    padding: 14px 12px;
     gap: 10px;
   }
-
-  .studio-size-row {
-    flex-direction: column;
-    align-items: flex-start;
+  .studio-dropzone-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .studio-dropzone-cta {
+    font-size: 12px;
+  }
+  .studio-dropzone-sub {
+    font-size: 10px;
+  }
+  .studio-preview-thumb {
+    width: 48px;
+    height: 48px;
+  }
+  .studio-preview-btn-change span {
+    display: none;
+  }
+  .studio-preview-btn-change {
+    padding: 6px 8px;
   }
 }

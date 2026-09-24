@@ -1969,252 +1969,416 @@
     </div>
   </div>
 
-  <!-- 12. Modals Component -->
-  <div id="componentModals" data-component="modals">
-    <div class="dash-modal-backdrop" id="newProductModal">
-      <div class="dash-modal studio-modal-container">
+  <!-- Modal: Add New Product -->
+<div class="dash-modal-backdrop" id="newProductModal">
+  <div class="dash-modal studio-modal-container">
 
-        <!-- 1. E-Commerce Product Header -->
-        <div class="studio-modal-header">
-          <div class="studio-modal-title-group">
-            <h3 class="studio-modal-heading" id="productModalTitle">Add New Product</h3>
-            <p class="studio-modal-subheading" id="productModalSubheading">
-              Fill in the details to publish a new piece to your store catalog.
-            </p>
-          </div>
+    <!-- 1. Header -->
+    <div class="studio-modal-header">
+      <div class="studio-modal-title-group">
+        <h3 class="studio-modal-heading" id="productModalTitle">Add New Product</h3>
+        <p class="studio-modal-subheading" id="productModalSubheading">
+          Fill in the details to publish a new piece to your store catalog.
+        </p>
+      </div>
 
-          <div class="studio-modal-header-actions">
-
-
-            <button type="button" class="studio-modal-close-btn" onclick="window.closeNewProductModal()"
-              aria-label="Close dialog">
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <!-- 2. Form Body -->
-        <form id="newProductForm" class="studio-modal-form" novalidate>
-          <div class="studio-modal-scrollable-body">
-            <!-- Inline Form Notification Banner for Validation & API Feedback -->
-            <div id="productFormAlert" class="studio-form-alert" style="display: none;" role="alert"></div>
-
-            <div class="studio-form-columns studio-single-column">
-
-              <!-- Section 1: Basic Information -->
-              <section class="studio-form-card">
-                <div class="studio-card-simple-title">
-                  <h4>Basic Information</h4>
-                  <p>Primary title, category and collection</p>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdTitle" class="studio-label">
-                    Product Name / Title <span class="studio-req">*</span>
-                  </label>
-                  <input type="text" id="newProdTitle" class="studio-input"
-                    placeholder="e.g. Vintage Heavyweight Boxy T-Shirt">
-                </div>
-
-                <div class="studio-grid-2">
-                  <div class="studio-input-group">
-                    <label for="newProdCategory" class="studio-label">
-                      Category <span class="studio-req">*</span>
-                    </label>
-                    <div class="studio-select-wrapper">
-                      <select id="newProdCategory" class="studio-select">
-                        <option value="T-Shirts" selected>T-Shirts</option>
-                        <option value="Jeans">Jeans</option>
-                        <option value="Shirts">Shirts</option>
-                        <option value="Hoodies & Sweaters">Hoodies &amp; Sweaters</option>
-                        <option value="Jackets & Outerwear">Jackets &amp; Outerwear</option>
-                        <option value="Trousers & Pants">Trousers &amp; Pants</option>
-                        <option value="Bags">Bags</option>
-                        <option value="Footwear">Footwear</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Objects">Objects &amp; Lifestyle</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
-                    <input type="text" id="newProdEyebrow" class="studio-input" placeholder="e.g. Velora Essentials">
-                  </div>
-                </div>
-              </section>
-
-              <!-- Section 2: Pricing & Inventory -->
-              <section class="studio-form-card">
-                <div class="studio-card-simple-title">
-                  <h4>Pricing &amp; Inventory</h4>
-                  <p>Retail pricing and available warehouse stock</p>
-                </div>
-
-                <div class="studio-grid-3">
-                  <div class="studio-input-group">
-                    <label for="newProdPrice" class="studio-label">
-                      Retail Price (ZAR) <span class="studio-req">*</span>
-                    </label>
-                    <div class="studio-prefix-input">
-                      <span class="studio-input-prefix">R</span>
-                      <input type="number" id="newProdPrice" class="studio-input studio-input-with-prefix"
-                        placeholder="450" min="0" step="0.01">
-                    </div>
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdComparePrice" class="studio-label">Compare-at Price (ZAR)</label>
-                    <div class="studio-prefix-input">
-                      <span class="studio-input-prefix">R</span>
-                      <input type="number" id="newProdComparePrice" class="studio-input studio-input-with-prefix"
-                        placeholder="590" min="0" step="0.01">
-                    </div>
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdCostPrice" class="studio-label">Cost per Item (ZAR)</label>
-                    <div class="studio-prefix-input">
-                      <span class="studio-input-prefix">R</span>
-                      <input type="number" id="newProdCostPrice" class="studio-input studio-input-with-prefix"
-                        placeholder="180" min="0" step="0.01">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="studio-grid-2" style="margin-top: 14px;">
-                  <div class="studio-input-group">
-                    <label for="newProdStock" class="studio-label">
-                      Stock Quantity <span class="studio-req">*</span>
-                    </label>
-                    <input type="number" id="newProdStock" class="studio-input" placeholder="15" min="0">
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdStockStatus" class="studio-label">Inventory Status</label>
-                    <div class="studio-select-wrapper">
-                      <select id="newProdStockStatus" class="studio-select">
-                        <option value="in_stock" selected>In Stock (Ready to fulfill)</option>
-                        <option value="low_stock">Low Stock Warning</option>
-                        <option value="preorder">Pre-Order / Made to Order</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <!-- Section 3: Product Imagery -->
-              <section class="studio-form-card">
-                <div class="studio-card-simple-title">
-                  <h4>Product Images</h4>
-                  <p>Direct image links to showcase your product</p>
-                </div>
-
-                <div class="studio-input-group">
-                  <label for="newProdImage" class="studio-label">
-                    Main Product Image URL <span class="studio-req">*</span>
-                  </label>
-                  <input type="url" id="newProdImage" class="studio-input" placeholder="https://images.pexels.com/...">
-                  <input type="file" id="newProdImageFile" accept="image/*" style="display: none;">
-                </div>
-
-                <div class="studio-grid-2">
-                  <div class="studio-input-group">
-                    <label for="newProdImage2" class="studio-label">Gallery Image 2 (Optional)</label>
-                    <input type="url" id="newProdImage2" class="studio-input" placeholder="https://...">
-                    <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdImage3" class="studio-label">Gallery Image 3 (Optional)</label>
-                    <input type="url" id="newProdImage3" class="studio-input" placeholder="https://...">
-                    <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
-                  </div>
-                </div>
-              </section>
-
-              <!-- Section 4: Variants, Specifications & Details -->
-              <section class="studio-form-card">
-                <div class="studio-card-simple-title">
-                  <h4>Variants &amp; Details</h4>
-                  <p>Sizes, colors, silhouette and care instructions</p>
-                </div>
-
-                <div class="studio-grid-2">
-                  <div class="studio-input-group">
-                    <label for="newProdSizes" class="studio-label">Available Sizes</label>
-                    <input type="text" id="newProdSizes" class="studio-input"
-                      placeholder="e.g. S, M, L, XL or 28, 30, 32">
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdColors" class="studio-label">Available Colors</label>
-                    <input type="text" id="newProdColors" class="studio-input"
-                      placeholder="e.g. Washed Black, Vintage White">
-                  </div>
-                </div>
-
-                <div class="studio-grid-2" style="margin-top: 14px;">
-                  <div class="studio-input-group">
-                    <label for="newProdFit" class="studio-label">Fit / Silhouette</label>
-                    <input type="text" id="newProdFit" class="studio-input" placeholder="e.g. Boxy Oversized Fit">
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdDetails" class="studio-label">Fabric &amp; Specifications</label>
-                    <input type="text" id="newProdDetails" class="studio-input"
-                      placeholder="e.g. 100% Combed Cotton (240 GSM)">
-                  </div>
-                </div>
-
-                <div class="studio-input-group" style="margin-top: 14px;">
-                  <label for="newProdDescription" class="studio-label">Product Description</label>
-                  <textarea id="newProdDescription" class="studio-textarea" rows="3"
-                    placeholder="Describe the product styling, fit, texture, and everyday versatility..."></textarea>
-                </div>
-
-                <div class="studio-grid-2" style="margin-top: 14px;">
-                  <div class="studio-input-group">
-                    <label for="newProdCare" class="studio-label">Care Instructions</label>
-                    <textarea id="newProdCare" class="studio-textarea studio-textarea-compact" rows="2"
-                      placeholder="e.g. Cold wash with like colors. Hang dry."></textarea>
-                  </div>
-
-                  <div class="studio-input-group">
-                    <label for="newProdDelivery" class="studio-label">Shipping &amp; Fulfillment</label>
-                    <textarea id="newProdDelivery" class="studio-textarea studio-textarea-compact" rows="2"
-                      placeholder="e.g. Dispatched within 24 hours. Express courier."></textarea>
-                  </div>
-                </div>
-
-                <!-- Hidden inputs for backward compatibility -->
-                <input type="hidden" id="newProdRating" value="5">
-                <input type="hidden" id="newProdReviews" value="0">
-              </section>
-
-            </div>
-          </div>
-
-          <!-- 3. Modal Sticky Footer -->
-          <div class="studio-modal-footer">
-            <div class="studio-footer-status">
-              <span id="studioFooterStatus">Ready to publish to online store</span>
-            </div>
-
-            <div class="studio-footer-actions">
-              <button type="button" class="studio-btn-discard" onclick="window.closeNewProductModal()">
-                Discard
-              </button>
-              <button type="submit" class="studio-btn-publish" id="btnSubmitProduct">
-                <span class="studio-btn-text">Publish Product to Store</span>
-                <span class="studio-btn-arrow">↗</span>
-              </button>
-            </div>
-          </div>
-        </form>
+      <div class="studio-modal-header-actions">
+        <button type="button" class="studio-modal-close-btn" onclick="window.closeNewProductModal()" aria-label="Close dialog">
+          ✕
+        </button>
       </div>
     </div>
+
+    <!-- 2. Form Body -->
+    <form id="newProductForm" class="studio-modal-form" novalidate>
+      <div class="studio-modal-scrollable-body">
+        <div id="productFormAlert" class="studio-form-alert" style="display: none;" role="alert"></div>
+
+        <div class="studio-form-columns studio-single-column">
+
+          <!-- Section 1: Basic Information -->
+          <section class="studio-form-card">
+            <div class="studio-card-simple-title">
+              <h4>Basic Information</h4>
+              <p>Primary title, category and collection</p>
+            </div>
+
+            <div class="studio-input-group">
+              <label for="newProdTitle" class="studio-label">
+                Product Name / Title <span class="studio-req">*</span>
+              </label>
+              <input type="text" id="newProdTitle" class="studio-input" placeholder="e.g. Vintage Heavyweight Boxy T-Shirt">
+            </div>
+
+            <div class="studio-grid-2">
+              <div class="studio-input-group">
+                <label for="newProdCategory" class="studio-label">
+                  Category <span class="studio-req">*</span>
+                </label>
+                <div class="studio-select-wrapper">
+                  <select id="newProdCategory" class="studio-select">
+                    <option value="T-Shirts" selected>T-Shirts</option>
+                    <option value="Jeans">Jeans</option>
+                    <option value="Shirts">Shirts</option>
+                    <option value="Hoodies & Sweaters">Hoodies &amp; Sweaters</option>
+                    <option value="Jackets & Outerwear">Jackets &amp; Outerwear</option>
+                    <option value="Trousers & Pants">Trousers &amp; Pants</option>
+                    <option value="Bags">Bags</option>
+                    <option value="Footwear">Footwear</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Objects">Objects &amp; Lifestyle</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdEyebrow" class="studio-label">Collection / Brand</label>
+                <input type="text" id="newProdEyebrow" class="studio-input" placeholder="e.g. Velora Essentials">
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 2: Pricing & Inventory -->
+          <section class="studio-form-card">
+            <div class="studio-card-simple-title">
+              <h4>Pricing &amp; Inventory</h4>
+              <p>Retail pricing and available warehouse stock</p>
+            </div>
+
+            <div class="studio-grid-3">
+              <div class="studio-input-group">
+                <label for="newProdPrice" class="studio-label">
+                  Retail Price (ZAR) <span class="studio-req">*</span>
+                </label>
+                <div class="studio-prefix-input">
+                  <span class="studio-input-prefix">R</span>
+                  <input type="number" id="newProdPrice" class="studio-input studio-input-with-prefix" placeholder="450" min="0" step="0.01">
+                </div>
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdComparePrice" class="studio-label">Compare-at Price (ZAR)</label>
+                <div class="studio-prefix-input">
+                  <span class="studio-input-prefix">R</span>
+                  <input type="number" id="newProdComparePrice" class="studio-input studio-input-with-prefix" placeholder="590" min="0" step="0.01">
+                </div>
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdCostPrice" class="studio-label">Cost per Item (ZAR)</label>
+                <div class="studio-prefix-input">
+                  <span class="studio-input-prefix">R</span>
+                  <input type="number" id="newProdCostPrice" class="studio-input studio-input-with-prefix" placeholder="180" min="0" step="0.01">
+                </div>
+              </div>
+            </div>
+
+            <div class="studio-grid-2" style="margin-top: 14px;">
+              <div class="studio-input-group">
+                <label for="newProdStock" class="studio-label">
+                  Stock Quantity <span class="studio-req">*</span>
+                </label>
+                <input type="number" id="newProdStock" class="studio-input" placeholder="15" min="0">
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdStockStatus" class="studio-label">Inventory Status</label>
+                <div class="studio-select-wrapper">
+                  <select id="newProdStockStatus" class="studio-select">
+                    <option value="in_stock" selected>In Stock (Ready to fulfill)</option>
+                    <option value="low_stock">Low Stock Warning</option>
+                    <option value="preorder">Pre-Order / Made to Order</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Product Imagery (URL & File Upload) -->
+          <section class="studio-form-card studio-media-section">
+            <div class="studio-card-simple-title">
+              <div class="studio-media-title-row">
+                <div>
+                  <h4>Product Images</h4>
+                  <p>Add product visuals using file upload and/or direct web URLs</p>
+                </div>
+                <span class="studio-media-badge">3 Image Slots</span>
+              </div>
+            </div>
+
+            <!-- Main Product Image -->
+            <div class="studio-media-slot studio-main-media-slot" data-slot="1">
+              <div class="studio-slot-header">
+                <div class="studio-slot-title-wrap">
+                  <span class="studio-slot-num">1</span>
+                  <label for="newProdImage" class="studio-label studio-slot-label">
+                    Primary Cover Image <span class="studio-req">*</span>
+                  </label>
+                </div>
+                <div class="studio-media-mode-pills" role="tablist">
+                  <button type="button" class="studio-mode-pill active" id="modeBtnUpload1" onclick="window.setProductImageMode(1, 'upload')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Upload File</span>
+                  </button>
+                  <button type="button" class="studio-mode-pill" id="modeBtnUrl1" onclick="window.setProductImageMode(1, 'url')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                    <span>Image URL</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload View 1 -->
+              <div class="studio-upload-view" id="slotUploadView1">
+                <div class="studio-dropzone-box" id="dropzoneBox1" onclick="document.getElementById('newProdImageFile').click()">
+                  <div class="studio-dropzone-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                      <circle cx="9" cy="9" r="2"></circle>
+                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                    </svg>
+                  </div>
+                  <div class="studio-dropzone-copy">
+                    <span class="studio-dropzone-cta"><strong>Click to upload</strong> or drag &amp; drop</span>
+                    <span class="studio-dropzone-sub">PNG, JPG, WEBP or GIF (Max 10MB)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- URL View 1 -->
+              <div class="studio-url-view" id="slotUrlView1" style="display: none;">
+                <div class="studio-url-input-wrap">
+                  <div class="studio-url-field-group">
+                    <svg class="studio-url-field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                    <input type="url" id="newProdImage" class="studio-input studio-input-with-icon" placeholder="https://images.pexels.com/photos/..." autocomplete="off">
+                  </div>
+                </div>
+                <div class="studio-sample-presets">
+                  <span class="studio-preset-label">Quick samples:</span>
+                  <button type="button" class="studio-preset-btn" onclick="window.applySampleImageUrl(1, 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940')">Sneakers</button>
+                  <button type="button" class="studio-preset-btn" onclick="window.applySampleImageUrl(1, 'https://images.pexels.com/photos/27046146/pexels-photo-27046146.jpeg?auto=compress&cs=tinysrgb&h=650&w=940')">Tote Bag</button>
+                  <button type="button" class="studio-preset-btn" onclick="window.applySampleImageUrl(1, 'https://images.pexels.com/photos/8839887/pexels-photo-8839887.jpeg?auto=compress&cs=tinysrgb&h=650&w=940')">T-Shirt</button>
+                </div>
+              </div>
+
+              <!-- Hidden File Input 1 -->
+              <input type="file" id="newProdImageFile" accept="image/*" style="display: none;">
+
+              <!-- Live Preview Card 1 -->
+              <div class="studio-image-preview-card" id="slotPreview1" style="display: none;">
+                <div class="studio-preview-thumb-wrap">
+                  <img id="slotPreviewImg1" src="" alt="Primary Preview" class="studio-preview-thumb">
+                  <span class="studio-preview-status-pill">Primary</span>
+                </div>
+                <div class="studio-preview-meta">
+                  <div class="studio-preview-name" id="slotPreviewName1">Image Loaded</div>
+                  <div class="studio-preview-sub" id="slotPreviewSub1">Ready to publish</div>
+                </div>
+                <div class="studio-preview-actions">
+                  <button type="button" class="studio-preview-btn-change" onclick="window.triggerSlotChange(1)" title="Choose another image">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                    </svg>
+                    <span>Change</span>
+                  </button>
+                  <button type="button" class="studio-preview-btn-remove" onclick="window.clearProductSlot(1)" title="Remove image" aria-label="Remove image">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gallery Row (Image 2 & Image 3) -->
+            <div class="studio-grid-2 studio-gallery-slots-row">
+              <!-- Gallery Image 2 -->
+              <div class="studio-media-slot studio-gallery-media-slot" data-slot="2">
+                <div class="studio-slot-header">
+                  <div class="studio-slot-title-wrap">
+                    <span class="studio-slot-num">2</span>
+                    <label for="newProdImage2" class="studio-label studio-slot-label">Gallery Angle 2</label>
+                  </div>
+                  <div class="studio-media-mode-pills" role="tablist">
+                    <button type="button" class="studio-mode-pill active" id="modeBtnUpload2" onclick="window.setProductImageMode(2, 'upload')">Upload</button>
+                    <button type="button" class="studio-mode-pill" id="modeBtnUrl2" onclick="window.setProductImageMode(2, 'url')">URL</button>
+                  </div>
+                </div>
+
+                <div class="studio-upload-view" id="slotUploadView2">
+                  <div class="studio-dropzone-box studio-dropzone-compact" id="dropzoneBox2" onclick="document.getElementById('newProdImage2File').click()">
+                    <div class="studio-dropzone-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                    </div>
+                    <div class="studio-dropzone-copy">
+                      <span class="studio-dropzone-cta">Upload or drop</span>
+                      <span class="studio-dropzone-sub">Detail angle</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studio-url-view" id="slotUrlView2" style="display: none;">
+                  <div class="studio-url-field-group">
+                    <svg class="studio-url-field-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                    <input type="url" id="newProdImage2" class="studio-input studio-input-with-icon studio-input-compact" placeholder="https://...">
+                  </div>
+                </div>
+
+                <input type="file" id="newProdImage2File" accept="image/*" style="display: none;">
+
+                <div class="studio-image-preview-card studio-preview-compact" id="slotPreview2" style="display: none;">
+                  <img id="slotPreviewImg2" src="" alt="Gallery Angle 2" class="studio-preview-thumb">
+                  <div class="studio-preview-meta">
+                    <div class="studio-preview-name" id="slotPreviewName2">Angle 2</div>
+                    <div class="studio-preview-sub">Ready</div>
+                  </div>
+                  <div class="studio-preview-actions">
+                    <button type="button" class="studio-preview-btn-remove" onclick="window.clearProductSlot(2)" title="Remove image" aria-label="Remove image">✕</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gallery Image 3 -->
+              <div class="studio-media-slot studio-gallery-media-slot" data-slot="3">
+                <div class="studio-slot-header">
+                  <div class="studio-slot-title-wrap">
+                    <span class="studio-slot-num">3</span>
+                    <label for="newProdImage3" class="studio-label studio-slot-label">Gallery Angle 3</label>
+                  </div>
+                  <div class="studio-media-mode-pills" role="tablist">
+                    <button type="button" class="studio-mode-pill active" id="modeBtnUpload3" onclick="window.setProductImageMode(3, 'upload')">Upload</button>
+                    <button type="button" class="studio-mode-pill" id="modeBtnUrl3" onclick="window.setProductImageMode(3, 'url')">URL</button>
+                  </div>
+                </div>
+
+                <div class="studio-upload-view" id="slotUploadView3">
+                  <div class="studio-dropzone-box studio-dropzone-compact" id="dropzoneBox3" onclick="document.getElementById('newProdImage3File').click()">
+                    <div class="studio-dropzone-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                    </div>
+                    <div class="studio-dropzone-copy">
+                      <span class="studio-dropzone-cta">Upload or drop</span>
+                      <span class="studio-dropzone-sub">Back/lifestyle</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studio-url-view" id="slotUrlView3" style="display: none;">
+                  <div class="studio-url-field-group">
+                    <svg class="studio-url-field-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                    <input type="url" id="newProdImage3" class="studio-input studio-input-with-icon studio-input-compact" placeholder="https://...">
+                  </div>
+                </div>
+
+                <input type="file" id="newProdImage3File" accept="image/*" style="display: none;">
+
+                <div class="studio-image-preview-card studio-preview-compact" id="slotPreview3" style="display: none;">
+                  <img id="slotPreviewImg3" src="" alt="Gallery Angle 3" class="studio-preview-thumb">
+                  <div class="studio-preview-meta">
+                    <div class="studio-preview-name" id="slotPreviewName3">Angle 3</div>
+                    <div class="studio-preview-sub">Ready</div>
+                  </div>
+                  <div class="studio-preview-actions">
+                    <button type="button" class="studio-preview-btn-remove" onclick="window.clearProductSlot(3)" title="Remove image" aria-label="Remove image">✕</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4: Variants, Specifications & Details -->
+          <section class="studio-form-card">
+            <div class="studio-card-simple-title">
+              <h4>Variants &amp; Details</h4>
+              <p>Sizes, colors, silhouette and care instructions</p>
+            </div>
+
+            <div class="studio-grid-2">
+              <div class="studio-input-group">
+                <label for="newProdSizes" class="studio-label">Available Sizes</label>
+                <input type="text" id="newProdSizes" class="studio-input" placeholder="e.g. S, M, L, XL or 28, 30, 32">
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdColors" class="studio-label">Available Colors</label>
+                <input type="text" id="newProdColors" class="studio-input" placeholder="e.g. Washed Black, Vintage White">
+              </div>
+            </div>
+
+            <div class="studio-grid-2" style="margin-top: 14px;">
+              <div class="studio-input-group">
+                <label for="newProdFit" class="studio-label">Fit / Silhouette</label>
+                <input type="text" id="newProdFit" class="studio-input" placeholder="e.g. Boxy Oversized Fit">
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdDetails" class="studio-label">Fabric &amp; Specifications</label>
+                <input type="text" id="newProdDetails" class="studio-input" placeholder="e.g. 100% Combed Cotton (240 GSM)">
+              </div>
+            </div>
+
+            <div class="studio-input-group" style="margin-top: 14px;">
+              <label for="newProdDescription" class="studio-label">Product Description</label>
+              <textarea id="newProdDescription" class="studio-textarea" rows="3" placeholder="Describe the product styling, fit, texture, and everyday versatility..."></textarea>
+            </div>
+
+            <div class="studio-grid-2" style="margin-top: 14px;">
+              <div class="studio-input-group">
+                <label for="newProdCare" class="studio-label">Care Instructions</label>
+                <textarea id="newProdCare" class="studio-textarea studio-textarea-compact" rows="2" placeholder="e.g. Cold wash with like colors. Hang dry."></textarea>
+              </div>
+
+              <div class="studio-input-group">
+                <label for="newProdDelivery" class="studio-label">Shipping &amp; Fulfillment</label>
+                <textarea id="newProdDelivery" class="studio-textarea studio-textarea-compact" rows="2" placeholder="e.g. Dispatched within 24 hours. Express courier."></textarea>
+              </div>
+            </div>
+
+            <input type="hidden" id="newProdRating" value="5">
+            <input type="hidden" id="newProdReviews" value="0">
+          </section>
+
+        </div>
+      </div>
+
+      <!-- 3. Footer -->
+      <div class="studio-modal-footer">
+        <div class="studio-footer-status">
+          <span id="studioFooterStatus">Ready to publish to online store</span>
+        </div>
+
+        <div class="studio-footer-actions">
+          <button type="button" class="studio-btn-discard" onclick="window.closeNewProductModal()">
+            Discard
+          </button>
+          <button type="submit" class="studio-btn-publish" id="btnSubmitProduct">
+            <span class="studio-btn-text">Publish Product to Store</span>
+            <span class="studio-btn-arrow">↗</span>
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Product Detail & Customer Presentation Modal -->
   <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true"
