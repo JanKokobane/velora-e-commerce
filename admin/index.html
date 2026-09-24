@@ -1209,8 +1209,8 @@
             <div class="inventory-section" id="inventoryComponent">
               <div class="inventory-header-bar">
                 <div>
-                  <h3 class="inventory-title">Catalog &amp; Stock Inventory</h3>
-                  <p class="inventory-subtitle">Manage store pieces, stock thresholds, pricing, and visual presentation
+                  <h3 class="inventory-title"></h3>
+                  <p class="inventory-subtitle">
                   </p>
                 </div>
                 <div class="inventory-header-actions">
@@ -1256,11 +1256,7 @@
                       </svg>
                       <span>Details</span>
                     </button>
-
-
-
                   </div>
-
                 </div>
               </div>
 
@@ -1480,11 +1476,7 @@
           <div id="notificationsMainView" data-component="notifications" style="display: none;">
             <section class="notifications-section" id="notificationsPageComponent">
               <div class="notifications-header-bar">
-                <div>
-                  <h3 class="notifications-page-title">Notifications & Activity Alerts</h3>
-                  <p class="notifications-page-subtitle">Real-time studio updates across order fulfillment, inventory
-                    warnings, client actions, and settlements.</p>
-                </div>
+                
                 <div class="notifications-header-actions">
                   <button type="button" class="notif-btn notif-btn-outline" id="btnPageMarkAllRead"
                     onclick="window.markAllNotificationsRead()">
@@ -2391,32 +2383,17 @@
           <!-- Breadcrumbs / Eyebrow metadata -->
           <div class="pv-header-breadcrumbs" id="pvBreadcrumbs">
             <span class="pv-breadcrumb-root" onclick="window.closeProductDetailModal()">Catalog</span>
-            <span class="pv-breadcrumb-sep">/</span>
+            <span class="pv-breadcrumb-sep">|</span>
             <span id="breadcrumbCategory" class="pv-breadcrumb-cat">Footwear</span>
-            <span class="pv-breadcrumb-sep">/</span>
+            <span class="pv-breadcrumb-sep">|</span>
             <span id="breadcrumbTitle" class="pv-breadcrumb-title">Cloud-step sneakers</span>
           </div>
-          <h3 class="studio-modal-heading" id="pvHeaderHeading">Product Overview & Specifications</h3>
           <p class="studio-modal-subheading">
             Live catalog presentation, store inventory levels, and merchandising specifications.
           </p>
         </div>
 
         <div class="pv-header-actions">
-          <span id="pvStockBadge" class="product-stock-badge stock-in">In Stock</span>
-          <button type="button" class="pv-header-action-btn pv-edit-btn" id="pvHeaderEditBtn"
-            title="Edit specifications">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-            <span>Edit Piece</span>
-          </button>
-          <button type="button" class="pv-header-action-btn pv-delete-header-btn" id="pvHeaderDeleteBtn"
-            title="Delete product piece">
-            <span>Delete Piece</span>
-          </button>
           <button type="button" class="studio-modal-close-btn" onclick="window.closeProductDetailModal()"
             aria-label="Close dialog">
             ✕
@@ -2438,10 +2415,7 @@
                   <h4>Visual Gallery</h4>
                   <p>Catalog imagery and multi-angle presentation</p>
                 </div>
-                <div class="rotate-badge" id="rotateBadge">
-                  <span class="rotate-dot"></span>
-                  <span id="rotateBadgeText">Auto-rotating angles (hover to pause)</span>
-                </div>
+                
               </div>
 
               <div class="product-gallery" id="pvProductGallery">
@@ -2474,16 +2448,7 @@
                   <strong class="pv-metric-val" id="pvMetricCost">R180</strong>
                   <span class="pv-metric-sub">Procurement cost</span>
                 </div>
-                <div class="pv-metric-tile">
-                  <span class="pv-metric-label">Gross Margin</span>
-                  <strong class="pv-metric-val pv-margin-high" id="pvMetricMargin">60%</strong>
-                  <span class="pv-metric-sub">Markup yield</span>
-                </div>
-                <div class="pv-metric-tile">
-                  <span class="pv-metric-label">Catalog ID</span>
-                  <strong class="pv-metric-val" id="pvMetricId">#1</strong>
-                  <span class="pv-metric-sub">SKU reference</span>
-                </div>
+                
               </div>
             </section>
 
@@ -2572,23 +2537,9 @@
 
       <!-- 3. Footer Bar (Matching Studio Modal Footer) -->
       <div class="studio-modal-footer pv-studio-footer">
-        <div class="studio-footer-status pv-footer-left">
-          <span class="pv-footer-qty-label">Quantity preview:</span>
-          <div class="quantity">
-            <button type="button" id="pvQtyMinus" aria-label="Decrease quantity">−</button>
-            <span id="quantity">1</span>
-            <button type="button" id="pvQtyPlus" aria-label="Increase quantity">＋</button>
-          </div>
-          <p class="added-feedback" id="addedFeedback" role="status"></p>
-        </div>
 
         <div class="studio-footer-actions pv-footer-right">
-          <button type="button" class="studio-btn-discard pv-delete-btn" id="buyNowBtn" title="Delete product piece">
-            <span>Delete Piece</span>
-          </button>
-          <button type="button" class="studio-btn-discard" onclick="window.closeProductDetailModal()">
-            Close
-          </button>
+          
           <button type="button" class="studio-btn-publish" id="addToBag">
             <span>Edit Specifications</span>
             <span class="studio-btn-arrow">↗</span>

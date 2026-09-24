@@ -135,12 +135,6 @@ const INITIAL_PAYMENTS = [
   { ref: 'PAY-ZA-8898', orderId: '#390557', customer: 'Lara Croft-Mthembu', gateway: 'Ozow Instant EFT', grossAmount: 450.00, fee: 6.75, netAmount: 443.25, timestamp: '10 Apr, 18:02', status: 'Refunded', bank: 'ABSA Bank' }
 ];
 
-const INITIAL_NOTIFICATIONS = [
-  { id: 'notif-1', type: 'order', icon: '🛒', title: 'New Express Order #390561', description: 'Michelle Black placed an order for 3 items. Pending courier dispatch.', time: '8m ago', unread: true, actionTab: 'orders', orderId: '#390561' },
-  { id: 'notif-2', type: 'stock', icon: '⚠️', title: 'Low Stock Alert: Ryobi ONE Drill', description: 'Warehouse inventory is down to 3 units remaining.', time: '24m ago', unread: true, actionTab: 'inventory' },
-  { id: 'notif-3', type: 'order', icon: '🚚', title: 'Courier Dispatched #390560', description: 'Waybill ZA-CPT-339210 scanned by Velora Fleet Logistics.', time: '2h ago', unread: true, actionTab: 'orders', orderId: '#390560' },
-  { id: 'notif-4', type: 'refund', icon: '↶', title: 'Return Authorization Requested', description: 'Return RET-0982 submitted for Order #390560.', time: '3h ago', unread: false, actionTab: 'returns' }
-];
 
 // Helper to load or initialize from localStorage
 function loadStorage(key, defaultVal) {
@@ -197,7 +191,6 @@ if (Array.isArray(window.inventoryData)) {
 window.returnsData = loadStorage(window.STORAGE_KEYS.RETURNS, INITIAL_RETURNS);
 window.customersData = loadStorage(window.STORAGE_KEYS.CUSTOMERS, INITIAL_CUSTOMERS);
 window.paymentsData = loadStorage(window.STORAGE_KEYS.PAYMENTS, INITIAL_PAYMENTS);
-window.notificationsData = loadStorage(window.STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 window.settingsData = loadStorage(window.STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS);
 
 window.saveOrders = () => saveStorage(window.STORAGE_KEYS.ORDERS, window.ordersData);
@@ -205,5 +198,4 @@ window.saveInventory = () => saveStorage(window.STORAGE_KEYS.INVENTORY, window.i
 window.saveReturns = () => saveStorage(window.STORAGE_KEYS.RETURNS, window.returnsData);
 window.saveCustomers = () => saveStorage(window.STORAGE_KEYS.CUSTOMERS, window.customersData);
 window.savePayments = () => saveStorage(window.STORAGE_KEYS.PAYMENTS, window.paymentsData);
-window.saveNotifications = () => saveStorage(window.STORAGE_KEYS.NOTIFICATIONS, window.notificationsData);
 window.saveSettings = () => saveStorage(window.STORAGE_KEYS.SETTINGS, window.settingsData);
