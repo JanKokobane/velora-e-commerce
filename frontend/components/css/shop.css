@@ -286,3 +286,24 @@
   .shop-grid { grid-template-columns: 1fr; gap: 18px; }
   .product-visual { height: 320px; }
 }
+
+.product-visual {
+  position: relative;
+}
+
+.product-stock-warning {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: block;
+  margin: 0;
+  padding: 6px 9px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #b33a3a;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}

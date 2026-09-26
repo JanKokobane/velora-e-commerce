@@ -2,9 +2,13 @@ import { addToCart, updateCartBadge, parseCurrency } from './cart.js';
 
 const API_URL = 'https://velora-e-commerce-qby7.onrender.com';
 
+let shopProducts = [];
+let currentFilter = 'all';
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
   initShopCartButtons();
+  initShopFilters();
   fetchProducts();
 });
 
@@ -21,130 +25,395 @@ async function fetchProducts() {
     }
 
     const data = await response.json();
+
     const products = data.products || data;
 
-    productGrid.replaceChildren();
+    shopProducts = Array.isArray(products)
+      ? products.filter((product) => {
+          const stock = Number(product.stock || 0);
+          return stock > 0;
+        })
+      : [];
 
-    products.forEach((product) => {
-      const article = document.createElement('article');
-      article.className = 'product-card';
-      article.id = String(product.id);
-      article.dataset.category = product.category || '';
-
-      const visual = document.createElement('a');
-      visual.className = 'product-visual';
-      visual.href = `product.html?id=${encodeURIComponent(product.id)}`;
-
-      const image = document.createElement('img');
-      image.src = product.image_url || '';
-      image.alt = product.title || 'Velora Product';
-
-      visual.appendChild(image);
-
-      const info = document.createElement('div');
-      info.className = 'product-info';
-
-      const infoText = document.createElement('div');
-
-      const category = document.createElement('p');
-      category.textContent = product.eyebrow || product.category || '';
-
-      const title = document.createElement('h2');
-      title.textContent = product.title || '';
-
-      infoText.appendChild(category);
-      infoText.appendChild(title);
-
-      const price = document.createElement('strong');
-      price.textContent = `R${Number(product.price || 0).toLocaleString('en-ZA')}`;
-
-      info.appendChild(infoText);
-      info.appendChild(price);
-
-      const addButton = document.createElement('button');
-      addButton.type = 'button';
-      addButton.className = 'add-cart';
-      addButton.setAttribute('aria-label', `Add ${product.title || 'product'} to cart`);
-      addButton.textContent = 'Add to bag';
-
-      article.appendChild(visual);
-      article.appendChild(info);
-      article.appendChild(addButton);
-
-      productGrid.appendChild(article);
-    });
-
-    initShopCartButtons();
+    updateFilterCounts();
+    updateProductTotal();
+    renderProducts();
   } catch (error) {
     console.error('Failed to fetch products:', error);
   }
 }
 
-export function initShopCartButtons() {
-  const addButtons = document.querySelectorAll('.add-cart');
+function renderProducts() {
+  const productGrid = document.getElementById('productGrid');
 
-  addButtons.forEach((btn) => {
-    if (btn.dataset.cartInitialized) return;
-    btn.dataset.cartInitialized = 'true';
+  if (!productGrid) return;
 
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const filteredProducts =
+    currentFilter === 'all'
+      ? shopProducts
+      : shopProducts.filter((product) => {
+          const category = String(
+            product.category || ''
+          )
+            .trim()
+            .toLowerCase();
 
-      const card = btn.closest('.product-card') || btn.closest('article');
-
-      if (card) {
-        const titleEl = card.querySelector('h2, .product-title, h3');
-        const priceEl = card.querySelector('strong, .product-price');
-        const imgEl = card.querySelector('img');
-        const catEl = card.querySelector('.product-info p, [data-category]');
-
-        const title = titleEl ? titleEl.textContent.trim() : 'Velora Product';
-        const priceText = priceEl ? priceEl.textContent.trim() : '0';
-        const price = parseCurrency(priceText);
-        const image = imgEl ? imgEl.src : '';
-        const category = catEl ? catEl.textContent.trim() : (card.dataset.category || 'Velora Goods');
-        const id = card.id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-        addToCart({
-          id,
-          title,
-          price,
-          category,
-          image,
-          size: 'Standard',
-          quantity: 1
+          return category === currentFilter;
         });
-      } else {
-        addToCart({
-          id: `item-${Date.now()}`,
-          title: btn.getAttribute('aria-label') || 'Velora Curated Essential',
-          price: 950,
-          category: 'Velora Essentials',
-          size: 'Standard',
-          quantity: 1
-        });
+
+  productGrid.replaceChildren();
+
+  filteredProducts.forEach((product) => {
+    const stock = Number(product.stock || 0);
+
+    if (stock <= 0) return;
+
+    const article = document.createElement('article');
+
+    article.className = 'product-card';
+    article.id = String(product.id);
+
+    article.dataset.category = String(
+      product.category || ''
+    )
+      .trim()
+      .toLowerCase();
+
+    const visual = document.createElement('a');
+
+    visual.className = 'product-visual';
+    visual.href =
+      `product.html?id=${encodeURIComponent(product.id)}`;
+
+    const image = document.createElement('img');
+
+    image.src = product.image_url || '';
+    image.alt =
+      product.title || 'Velora Product';
+
+    visual.appendChild(image);
+
+    if (stock < 5) {
+      const stockMessage =
+        document.createElement('span');
+
+      stockMessage.className =
+        'product-stock-warning';
+
+      stockMessage.textContent =
+        stock === 1
+          ? 'Only 1 left'
+          : `Only ${stock} left`;
+
+      visual.appendChild(stockMessage);
+    }
+
+    const info = document.createElement('div');
+
+    info.className = 'product-info';
+
+    const infoText = document.createElement('div');
+
+    const category = document.createElement('p');
+
+    category.textContent =
+      product.eyebrow ||
+      product.category ||
+      '';
+
+    const title = document.createElement('h2');
+
+    title.textContent =
+      product.title || '';
+
+    infoText.appendChild(category);
+    infoText.appendChild(title);
+
+    const price = document.createElement('strong');
+
+    price.textContent =
+      `R${Number(
+        product.price || 0
+      ).toLocaleString('en-ZA')}`;
+
+    info.appendChild(infoText);
+    info.appendChild(price);
+
+    const addButton =
+      document.createElement('button');
+
+    addButton.type = 'button';
+    addButton.className = 'add-cart';
+
+    addButton.setAttribute(
+      'aria-label',
+      `Add ${product.title || 'product'} to cart`
+    );
+
+    addButton.textContent = '+';
+
+    article.appendChild(visual);
+    article.appendChild(info);
+    article.appendChild(addButton);
+
+    productGrid.appendChild(article);
+  });
+
+  updateProductTotal();
+  initShopCartButtons();
+}
+
+function initShopFilters() {
+  const filterButtons =
+    document.querySelectorAll(
+      '.filter-link'
+    );
+
+  filterButtons.forEach((button) => {
+    button.addEventListener(
+      'click',
+      () => {
+        currentFilter =
+          button.dataset.filter || 'all';
+
+        filterButtons.forEach(
+          (filterButton) => {
+            filterButton.classList.remove(
+              'active'
+            );
+          }
+        );
+
+        button.classList.add('active');
+
+        renderProducts();
       }
-
-      btn.classList.add('added');
-      setTimeout(() => btn.classList.remove('added'), 1200);
-    });
+    );
   });
 }
 
-const newsletterForm = document.getElementById('newsletterForm');
-const newsletterFeedback = document.getElementById('newsletterFeedback');
+function updateFilterCounts() {
+  const filterButtons =
+    document.querySelectorAll(
+      '.filter-link'
+    );
+
+  filterButtons.forEach((button) => {
+    const filter =
+      button.dataset.filter || 'all';
+
+    const countElement =
+      button.querySelector('span');
+
+    if (!countElement) return;
+
+    let count =
+      shopProducts.length;
+
+    if (filter !== 'all') {
+      count =
+        shopProducts.filter(
+          (product) => {
+            const category =
+              String(
+                product.category || ''
+              )
+                .trim()
+                .toLowerCase();
+
+            return category === filter;
+          }
+        ).length;
+    }
+
+    countElement.textContent =
+      String(count).padStart(2, '0');
+  });
+}
+
+function updateProductTotal() {
+  const productTotal =
+    document.getElementById(
+      'productTotal'
+    );
+
+  if (!productTotal) return;
+
+  const filteredCount =
+    currentFilter === 'all'
+      ? shopProducts.length
+      : shopProducts.filter(
+          (product) => {
+            const category =
+              String(
+                product.category || ''
+              )
+                .trim()
+                .toLowerCase();
+
+            return category ===
+              currentFilter;
+          }
+        ).length;
+
+  productTotal.textContent =
+    String(filteredCount).padStart(2, '0');
+}
+
+export function initShopCartButtons() {
+  const addButtons =
+    document.querySelectorAll(
+      '.add-cart'
+    );
+
+  addButtons.forEach((btn) => {
+    if (btn.dataset.cartInitialized) {
+      return;
+    }
+
+    btn.dataset.cartInitialized = 'true';
+
+    btn.addEventListener(
+      'click',
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const card =
+          btn.closest('.product-card') ||
+          btn.closest('article');
+
+        if (card) {
+          const titleEl =
+            card.querySelector(
+              'h2, .product-title, h3'
+            );
+
+          const priceEl =
+            card.querySelector(
+              'strong, .product-price'
+            );
+
+          const imgEl =
+            card.querySelector('img');
+
+          const catEl =
+            card.querySelector(
+              '.product-info p, [data-category]'
+            );
+
+          const title =
+            titleEl
+              ? titleEl.textContent.trim()
+              : 'Velora Product';
+
+          const priceText =
+            priceEl
+              ? priceEl.textContent.trim()
+              : '0';
+
+          const price =
+            parseCurrency(priceText);
+
+          const image =
+            imgEl
+              ? imgEl.src
+              : '';
+
+          const category =
+            catEl
+              ? catEl.textContent.trim()
+              : (
+                  card.dataset.category ||
+                  'Velora Goods'
+                );
+
+          const id =
+            card.id ||
+            title
+              .toLowerCase()
+              .replace(
+                /[^a-z0-9]+/g,
+                '-'
+              );
+
+          addToCart({
+            id,
+            title,
+            price,
+            category,
+            image,
+            size: 'Standard',
+            quantity: 1
+          });
+        } else {
+          addToCart({
+            id: `item-${Date.now()}`,
+            title:
+              btn.getAttribute(
+                'aria-label'
+              ) ||
+              'Velora Curated Essential',
+            price: 950,
+            category:
+              'Velora Essentials',
+            size: 'Standard',
+            quantity: 1
+          });
+        }
+
+        btn.classList.add('added');
+
+        setTimeout(() => {
+          btn.classList.remove('added');
+        }, 1200);
+      }
+    );
+  });
+}
+
+const newsletterForm =
+  document.getElementById(
+    'newsletterForm'
+  );
+
+const newsletterFeedback =
+  document.getElementById(
+    'newsletterFeedback'
+  );
 
 if (newsletterForm) {
-  newsletterForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const emailInput = document.getElementById('newsletterEmail');
-    const email = emailInput ? emailInput.value.trim() : '';
+  newsletterForm.addEventListener(
+    'submit',
+    (e) => {
+      e.preventDefault();
 
-    if (email && newsletterFeedback) {
-      newsletterFeedback.textContent = 'Welcome to Velora! Check your inbox for a confirmation.';
-      if (emailInput) emailInput.value = '';
-      setTimeout(() => { newsletterFeedback.textContent = ''; }, 4000);
+      const emailInput =
+        document.getElementById(
+          'newsletterEmail'
+        );
+
+      const email =
+        emailInput
+          ? emailInput.value.trim()
+          : '';
+
+      if (
+        email &&
+        newsletterFeedback
+      ) {
+        newsletterFeedback.textContent =
+          'Welcome to Velora! Check your inbox for a confirmation.';
+
+        if (emailInput) {
+          emailInput.value = '';
+        }
+
+        setTimeout(() => {
+          newsletterFeedback.textContent =
+            '';
+        }, 4000);
+      }
     }
-  });
+  );
 }
