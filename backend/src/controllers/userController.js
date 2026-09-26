@@ -1,12 +1,6 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const pool = require('../config/db');
-
-
-// =========================================================
-// REGISTER USER
-// POST /api/users/register
-// =========================================================
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const pool = require("../config/db");
 
 const registerUser = async (req, res) => {
   try {
@@ -20,21 +14,12 @@ const registerUser = async (req, res) => {
       consent
     } = req.body;
 
-    // ---------------------------------------------------------
-    // VALIDATE REQUIRED FIELDS
-    // ---------------------------------------------------------
-
     if (!fullName || !email || !phone || !password) {
       return res.status(400).json({
         success: false,
-        message:
-          'Full name, email, phone and password are required.'
+        message: "Full name, email, phone and password are required."
       });
     }
-
-    // ---------------------------------------------------------
-    // NORMALIZE INPUT
-    // ---------------------------------------------------------
 
     const normalizedName = String(fullName).trim();
     const normalizedEmail = String(email).trim().toLowerCase();
@@ -45,79 +30,51 @@ const registerUser = async (req, res) => {
     const normalizedProvince = province
       ? String(province).trim()
       : null;
-
     const plainPassword = String(password);
-
-    // ---------------------------------------------------------
-    // VALIDATE FULL NAME
-    // ---------------------------------------------------------
 
     if (normalizedName.length < 2) {
       return res.status(400).json({
         success: false,
-        message:
-          'Full name must be at least 2 characters.'
+        message: "Full name must be at least 2 characters."
       });
     }
 
     if (normalizedName.length > 150) {
       return res.status(400).json({
         success: false,
-        message:
-          'Full name cannot exceed 150 characters.'
+        message: "Full name cannot exceed 150 characters."
       });
     }
 
-    // ---------------------------------------------------------
-    // VALIDATE EMAIL
-    // ---------------------------------------------------------
-
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
-        message:
-          'Please provide a valid email address.'
+        message: "Please provide a valid email address."
       });
     }
-
-    // ---------------------------------------------------------
-    // VALIDATE PHONE
-    // ---------------------------------------------------------
 
     if (normalizedPhone.length < 7) {
       return res.status(400).json({
         success: false,
-        message:
-          'Please provide a valid phone number.'
+        message: "Please provide a valid phone number."
       });
     }
 
     if (normalizedPhone.length > 30) {
       return res.status(400).json({
         success: false,
-        message:
-          'Phone number cannot exceed 30 characters.'
+        message: "Phone number cannot exceed 30 characters."
       });
     }
-
-    // ---------------------------------------------------------
-    // VALIDATE PASSWORD
-    // ---------------------------------------------------------
 
     if (plainPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message:
-          'Password must be at least 6 characters long.'
+        message: "Password must be at least 6 characters long."
       });
     }
-
-    // ---------------------------------------------------------
-    // CHECK IF USER ALREADY EXISTS
-    // ---------------------------------------------------------
 
     const existingUser = await pool.query(
       `
@@ -132,30 +89,19 @@ const registerUser = async (req, res) => {
     if (existingUser.rows.length > 0) {
       return res.status(409).json({
         success: false,
-        message:
-          'An account with this email already exists.'
+        message: "An account with this email already exists."
       });
     }
 
-    // ---------------------------------------------------------
-    // HASH PASSWORD
-    // ---------------------------------------------------------
-
-    const passwordHash =
-      await bcrypt.hash(plainPassword, 12);
-
-    // ---------------------------------------------------------
-    // CONSENT
-    // ---------------------------------------------------------
+    const passwordHash = await bcrypt.hash(
+      plainPassword,
+      12
+    );
 
     const smsEmailConsent =
       consent === undefined
         ? true
         : Boolean(consent);
-
-    // ---------------------------------------------------------
-    // INSERT USER
-    // ---------------------------------------------------------
 
     const result = await pool.query(
       `
@@ -194,36 +140,21 @@ const registerUser = async (req, res) => {
 
     const user = result.rows[0];
 
-    // ---------------------------------------------------------
-    // SUCCESS RESPONSE
-    // ---------------------------------------------------------
-
     return res.status(201).json({
       success: true,
-      message:
-        'Velora client account created successfully.',
+      message: "Velora client account created successfully.",
       user
     });
 
   } catch (error) {
-    console.error(
-      'Register user error:',
-      error
-    );
+    console.error("Register user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to create your account. Please try again later.'
+      message: "Unable to create your account. Please try again later."
     });
   }
 };
-
-
-// =========================================================
-// LOGIN USER
-// POST /api/users/login
-// =========================================================
 
 const loginUser = async (req, res) => {
   try {
@@ -232,32 +163,31 @@ const loginUser = async (req, res) => {
       password
     } = req.body;
 
-    // ---------------------------------------------------------
-    // VALIDATE REQUIRED FIELDS
-    // ---------------------------------------------------------
-
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message:
-          'Email and password are required.'
+        message: "Email and password are required."
       });
     }
 
-    // ---------------------------------------------------------
-    // NORMALIZE EMAIL
-    // ---------------------------------------------------------
-
-    const normalizedEmail =
-      String(email).trim().toLowerCase();
-
-    // ---------------------------------------------------------
-    // FIND USER
-    // ---------------------------------------------------------
+    const normalizedEmail = String(email)
+      .trim()
+      .toLowerCase();
 
     const result = await pool.query(
       `
-      SELECT *
+      SELECT
+        id,
+        full_name,
+        email,
+        phone,
+        city,
+        province,
+        password_hash,
+        sms_email_consent,
+        member_tier,
+        created_at,
+        updated_at
       FROM users
       WHERE email = $1
       LIMIT 1
@@ -268,70 +198,48 @@ const loginUser = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(401).json({
         success: false,
-        message:
-          'Invalid email or password.'
+        message: "Invalid email or password."
       });
     }
 
     const user = result.rows[0];
 
-    // ---------------------------------------------------------
-    // CHECK PASSWORD
-    // ---------------------------------------------------------
-
-    const passwordMatches =
-      await bcrypt.compare(
-        String(password),
-        user.password_hash
-      );
+    const passwordMatches = await bcrypt.compare(
+      String(password),
+      user.password_hash
+    );
 
     if (!passwordMatches) {
       return res.status(401).json({
         success: false,
-        message:
-          'Invalid email or password.'
+        message: "Invalid email or password."
       });
     }
 
-    // ---------------------------------------------------------
-    // CHECK JWT SECRET
-    // ---------------------------------------------------------
-
     if (!process.env.JWT_SECRET) {
-      console.error(
-        'JWT_SECRET is not configured.'
-      );
+      console.error("JWT_SECRET is not configured.");
 
       return res.status(500).json({
         success: false,
-        message:
-          'Server authentication configuration is missing.'
+        message: "Server authentication configuration is missing."
       });
     }
-
-    // ---------------------------------------------------------
-    // CREATE JWT
-    // ---------------------------------------------------------
 
     const token = jwt.sign(
       {
         user_id: user.id,
         email: user.email,
-        role: 'user'
+        role: "user"
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: '7d'
+        expiresIn: "7d"
       }
     );
 
-    // ---------------------------------------------------------
-    // RETURN USER WITHOUT PASSWORD
-    // ---------------------------------------------------------
-
     return res.status(200).json({
       success: true,
-      message: 'Login successful.',
+      message: "Login successful.",
       token,
       user: {
         id: user.id,
@@ -340,8 +248,7 @@ const loginUser = async (req, res) => {
         phone: user.phone,
         city: user.city,
         province: user.province,
-        sms_email_consent:
-          user.sms_email_consent,
+        sms_email_consent: user.sms_email_consent,
         member_tier: user.member_tier,
         created_at: user.created_at,
         updated_at: user.updated_at
@@ -349,24 +256,14 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      'Login user error:',
-      error
-    );
+    console.error("Login user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to login. Please try again later.'
+      message: "Unable to login. Please try again later."
     });
   }
 };
-
-
-// =========================================================
-// GET CURRENT USER
-// GET /api/users/me
-// =========================================================
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -375,8 +272,7 @@ const getCurrentUser = async (req, res) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message:
-          'Authenticated user could not be identified.'
+        message: "Authenticated user could not be identified."
       });
     }
 
@@ -403,8 +299,7 @@ const getCurrentUser = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message:
-          'User not found.'
+        message: "User not found."
       });
     }
 
@@ -414,24 +309,14 @@ const getCurrentUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      'Get current user error:',
-      error
-    );
+    console.error("Get current user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to retrieve current user.'
+      message: "Unable to retrieve current user."
     });
   }
 };
-
-
-// =========================================================
-// GET ALL USERS
-// GET /api/users
-// =========================================================
 
 const getUsers = async (req, res) => {
   try {
@@ -460,24 +345,14 @@ const getUsers = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      'Get users error:',
-      error
-    );
+    console.error("Get users error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to retrieve users.'
+      message: "Unable to retrieve users."
     });
   }
 };
-
-
-// =========================================================
-// GET ONE USER
-// GET /api/users/:id
-// =========================================================
 
 const getUser = async (req, res) => {
   try {
@@ -506,8 +381,7 @@ const getUser = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message:
-          'User not found.'
+        message: "User not found."
       });
     }
 
@@ -517,24 +391,14 @@ const getUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      'Get user error:',
-      error
-    );
+    console.error("Get user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to retrieve user.'
+      message: "Unable to retrieve user."
     });
   }
 };
-
-
-// =========================================================
-// EDIT USER
-// PUT /api/users/:id
-// =========================================================
 
 const editUser = async (req, res) => {
   try {
@@ -549,117 +413,109 @@ const editUser = async (req, res) => {
       consent
     } = req.body;
 
-    // ---------------------------------------------------------
-    // CHECK USER
-    // ---------------------------------------------------------
-
-    const existingUserById =
-      await pool.query(
-        `
-        SELECT *
-        FROM users
-        WHERE id = $1
-        LIMIT 1
-        `,
-        [id]
-      );
+    const existingUserById = await pool.query(
+      `
+      SELECT *
+      FROM users
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [id]
+    );
 
     if (existingUserById.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message:
-          'User not found.'
+        message: "User not found."
       });
     }
 
-    // ---------------------------------------------------------
-    // NORMALIZE VALUES
-    // ---------------------------------------------------------
+    const existingUser = existingUserById.rows[0];
 
     const normalizedName =
       fullName !== undefined
         ? String(fullName).trim()
-        : existingUserById.rows[0].full_name;
+        : existingUser.full_name;
 
     const normalizedEmail =
       email !== undefined
         ? String(email).trim().toLowerCase()
-        : existingUserById.rows[0].email;
+        : existingUser.email;
 
     const normalizedPhone =
       phone !== undefined
         ? String(phone).trim()
-        : existingUserById.rows[0].phone;
+        : existingUser.phone;
 
     const normalizedCity =
       city !== undefined
         ? String(city).trim()
-        : existingUserById.rows[0].city;
+        : existingUser.city;
 
     const normalizedProvince =
       province !== undefined
         ? String(province).trim()
-        : existingUserById.rows[0].province;
-
-    // ---------------------------------------------------------
-    // VALIDATE NAME
-    // ---------------------------------------------------------
+        : existingUser.province;
 
     if (normalizedName.length < 2) {
       return res.status(400).json({
         success: false,
-        message:
-          'Full name must be at least 2 characters.'
+        message: "Full name must be at least 2 characters."
       });
     }
 
-    // ---------------------------------------------------------
-    // VALIDATE EMAIL
-    // ---------------------------------------------------------
+    if (normalizedName.length > 150) {
+      return res.status(400).json({
+        success: false,
+        message: "Full name cannot exceed 150 characters."
+      });
+    }
 
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
-        message:
-          'Please provide a valid email address.'
+        message: "Please provide a valid email address."
       });
     }
 
-    // ---------------------------------------------------------
-    // CHECK EMAIL OWNERSHIP
-    // ---------------------------------------------------------
+    if (normalizedPhone.length < 7) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid phone number."
+      });
+    }
 
-    const emailCheck =
-      await pool.query(
-        `
-        SELECT id
-        FROM users
-        WHERE email = $1
-        AND id != $2
-        LIMIT 1
-        `,
-        [normalizedEmail, id]
-      );
+    if (normalizedPhone.length > 30) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number cannot exceed 30 characters."
+      });
+    }
+
+    const emailCheck = await pool.query(
+      `
+      SELECT id
+      FROM users
+      WHERE email = $1
+      AND id != $2
+      LIMIT 1
+      `,
+      [normalizedEmail, id]
+    );
 
     if (emailCheck.rows.length > 0) {
       return res.status(409).json({
         success: false,
-        message:
-          'Another user already uses this email.'
+        message: "Another user already uses this email."
       });
     }
-
-    // ---------------------------------------------------------
-    // UPDATE USER
-    // ---------------------------------------------------------
 
     const consentValue =
       consent !== undefined
         ? Boolean(consent)
-        : existingUserById.rows[0].sms_email_consent;
+        : existingUser.sms_email_consent;
 
     const result = await pool.query(
       `
@@ -698,106 +554,74 @@ const editUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message:
-        'User updated successfully.',
+      message: "User updated successfully.",
       user: result.rows[0]
     });
 
   } catch (error) {
-    console.error(
-      'Update user error:',
-      error
-    );
+    console.error("Update user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to update user.'
+      message: "Unable to update user."
     });
   }
 };
-
-
-// =========================================================
-// REMOVE USER
-// DELETE /api/users/:id
-// =========================================================
 
 const removeUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ---------------------------------------------------------
-    // CHECK USER
-    // ---------------------------------------------------------
-
-    const existingUser =
-      await pool.query(
-        `
-        SELECT
-          id,
-          full_name,
-          email,
-          phone,
-          city,
-          province,
-          sms_email_consent,
-          member_tier,
-          created_at,
-          updated_at
-        FROM users
-        WHERE id = $1
-        LIMIT 1
-        `,
-        [id]
-      );
+    const existingUser = await pool.query(
+      `
+      SELECT
+        id,
+        full_name,
+        email,
+        phone,
+        city,
+        province,
+        sms_email_consent,
+        member_tier,
+        created_at,
+        updated_at
+      FROM users
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [id]
+    );
 
     if (existingUser.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message:
-          'User not found.'
+        message: "User not found."
       });
     }
 
-    // ---------------------------------------------------------
-    // DELETE USER
-    // ---------------------------------------------------------
-
-    const result = await pool.query(
+    await pool.query(
       `
       DELETE FROM users
       WHERE id = $1
-      RETURNING id
       `,
       [id]
     );
 
     return res.status(200).json({
       success: true,
-      message:
-        'User deleted successfully.',
+      message: "User deleted successfully.",
       user: existingUser.rows[0]
     });
 
   } catch (error) {
-    console.error(
-      'Delete user error:',
-      error
-    );
+    console.error("Delete user error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        'Unable to delete user.'
+      message: "Unable to delete user."
     });
   }
 };
-
-
-// =========================================================
-// EXPORT CONTROLLERS
-// =========================================================
 
 module.exports = {
   registerUser,
@@ -808,3 +632,4 @@ module.exports = {
   editUser,
   removeUser
 };
+
