@@ -12,22 +12,20 @@ const adminAuthMiddleware = require("../middleware/adminAuthMiddleware");
 
 const router = express.Router();
 
-router.post(
-  "/",
-  adminAuthMiddleware,
-  createNewProduct
-);
-
 router.get(
   "/",
-  adminAuthMiddleware,
   getProducts
 );
 
 router.get(
   "/:id",
-  adminAuthMiddleware,
   getProduct
+);
+
+router.post(
+  "/",
+  adminAuthMiddleware,
+  createNewProduct
 );
 
 router.put(
@@ -43,3 +41,4 @@ router.delete(
 );
 
 module.exports = router;
+

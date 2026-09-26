@@ -1,13 +1,7 @@
-/**
- * Velora Studio Admin - Component Renderer & Modular Controller Loader
- * Dynamically loads and renders HTML components from /admin/components/ into /admin/index.html,
- * then initializes the dashboard controllers in strict order.
- */
+
 
 (function() {
   'use strict';
-
-  console.log('[Velora Admin] Starting component renderer...');
 
   // Ensure downloadProjectZip is always available early
   if (!window.downloadProjectZip) {
@@ -163,10 +157,7 @@
           basePath = '/admin/components/';
         }
         await Promise.all(COMPONENTS.map(comp => renderComponent(comp, basePath)));
-        console.log('[Velora Admin] HTML components rendered via fallback fetch.');
-      } else {
-        console.log('[Velora Admin] Standalone mode: components already present in DOM.');
-      }
+      } 
 
       // 2. Load any modular JS controllers that were not statically loaded
       for (const scriptUrl of CONTROLLER_SCRIPTS) {
@@ -222,9 +213,8 @@
 
       // Signal completion
       document.documentElement.setAttribute('data-admin-rendered', 'true');
-      console.log('[Velora Admin] Dashboard initialization complete.');
     } catch (err) {
-      console.error('[Velora Admin] Bootstrap failure:', err);
+      
     }
   }
 

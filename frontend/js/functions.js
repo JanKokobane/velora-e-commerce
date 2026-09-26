@@ -1,17 +1,89 @@
 import { addToCart, updateCartBadge, parseCurrency } from './cart.js';
 
-// ---------- Synchronize cart badge on page load ----------
+const API_URL = 'https://velora-e-commerce-qby7.onrender.com';
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
   initShopCartButtons();
+  fetchProducts();
 });
 
-// ---------- Shopping cart buttons for catalog & shop section ----------
+async function fetchProducts() {
+  const productGrid = document.getElementById('productGrid');
+
+  if (!productGrid) return;
+
+  try {
+    const response = await fetch(`${API_URL}/api/products`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+
+    const data = await response.json();
+    const products = data.products || data;
+
+    productGrid.replaceChildren();
+
+    products.forEach((product) => {
+      const article = document.createElement('article');
+      article.className = 'product-card';
+      article.id = String(product.id);
+      article.dataset.category = product.category || '';
+
+      const visual = document.createElement('a');
+      visual.className = 'product-visual';
+      visual.href = `product.html?id=${encodeURIComponent(product.id)}`;
+
+      const image = document.createElement('img');
+      image.src = product.image_url || '';
+      image.alt = product.title || 'Velora Product';
+
+      visual.appendChild(image);
+
+      const info = document.createElement('div');
+      info.className = 'product-info';
+
+      const infoText = document.createElement('div');
+
+      const category = document.createElement('p');
+      category.textContent = product.eyebrow || product.category || '';
+
+      const title = document.createElement('h2');
+      title.textContent = product.title || '';
+
+      infoText.appendChild(category);
+      infoText.appendChild(title);
+
+      const price = document.createElement('strong');
+      price.textContent = `R${Number(product.price || 0).toLocaleString('en-ZA')}`;
+
+      info.appendChild(infoText);
+      info.appendChild(price);
+
+      const addButton = document.createElement('button');
+      addButton.type = 'button';
+      addButton.className = 'add-cart';
+      addButton.setAttribute('aria-label', `Add ${product.title || 'product'} to cart`);
+      addButton.textContent = 'Add to bag';
+
+      article.appendChild(visual);
+      article.appendChild(info);
+      article.appendChild(addButton);
+
+      productGrid.appendChild(article);
+    });
+
+    initShopCartButtons();
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+  }
+}
+
 export function initShopCartButtons() {
   const addButtons = document.querySelectorAll('.add-cart');
 
   addButtons.forEach((btn) => {
-    // Avoid double binding
     if (btn.dataset.cartInitialized) return;
     btn.dataset.cartInitialized = 'true';
 
@@ -20,6 +92,7 @@ export function initShopCartButtons() {
       e.stopPropagation();
 
       const card = btn.closest('.product-card') || btn.closest('article');
+
       if (card) {
         const titleEl = card.querySelector('h2, .product-title, h3');
         const priceEl = card.querySelector('strong, .product-price');
@@ -43,7 +116,6 @@ export function initShopCartButtons() {
           quantity: 1
         });
       } else {
-        // Fallback generic item if clicked outside a standard card
         addToCart({
           id: `item-${Date.now()}`,
           title: btn.getAttribute('aria-label') || 'Velora Curated Essential',
@@ -60,7 +132,6 @@ export function initShopCartButtons() {
   });
 }
 
-// ---------- Newsletter subscription ----------
 const newsletterForm = document.getElementById('newsletterForm');
 const newsletterFeedback = document.getElementById('newsletterFeedback');
 

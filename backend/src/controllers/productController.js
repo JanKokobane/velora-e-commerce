@@ -421,15 +421,6 @@ const createNewProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const adminId = getAdminId(req);
-
-    if (!adminId) {
-      return res.status(401).json({
-        message:
-          "Authenticated admin could not be identified.",
-      });
-    }
-
     const products =
       await getAllProducts();
 
@@ -452,15 +443,7 @@ const getProducts = async (req, res) => {
 
 const getProduct = async (req, res) => {
   try {
-    const adminId = getAdminId(req);
     const { id } = req.params;
-
-    if (!adminId) {
-      return res.status(401).json({
-        message:
-          "Authenticated admin could not be identified.",
-      });
-    }
 
     if (!isValidProductId(id)) {
       return res.status(400).json({
@@ -496,6 +479,7 @@ const getProduct = async (req, res) => {
     });
   }
 };
+
 
 const editProduct = async (req, res) => {
   try {

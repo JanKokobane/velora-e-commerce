@@ -501,14 +501,6 @@ function updateAdminProfilePill(
       fullName;
   }
 
-  console.log(
-    "[Velora Admin] Profile displayed:",
-    {
-      name: fullName,
-      email: email,
-      initials: initials,
-    }
-  );
 }
 
 window.updateAdminProfilePill =
@@ -562,11 +554,6 @@ async function fetchLoggedInAdmin() {
     );
 
     updateAdminProfilePill(
-      admin
-    );
-
-    console.log(
-      "[Velora Admin] Authenticated admin fetched from /me:",
       admin
     );
 
@@ -627,10 +614,6 @@ function showKinderValidationMessage(
     }
   }
 
-  console.log(
-    `Validation (${type}):`,
-    message
-  );
 }
 
 function clearKinderValidationMessage() {

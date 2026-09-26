@@ -1,13 +1,5 @@
-/**
- * Velora Studio Admin - Dashboard Master Controller
- * Refactored to modular architecture (components/, css/, js/).
- * Pure DOM implementation with NO innerHTML.
- */
-
 (function() {
   'use strict';
-
-  console.log('[Velora Admin] Initializing modular dashboard controller...');
 
   window.VeloraAdmin = window.VeloraAdmin || {
     version: '2.0.0',
@@ -117,9 +109,6 @@
   }
 
   function initializeDashboardAfterAuth() {
-    console.log(
-      '[Velora Admin] Authentication successful. Initializing dashboard...'
-    );
 
     closeAdminAuth();
 
@@ -141,9 +130,6 @@
   }
 
   window.initDashboard = function() {
-    console.log(
-      '[Velora Admin] Checking authentication first...'
-    );
 
     const authScreen =
       document.getElementById(
@@ -192,9 +178,6 @@
   window.addEventListener(
     'veloraAdminLogin',
     function() {
-      console.log(
-        '[Velora Admin] Login event received.'
-      );
 
       initializeDashboardAfterAuth();
     }
@@ -203,9 +186,6 @@
   window.addEventListener(
     'veloraAdminSessionRestored',
     function() {
-      console.log(
-        '[Velora Admin] Existing admin session restored.'
-      );
 
       initializeDashboardAfterAuth();
     }
