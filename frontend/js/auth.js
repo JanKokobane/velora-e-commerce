@@ -119,9 +119,24 @@ export function initAuthPage() {
   const alreadySignedInCard = document.getElementById('alreadySignedInCard');
   if (!authCard && !alreadySignedInCard) return;
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const returnTarget = urlParams.get('return');
+
+  function handlePostAuthRedirect() {
+    if (returnTarget === 'checkout') {
+      window.location.href = 'checkout.html';
+    } else {
+      window.location.href = 'account.html';
+    }
+  }
+
   const currentUser = getCurrentUser();
 
   if (currentUser) {
+    if (returnTarget === 'checkout') {
+      window.location.href = 'checkout.html';
+      return;
+    }
     if (alreadySignedInCard) {
       alreadySignedInCard.style.display = 'block';
       const avatarEl = document.getElementById('signedInAvatar');
@@ -148,9 +163,6 @@ export function initAuthPage() {
   } else {
     if (alreadySignedInCard) {
       alreadySignedInCard.style.display = 'none';
-    }
-    if (authCard) {
-      authCard.style.display = 'block';
     }
   }
 
@@ -187,7 +199,7 @@ export function initAuthPage() {
   if (demoBtn) {
     demoBtn.addEventListener('click', () => {
       setCurrentUser(DEMO_USER);
-      window.location.href = 'account.html';
+      handlePostAuthRedirect();
     });
   }
 
@@ -244,7 +256,7 @@ export function initAuthPage() {
       if (match) {
         if (match.password === password || password === 'password123') {
           setCurrentUser(match);
-          window.location.href = 'account.html';
+          handlePostAuthRedirect();
           return;
         }
       }
@@ -264,7 +276,7 @@ export function initAuthPage() {
       users.push(newUser);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       setCurrentUser(newUser);
-      window.location.href = 'account.html';
+      handlePostAuthRedirect();
     });
   }
 
@@ -334,7 +346,7 @@ export function initAuthPage() {
       users.push(newUser);
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       setCurrentUser(newUser);
-      window.location.href = 'account.html';
+      handlePostAuthRedirect();
     });
   }
 }

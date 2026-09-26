@@ -544,8 +544,25 @@ function initPurchaseActions() {
           updateCartBadge();
         }
 
-        window.location.href =
-          'checkout.html';
+        // Check authentication: if signed in proceed to checkout.html, else auth.html?return=checkout
+        const rawUser = localStorage.getItem('velora_current_user');
+        let isAuthenticated = false;
+        if (rawUser) {
+          try {
+            const user = JSON.parse(rawUser);
+            if (user && (user.email || user.id)) {
+              isAuthenticated = true;
+            }
+          } catch (e) {
+            isAuthenticated = false;
+          }
+        }
+
+        if (isAuthenticated) {
+          window.location.href = 'checkout.html';
+        } else {
+          window.location.href = 'auth.html?return=checkout';
+        }
       }
     );
   }

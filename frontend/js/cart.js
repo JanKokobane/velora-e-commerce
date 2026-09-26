@@ -564,6 +564,32 @@ export function initCartPage() {
     });
   }
 
+  // Handle Proceed to Checkout CTA
+  const checkoutBtn = document.querySelector('.proceed-checkout-btn');
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const rawUser = localStorage.getItem('velora_current_user');
+      let isAuthenticated = false;
+      if (rawUser) {
+        try {
+          const user = JSON.parse(rawUser);
+          if (user && (user.email || user.id)) {
+            isAuthenticated = true;
+          }
+        } catch (err) {
+          isAuthenticated = false;
+        }
+      }
+
+      if (isAuthenticated) {
+        window.location.href = 'checkout.html';
+      } else {
+        window.location.href = 'auth.html?return=checkout';
+      }
+    });
+  }
+
   render();
 
   window.addEventListener(
@@ -780,8 +806,12 @@ export function initCheckoutPage() {
       'submit',
       (e) => {
         e.preventDefault();
-        window.location.href =
-          'payment.html';
+        const rawUser = localStorage.getItem('velora_current_user');
+        if (rawUser) {
+          window.location.href = 'payment.html';
+        } else {
+          window.location.href = 'auth.html?return=checkout';
+        }
       }
     );
   }

@@ -66,6 +66,21 @@ function getEstimatedDeliveryRange() {
   return `${start.toLocaleDateString('en-GB', options)} – ${end.toLocaleDateString('en-GB', options)} ${end.getFullYear()}`;
 }
 
+/**
+ * Require authentication check
+ * Returns the current authenticated user object from 'velora_current_user' or null
+ */
+export function requireAuthentication() {
+  try {
+    const raw = localStorage.getItem('velora_current_user');
+    if (!raw) return null;
+    const user = JSON.parse(raw);
+    return user && (user.email || user.id) ? user : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // --------------------------------------------------------------------------
 // 1. Checkout Page Logic (checkout.html)
 // --------------------------------------------------------------------------
@@ -82,6 +97,7 @@ export function initCheckoutPage() {
   const cityInput = document.getElementById('shippingCity');
   const postalInput = document.getElementById('shippingPostal');
   const provinceSelect = document.getElementById('shippingProvince');
+  const signInLink = document.getElementById('checkoutSignInLink');
 
   // Pre-fill if previously stored
   const saved = getShippingDetails();
@@ -97,7 +113,30 @@ export function initCheckoutPage() {
     if (provinceSelect && saved.province) provinceSelect.value = saved.province;
   }
 
-  // Handle Form Submission -> Save & Navigate to Payment
+  // Pre-fill from authenticated user if available
+  const currentUser = requireAuthentication();
+  if (currentUser) {
+    if (emailInput && !emailInput.value && currentUser.email) emailInput.value = currentUser.email;
+    if (phoneInput && !phoneInput.value && currentUser.phone) phoneInput.value = currentUser.phone;
+    if (currentUser.fullName) {
+      const parts = currentUser.fullName.split(' ');
+      if (firstNameInput && !firstNameInput.value) firstNameInput.value = parts[0] || '';
+      if (lastNameInput && !lastNameInput.value) lastNameInput.value = parts.slice(1).join(' ') || '';
+    }
+    if (streetInput && !streetInput.value && currentUser.street) streetInput.value = currentUser.street;
+    if (cityInput && !cityInput.value && currentUser.city) cityInput.value = currentUser.city;
+    if (provinceSelect && currentUser.province) provinceSelect.value = currentUser.province;
+
+    if (signInLink && signInLink.parentElement) {
+      signInLink.parentElement.innerHTML = `Signed in as <strong style="color: var(--ink);">${currentUser.fullName || currentUser.email}</strong>`;
+    }
+  } else {
+    if (signInLink) {
+      signInLink.href = 'auth.html?return=checkout';
+    }
+  }
+
+  // Handle Continue Button / Form Submission -> requireAuthentication()
   shippingForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -109,22 +148,31 @@ export function initCheckoutPage() {
     }
 
     const details = {
-      email: emailInput ? emailInput.value.trim() : 'customer@example.com',
-      phone: phoneInput ? phoneInput.value.trim() : '+27 82 000 0000',
-      firstName: firstNameInput ? firstNameInput.value.trim() : 'Guest',
-      lastName: lastNameInput ? lastNameInput.value.trim() : 'Customer',
-      fullName: `${firstNameInput ? firstNameInput.value.trim() : 'Guest'} ${lastNameInput ? lastNameInput.value.trim() : ''}`.trim(),
-      street: streetInput ? streetInput.value.trim() : '14 Kloof Street',
+      email: emailInput ? emailInput.value.trim() : (currentUser?.email || 'customer@example.com'),
+      phone: phoneInput ? phoneInput.value.trim() : (currentUser?.phone || '+27 82 000 0000'),
+      firstName: firstNameInput ? firstNameInput.value.trim() : (currentUser?.fullName?.split(' ')[0] || 'Guest'),
+      lastName: lastNameInput ? lastNameInput.value.trim() : (currentUser?.fullName?.split(' ').slice(1).join(' ') || 'Customer'),
+      fullName: `${firstNameInput ? firstNameInput.value.trim() : ''} ${lastNameInput ? lastNameInput.value.trim() : ''}`.trim() || currentUser?.fullName || 'Guest Customer',
+      street: streetInput ? streetInput.value.trim() : (currentUser?.street || '14 Kloof Street'),
       apartment: aptInput ? aptInput.value.trim() : '',
-      city: cityInput ? cityInput.value.trim() : 'Cape Town',
+      city: cityInput ? cityInput.value.trim() : (currentUser?.city || 'Cape Town'),
       postal: postalInput ? postalInput.value.trim() : '8001',
-      province: provinceSelect ? provinceSelect.value : 'Western Cape',
+      province: provinceSelect ? provinceSelect.value : (currentUser?.province || 'Western Cape'),
       deliveryMethod: 'Velora Courier Express',
       deliveryFee: getCartSubtotal() >= 800 ? 0 : 120
     };
 
     saveShippingDetails(details);
-    window.location.href = 'payment.html';
+
+    // Authentication Check Gate
+    const authenticatedUser = requireAuthentication();
+    if (authenticatedUser) {
+      // SIGNED IN -> proceed to payment.html
+      window.location.href = 'payment.html';
+    } else {
+      // NOT SIGNED IN -> render the auth page first
+      window.location.href = 'auth.html?return=checkout';
+    }
   });
 }
 
@@ -136,8 +184,14 @@ export function initPaymentPage() {
   const mainContainer = document.getElementById('paymentPageMainContainer');
   if (!paymentForm || !mainContainer) return;
 
-  // Check if URL specifies confirmation or if previously paid
   const urlParams = new URLSearchParams(window.location.search);
+
+  // Require authentication on payment page as well
+  const authenticatedUser = requireAuthentication();
+  if (!authenticatedUser && urlParams.get('confirmation') !== 'true') {
+    window.location.href = 'auth.html?return=checkout';
+    return;
+  }
   if (urlParams.get('confirmation') === 'true') {
     const lastOrderRaw = localStorage.getItem(LAST_ORDER_STORAGE_KEY);
     if (lastOrderRaw) {
