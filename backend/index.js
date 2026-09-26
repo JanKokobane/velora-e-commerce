@@ -3,6 +3,7 @@ require("dotenv").config();
 const app = require("./app");
 
 const adminAuthRoutes = require("./src/routes/adminAuthRoutes");
+const userRoutes = require("./src/routes/userRoutes");
 const productRoutes = require("./src/routes/productRoutes");
 const notificationRoutes = require("./src/routes/notificationRoutes");
 
@@ -11,6 +12,7 @@ const { connectDB } = require("./src/config/db");
 const PORT = process.env.PORT || 5000;
 
 app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/notifications", notificationRoutes);
 
@@ -29,7 +31,19 @@ const startServer = async () => {
       );
 
       console.log(
-        "Admin registration: /api/admin/auth/register"
+        "Admin API: /api/admin/auth"
+      );
+
+      console.log(
+        "User API: /api/users"
+      );
+
+      console.log(
+        "User registration: /api/users/register"
+      );
+
+      console.log(
+        "User login: /api/users/login"
       );
 
       console.log(
@@ -51,3 +65,4 @@ const startServer = async () => {
 };
 
 startServer();
+
