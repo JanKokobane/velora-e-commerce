@@ -1,4 +1,4 @@
-import { addToCart, updateCartBadge } from './cart.js';
+import { addToCart, updateCartBadge, getCart } from './cart.js';
 
 const API_URL = 'https://velora-e-commerce-qby7.onrender.com';
 
@@ -532,8 +532,18 @@ function initPurchaseActions() {
           return;
         }
 
-        addToCart(product);
-        updateCartBadge();
+        const alreadyInCart = getCart().some(
+          (entry) =>
+            String(entry.id) === String(product.id) &&
+            String(entry.size || 'Standard') ===
+              String(product.size || 'Standard')
+        );
+
+        if (!alreadyInCart) {
+          addToCart(product);
+          updateCartBadge();
+        }
+
         window.location.href =
           'checkout.html';
       }
