@@ -15,17 +15,6 @@ function resolveBackendBaseUrl() {
   if (typeof window !== 'undefined' && window.VELORA_API_BASE_URL) {
     return window.VELORA_API_BASE_URL;
   }
-  if (typeof window !== 'undefined' && window.location) {
-    const port = String(window.location.port || '');
-    // Common static development server ports (VS Code Live Server, live-server, http-server)
-    if (['5500', '5501', '5502', '8080', '8081'].includes(port) || window.location.protocol === 'file:') {
-      return 'https://velora-e-commerce-qby7.onrender.com';
-    }
-    // Full-stack Node/Express server ports or remote preview environments
-    if (port === '5000' || port === '3000' || (!port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
-      return window.location.origin;
-    }
-  }
   return 'https://velora-e-commerce-qby7.onrender.com';
 }
 
@@ -69,8 +58,21 @@ export function saveCompletedOrder(order) {
     localStorage.setItem(LAST_ORDER_STORAGE_KEY, JSON.stringify(order));
     const historyRaw = localStorage.getItem(ORDERS_HISTORY_KEY);
     const history = historyRaw ? JSON.parse(historyRaw) : [];
-    history.unshift(order);
-    localStorage.setItem(ORDERS_HISTORY_KEY, JSON.stringify(history));
+    // Deduplicate
+    const filtered = history.filter(o => (o.orderNumber || o.id) !== (order.orderNumber || order.id));
+    filtered.unshift(order);
+    localStorage.setItem(ORDERS_HISTORY_KEY, JSON.stringify(filtered));
+
+    // Also record under user-scoped history key
+    const user = requireAuthentication();
+    if (user && (user.id || user.email)) {
+      const userScopedKey = `velora_orders_history_${user.id || user.email}`;
+      const userHistRaw = localStorage.getItem(userScopedKey);
+      const userHist = userHistRaw ? JSON.parse(userHistRaw) : [];
+      const userFiltered = userHist.filter(o => (o.orderNumber || o.id) !== (order.orderNumber || order.id));
+      userFiltered.unshift(order);
+      localStorage.setItem(userScopedKey, JSON.stringify(userFiltered));
+    }
   } catch (e) {
     console.error('Error recording order history:', e);
   }

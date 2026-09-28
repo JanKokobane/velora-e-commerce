@@ -1039,6 +1039,9 @@
               </div>
 
               <div class="filter-right-group">
+                <button type="button" class="drawer-btn" id="refreshOrdersBtn"
+                  style="flex: initial; padding: 7px 12px; font-size: 12.5px;"
+                  onclick="window.fetchOrdersFromDb(true)">↻ Refresh DB</button>
                 <select class="filter-select" id="sortFilterSelect">
                   <option value="date-desc">Sort by Date (Newest)</option>
                   <option value="date-asc">Sort by Date (Oldest)</option>
@@ -1338,10 +1341,14 @@
                   </div>
                   <select class="filter-select" id="customerTierFilter">
                     <option value="all">All Tiers</option>
+                    <option value="Velora Client">Velora Client</option>
                     <option value="VIP Privilege">VIP Privilege</option>
                     <option value="Gold Member">Gold Member</option>
                     <option value="Standard">Standard</option>
                   </select>
+                  <button type="button" class="drawer-btn" id="refreshCustomersBtn"
+                    style="flex: initial; padding: 7px 12px; font-size: 12.5px;"
+                    onclick="window.fetchCustomersFromDb(true)">↻ Refresh DB</button>
                   <button type="button" class="drawer-btn drawer-btn-dark"
                     style="flex: initial; padding: 7px 14px; font-size: 12.5px;"
                     onclick="window.openNewCustomerModal()">+ Add Client</button>

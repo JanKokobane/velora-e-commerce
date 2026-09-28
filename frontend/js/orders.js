@@ -4,15 +4,6 @@ function resolveBackendBaseUrl() {
   if (typeof window !== 'undefined' && window.VELORA_API_BASE_URL) {
     return window.VELORA_API_BASE_URL;
   }
-  if (typeof window !== 'undefined' && window.location) {
-    const port = String(window.location.port || '');
-    if (['5500', '5501', '5502', '8080', '8081'].includes(port) || window.location.protocol === 'file:') {
-      return 'https://velora-e-commerce-qby7.onrender.com';
-    }
-    if (port === '5000' || port === '3000' || (!port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
-      return window.location.origin;
-    }
-  }
   return 'https://velora-e-commerce-qby7.onrender.com';
 }
 

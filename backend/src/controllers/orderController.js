@@ -82,7 +82,7 @@ const createOrder = async (req, res) => {
 
 
 /**
- * Get all orders belonging to the authenticated user
+ * Get all orders (for admin) or orders belonging to the authenticated user
  *
  * GET /api/orders
  *
@@ -91,7 +91,18 @@ const createOrder = async (req, res) => {
  */
 const getMyOrders = async (req, res) => {
   try {
-    const userId = req.user?.user_id;
+    // If the caller is an admin, return all orders from the database
+    if (req.user?.role === 'admin' || req.user?.admin_id || req.admin) {
+      const orders = await orderService.getAllOrders();
+
+      return res.status(200).json({
+        success: true,
+        count: orders.length,
+        orders
+      });
+    }
+
+    const userId = req.user?.user_id || req.user?.id;
 
     if (!userId) {
       return res.status(401).json({
@@ -104,10 +115,36 @@ const getMyOrders = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      count: orders.length,
       orders
     });
   } catch (error) {
     console.error('Get user orders error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve orders.'
+    });
+  }
+};
+
+
+/**
+ * Get all orders across the system (Admin only)
+ *
+ * GET /api/orders/all
+ */
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await orderService.getAllOrders();
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders
+    });
+  } catch (error) {
+    console.error('Get all orders error:', error);
 
     return res.status(500).json({
       success: false,
@@ -175,5 +212,6 @@ const getMyOrder = async (req, res) => {
 module.exports = {
   createOrder,
   getMyOrders,
-  getMyOrder
+  getMyOrder,
+  getAllOrders
 };

@@ -66,15 +66,26 @@ window.refreshCurrentView = function() {
   const tab = window.currentTab;
   if (tab === 'dashboard' && typeof window.renderOverviewView === 'function') {
     window.renderOverviewView();
+    if (typeof window.fetchOrdersFromDb === 'function') {
+      window.fetchOrdersFromDb();
+    }
   } else if (tab === 'orders') {
     if (typeof window.renderKPICards === 'function') window.renderKPICards();
     if (typeof window.renderOrdersTable === 'function') window.renderOrdersTable();
+    if (typeof window.fetchOrdersFromDb === 'function') {
+      window.fetchOrdersFromDb();
+    }
   } else if (tab === 'returns' && typeof window.renderReturnsView === 'function') {
     window.renderReturnsView();
   } else if (tab === 'inventory' && typeof window.renderInventoryView === 'function') {
     window.renderInventoryView();
-  } else if (tab === 'customers' && typeof window.renderCustomersView === 'function') {
-    window.renderCustomersView();
+  } else if (tab === 'customers') {
+    if (typeof window.renderCustomersView === 'function') {
+      window.renderCustomersView();
+    }
+    if (typeof window.fetchCustomersFromDb === 'function') {
+      window.fetchCustomersFromDb();
+    }
   } else if (tab === 'payments' && typeof window.renderPaymentsView === 'function') {
     window.renderPaymentsView();
   } else if (tab === 'notifications' && typeof window.renderNotificationsView === 'function') {

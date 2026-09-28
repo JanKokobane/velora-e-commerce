@@ -1,30 +1,490 @@
-
 const db = require('../config/db');
+const { randomUUID } = require('crypto');
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Create a payment for an order.
- *
- * The order amount comes from PostgreSQL.
- * The frontend cannot decide the payment amount.
+ * Ensures a product ID is a valid UUID if the PostgreSQL column requires UUID
+ * Encodes integer IDs like 6 into 00000000-0000-0000-0000-000000000006
  */
-const createPayment = async ({
-  userId,
-  orderNumber,
-  paymentMethod
-}) => {
+const toValidUuid = (val) => {
+  if (!val) return '00000000-0000-0000-0000-000000000000';
+  const str = String(val).trim();
+  if (UUID_REGEX.test(str)) return str;
 
-  /*
-   * Find the authenticated user's order.
-   */
+  const num = parseInt(str, 10);
+  if (!isNaN(num) && num >= 0) {
+    const hex = num.toString(16).padStart(12, '0');
+    return `00000000-0000-0000-0000-${hex}`;
+  }
+
+  let hex = '';
+  for (let i = 0; i < str.length && hex.length < 12; i++) {
+    hex += str.charCodeAt(i).toString(16);
+  }
+  hex = hex.padEnd(12, '0').slice(0, 12);
+  return `00000000-0000-0000-0000-${hex}`;
+};
+
+/**
+ * Restores original integer ID if it was stored as 00000000-0000-0000-0000-000000000006
+ */
+const parseStoredProductId = (val) => {
+  if (!val) return val;
+  const str = String(val);
+  const match = str.match(/^00000000-0000-0000-0000-([0-9a-f]{12})$/i);
+  if (match) {
+    const num = parseInt(match[1], 16);
+    if (!isNaN(num) && num > 0) return num;
+  }
+  return val;
+};
+
+const generateOrderNumber = () => {
+  const date = new Date()
+    .toISOString()
+    .slice(0, 10)
+    .replace(/-/g, '');
+
+  const randomPart = randomUUID()
+    .replace(/-/g, '')
+    .slice(0, 6)
+    .toUpperCase();
+
+  return `VEL-${date}-${randomPart}`;
+};
+
+const calculateDeliveryFee = (deliveryMethod) => {
+  if (deliveryMethod === 'express') {
+    return 99.00;
+  }
+
+  if (deliveryMethod === 'standard') {
+    return 59.00;
+  }
+
+  return 0.00;
+};
+
+const createOrder = async ({
+  userId,
+  items,
+  shipping,
+  deliveryMethod = 'express'
+}) => {
+  const client = await db.connect();
+
+  try {
+    // 1. Verify authenticated user exists (before transaction)
+    const userResult = await client.query(
+      `
+      SELECT
+        id,
+        full_name,
+        email,
+        phone
+      FROM users
+      WHERE id = $1
+      `,
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      const error = new Error('User not found.');
+      error.code = 'USER_NOT_FOUND';
+      throw error;
+    }
+
+    const productIds = items.map(
+      (item) => item.productId
+    );
+
+    if (productIds.some((id) => !id)) {
+      const error = new Error(
+        'Every order item must contain a productId.'
+      );
+      error.code = 'INVALID_ORDER_ITEM';
+      throw error;
+    }
+
+    // 2. Fetch products safely without assuming specific column names (title vs name, image_url vs image)
+    let products = [];
+    if (productIds.length > 0) {
+      const placeholders = productIds.map((_, i) => `$${i + 1}`).join(', ');
+      const productsResult = await client.query(
+        `SELECT * FROM products WHERE id::text IN (${placeholders})`,
+        productIds.map(String)
+      );
+      products = productsResult.rows || [];
+    }
+
+    // 3. Compute totals and line items
+    let subtotal = 0;
+
+    const orderItems = items.map((item) => {
+      const product = products.find(
+        (productRow) =>
+          String(productRow.id) === String(item.productId)
+      );
+
+      const productName =
+        product?.title ||
+        product?.name ||
+        item.title ||
+        item.productName ||
+        `Product #${item.productId}`;
+
+      const unitPrice = product
+        ? Number(product.price)
+        : Number(item.price || item.unitPrice || 0);
+
+      const productImage =
+        product?.image_url ||
+        product?.image ||
+        item.image ||
+        null;
+
+      const quantity = Number(item.quantity);
+
+      if (!Number.isInteger(quantity) || quantity <= 0) {
+        const error = new Error(
+          `Invalid quantity for product ${productName}.`
+        );
+        error.code = 'INVALID_QUANTITY';
+        throw error;
+      }
+
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        const error = new Error(
+          `Product ${item.productId} was not found.`
+        );
+        error.code = 'PRODUCT_NOT_FOUND';
+        throw error;
+      }
+
+      subtotal += unitPrice * quantity;
+
+      return {
+        productId: product ? product.id : (Number(item.productId) || 1),
+        productName,
+        quantity,
+        unitPrice,
+        size: item.size || null,
+        image: productImage
+      };
+    });
+
+    const discount = 0.00;
+    const deliveryFee = calculateDeliveryFee(deliveryMethod);
+    const total = subtotal - discount + deliveryFee;
+
+    // 4. Generate unique order number
+    let orderNumber;
+    let orderCreated = false;
+
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = generateOrderNumber();
+
+      const existingOrder = await client.query(
+        `
+        SELECT id
+        FROM orders
+        WHERE order_number = $1
+        `,
+        [candidate]
+      );
+
+      if (existingOrder.rows.length === 0) {
+        orderNumber = candidate;
+        orderCreated = true;
+        break;
+      }
+    }
+
+    if (!orderCreated) {
+      const error = new Error(
+        'Unable to generate a unique order number.'
+      );
+      error.code = 'ORDER_NUMBER_GENERATION_FAILED';
+      throw error;
+    }
+
+    // 5. Begin transaction only for INSERT operations
+    try {
+      await client.query('ALTER TABLE order_items ALTER COLUMN product_id TYPE VARCHAR(255) USING product_id::text');
+    } catch (_) {
+      // Column may already be varchar/text or user has no DDL permissions
+    }
+
+    await client.query('BEGIN');
+
+    const orderResult = await client.query(
+      `
+      INSERT INTO orders (
+        order_number,
+        user_id,
+        status,
+        payment_status,
+        subtotal,
+        discount,
+        delivery_fee,
+        total,
+        full_name,
+        email,
+        phone,
+        street,
+        apartment,
+        city,
+        postal_code,
+        province,
+        delivery_method
+      )
+      VALUES (
+        $1,
+        $2,
+        'pending',
+        'pending',
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15
+      )
+      RETURNING *
+      `,
+      [
+        orderNumber,
+        userId,
+        subtotal,
+        discount,
+        deliveryFee,
+        total,
+        shipping.fullName.trim(),
+        shipping.email.trim(),
+        shipping.phone.trim(),
+        shipping.street.trim(),
+        shipping.apartment
+          ? shipping.apartment.trim()
+          : null,
+        shipping.city.trim(),
+        (shipping.postalCode || shipping.postal || '').trim(),
+        shipping.province.trim(),
+        deliveryMethod
+      ]
+    );
+
+    const order = orderResult.rows[0];
+
+    for (const item of orderItems) {
+      await client.query(
+        `
+        INSERT INTO order_items (
+          order_id,
+          product_id,
+          product_name,
+          quantity,
+          unit_price,
+          size,
+          image
+        )
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7
+        )
+        `,
+        [
+          order.id,
+          toValidUuid(item.productId),
+          item.productName,
+          item.quantity,
+          item.unitPrice,
+          item.size,
+          item.image
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+
+    return {
+      id: order.id,
+      orderNumber: order.order_number,
+      userId: order.user_id,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      subtotal: Number(order.subtotal),
+      discount: Number(order.discount),
+      deliveryFee: Number(order.delivery_fee),
+      total: Number(order.total),
+      shipping: {
+        fullName: order.full_name,
+        email: order.email,
+        phone: order.phone,
+        street: order.street,
+        apartment: order.apartment,
+        city: order.city,
+        postalCode: order.postal_code,
+        province: order.province
+      },
+      deliveryMethod: order.delivery_method,
+      trackingNumber: order.tracking_number,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      items: orderItems
+    };
+
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+      // Ignore rollback errors if no transaction was started
+    }
+
+    console.error(
+      'Order service createOrder error:',
+      error
+    );
+
+    throw error;
+
+  } finally {
+    client.release();
+  }
+};
+
+const getOrdersByUserId = async (userId) => {
+  const ordersResult = await db.query(
+    `
+    SELECT
+      id,
+      order_number,
+      status,
+      payment_status,
+      subtotal,
+      discount,
+      delivery_fee,
+      total,
+      full_name,
+      email,
+      phone,
+      street,
+      apartment,
+      city,
+      postal_code,
+      province,
+      delivery_method,
+      tracking_number,
+      created_at,
+      updated_at
+    FROM orders
+    WHERE user_id = $1
+    ORDER BY created_at DESC
+    `,
+    [userId]
+  );
+
+  const orders = [];
+
+  for (const order of ordersResult.rows) {
+    const itemsResult = await db.query(
+      `
+      SELECT
+        id,
+        product_id,
+        product_name,
+        quantity,
+        unit_price,
+        size,
+        image,
+        created_at
+      FROM order_items
+      WHERE order_id = $1
+      ORDER BY created_at ASC
+      `,
+      [order.id]
+    );
+
+    orders.push({
+      id: order.id,
+      orderNumber: order.order_number,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      subtotal: Number(order.subtotal),
+      discount: Number(order.discount),
+      deliveryFee: Number(order.delivery_fee),
+      total: Number(order.total),
+      shipping: {
+        fullName: order.full_name,
+        email: order.email,
+        phone: order.phone,
+        street: order.street,
+        apartment: order.apartment,
+        city: order.city,
+        postalCode: order.postal_code,
+        province: order.province
+      },
+      deliveryMethod: order.delivery_method,
+      trackingNumber: order.tracking_number,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      items: itemsResult.rows.map((item) => ({
+        id: item.id,
+        productId: parseStoredProductId(item.product_id),
+        productName: item.product_name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unit_price),
+        size: item.size,
+        image: item.image,
+        createdAt: item.created_at
+      }))
+    });
+  }
+
+  return orders;
+};
+
+const getOrderByNumberForUser = async (
+  orderNumber,
+  userId
+) => {
   const orderResult = await db.query(
     `
     SELECT
       id,
       order_number,
       user_id,
-      total,
       status,
-      payment_status
+      payment_status,
+      subtotal,
+      discount,
+      delivery_fee,
+      total,
+      full_name,
+      email,
+      phone,
+      street,
+      apartment,
+      city,
+      postal_code,
+      province,
+      delivery_method,
+      tracking_number,
+      created_at,
+      updated_at
     FROM orders
     WHERE order_number = $1
       AND user_id = $2
@@ -36,309 +496,161 @@ const createPayment = async ({
     ]
   );
 
-
   if (orderResult.rows.length === 0) {
-    const error = new Error(
-      'Order not found.'
-    );
-
-    error.code = 'ORDER_NOT_FOUND';
-
-    throw error;
+    return null;
   }
-
 
   const order = orderResult.rows[0];
 
-
-  /*
-   * Prevent paying an already-paid order.
-   */
-  if (order.payment_status === 'paid') {
-    const error = new Error(
-      'This order has already been paid.'
-    );
-
-    error.code = 'ORDER_NOT_PAYABLE';
-
-    throw error;
-  }
-
-
-  /*
-   * Prevent payment for cancelled/refunded orders.
-   */
-  if (
-    order.status === 'cancelled' ||
-    order.status === 'refunded'
-  ) {
-    const error = new Error(
-      'This order cannot be paid.'
-    );
-
-    error.code = 'ORDER_NOT_PAYABLE';
-
-    throw error;
-  }
-
-
-  /*
-   * Check whether an active payment already exists.
-   */
-  const existingPaymentResult = await db.query(
+  const itemsResult = await db.query(
     `
     SELECT
       id,
-      amount,
-      payment_method,
-      payment_status,
-      transaction_reference,
-      gateway_reference,
-      created_at,
-      updated_at
-    FROM payments
+      product_id,
+      product_name,
+      quantity,
+      unit_price,
+      size,
+      image,
+      created_at
+    FROM order_items
     WHERE order_id = $1
-      AND payment_status IN (
-        'pending',
-        'processing'
-      )
-    ORDER BY created_at DESC
-    LIMIT 1
+    ORDER BY created_at ASC
     `,
     [order.id]
   );
 
-
-  if (existingPaymentResult.rows.length > 0) {
-    const existingPayment =
-      existingPaymentResult.rows[0];
-
-
-    return {
-      id: existingPayment.id,
-
-      orderId: order.id,
-
-      orderNumber: order.order_number,
-
-      amount: Number(
-        existingPayment.amount
-      ),
-
-      paymentMethod:
-        existingPayment.payment_method,
-
-      paymentStatus:
-        existingPayment.payment_status,
-
-      transactionReference:
-        existingPayment.transaction_reference,
-
-      gatewayReference:
-        existingPayment.gateway_reference,
-
-      createdAt:
-        existingPayment.created_at,
-
-      updatedAt:
-        existingPayment.updated_at
-    };
-  }
-
-
-  /*
-   * Create an internal transaction reference.
-   */
-  const transactionReference =
-    `VEL-TXN-${Date.now()}-${Math.floor(
-      Math.random() * 1000000
-    )}`;
-
-
-  /*
-   * Create payment record.
-   *
-   * Amount comes from order.total.
-   */
-  const paymentResult = await db.query(
-    `
-    INSERT INTO payments (
-      order_id,
-      user_id,
-      amount,
-      payment_method,
-      payment_status,
-      transaction_reference
-    )
-    VALUES (
-      $1,
-      $2,
-      $3,
-      $4,
-      'pending',
-      $5
-    )
-    RETURNING
-      id,
-      order_id,
-      user_id,
-      amount,
-      payment_method,
-      payment_status,
-      transaction_reference,
-      gateway_reference,
-      created_at,
-      updated_at
-    `,
-    [
-      order.id,
-      userId,
-      Number(order.total),
-      paymentMethod,
-      transactionReference
-    ]
-  );
-
-
-  const payment =
-    paymentResult.rows[0];
-
-
   return {
-    id: payment.id,
-
-    orderId: payment.order_id,
-
+    id: order.id,
     orderNumber: order.order_number,
-
-    amount: Number(payment.amount),
-
-    paymentMethod:
-      payment.payment_method,
-
-    paymentStatus:
-      payment.payment_status,
-
-    transactionReference:
-      payment.transaction_reference,
-
-    gatewayReference:
-      payment.gateway_reference,
-
-    createdAt:
-      payment.created_at,
-
-    updatedAt:
-      payment.updated_at
+    userId: order.user_id,
+    status: order.status,
+    paymentStatus: order.payment_status,
+    subtotal: Number(order.subtotal),
+    discount: Number(order.discount),
+    deliveryFee: Number(order.delivery_fee),
+    total: Number(order.total),
+    shipping: {
+      fullName: order.full_name,
+      email: order.email,
+      phone: order.phone,
+      street: order.street,
+      apartment: order.apartment,
+      city: order.city,
+      postalCode: order.postal_code,
+      province: order.province
+    },
+    deliveryMethod: order.delivery_method,
+    trackingNumber: order.tracking_number,
+    createdAt: order.created_at,
+    updatedAt: order.updated_at,
+    items: itemsResult.rows.map((item) => ({
+      id: item.id,
+      productId: parseStoredProductId(item.product_id),
+      productName: item.product_name,
+      quantity: item.quantity,
+      unitPrice: Number(item.unit_price),
+      size: item.size,
+      image: item.image,
+      createdAt: item.created_at
+    }))
   };
 };
 
-
-/**
- * Get payment information for an order.
- */
-const getPaymentByOrderNumber = async ({
-  userId,
-  orderNumber
-}) => {
-
-  const result = await db.query(
+const getAllOrders = async () => {
+  const ordersResult = await db.query(
     `
     SELECT
-      p.id,
-      p.order_id,
-      p.user_id,
-      p.amount,
-      p.payment_method,
-      p.payment_status,
-      p.transaction_reference,
-      p.gateway_reference,
-      p.created_at,
-      p.updated_at,
-      o.order_number
-    FROM payments p
-    INNER JOIN orders o
-      ON o.id = p.order_id
-    WHERE o.order_number = $1
-      AND p.user_id = $2
-    ORDER BY p.created_at DESC
-    LIMIT 1
-    `,
-    [
-      orderNumber,
-      userId
-    ]
+      id,
+      order_number,
+      user_id,
+      status,
+      payment_status,
+      subtotal,
+      discount,
+      delivery_fee,
+      total,
+      full_name,
+      email,
+      phone,
+      street,
+      apartment,
+      city,
+      postal_code,
+      province,
+      delivery_method,
+      tracking_number,
+      created_at,
+      updated_at
+    FROM orders
+    ORDER BY created_at DESC
+    `
   );
 
+  const orders = [];
 
-  if (result.rows.length === 0) {
-    return null;
+  for (const order of ordersResult.rows) {
+    const itemsResult = await db.query(
+      `
+      SELECT
+        id,
+        product_id,
+        product_name,
+        quantity,
+        unit_price,
+        size,
+        image,
+        created_at
+      FROM order_items
+      WHERE order_id = $1
+      ORDER BY created_at ASC
+      `,
+      [order.id]
+    );
+
+    orders.push({
+      id: order.id,
+      orderNumber: order.order_number,
+      userId: order.user_id,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      subtotal: Number(order.subtotal),
+      discount: Number(order.discount),
+      deliveryFee: Number(order.delivery_fee),
+      total: Number(order.total),
+      shipping: {
+        fullName: order.full_name,
+        email: order.email,
+        phone: order.phone,
+        street: order.street,
+        apartment: order.apartment,
+        city: order.city,
+        postalCode: order.postal_code,
+        province: order.province
+      },
+      deliveryMethod: order.delivery_method,
+      trackingNumber: order.tracking_number,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      items: itemsResult.rows.map((item) => ({
+        id: item.id,
+        productId: parseStoredProductId(item.product_id),
+        productName: item.product_name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unit_price),
+        size: item.size,
+        image: item.image,
+        createdAt: item.created_at
+      }))
+    });
   }
 
-
-  const payment =
-    result.rows[0];
-
-
-  return {
-    id: payment.id,
-
-    orderId: payment.order_id,
-
-    orderNumber:
-      payment.order_number,
-
-    amount:
-      Number(payment.amount),
-
-    paymentMethod:
-      payment.payment_method,
-
-    paymentStatus:
-      payment.payment_status,
-
-    transactionReference:
-      payment.transaction_reference,
-
-    gatewayReference:
-      payment.gateway_reference,
-
-    createdAt:
-      payment.created_at,
-
-    updatedAt:
-      payment.updated_at
-  };
+  return orders;
 };
-
-
-/**
- * Payment gateway webhook.
- *
- * This will be completed once the actual gateway
- * is selected and its webhook/signature rules are known.
- */
-const handlePaymentWebhook = async (
-  payload
-) => {
-
-  console.log(
-    'Payment webhook received:',
-    payload
-  );
-
-
-  return {
-    received: true,
-    processed: false,
-    message:
-      'Payment gateway webhook handler is awaiting gateway integration.'
-  };
-};
-
 
 module.exports = {
-  createPayment,
-  getPaymentByOrderNumber,
-  handlePaymentWebhook
+  createOrder,
+  getOrdersByUserId,
+  getOrderByNumberForUser,
+  getAllOrders
 };

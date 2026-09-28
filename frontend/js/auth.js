@@ -386,6 +386,18 @@ export function logoutUser() {
     CURRENT_USER_KEY
   );
 
+  localStorage.removeItem(
+    'velora_last_order'
+  );
+
+  localStorage.removeItem(
+    'velora_shipping_details'
+  );
+
+  localStorage.removeItem(
+    ORDERS_STORAGE_KEY
+  );
+
   updateGlobalHeaderUser();
 }
 

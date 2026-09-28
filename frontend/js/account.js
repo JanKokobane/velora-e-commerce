@@ -9,15 +9,6 @@ function resolveBackendBaseUrl() {
   if (typeof window !== 'undefined' && window.VELORA_API_BASE_URL) {
     return window.VELORA_API_BASE_URL;
   }
-  if (typeof window !== 'undefined' && window.location) {
-    const port = String(window.location.port || '');
-    if (['5500', '5501', '5502', '8080', '8081'].includes(port) || window.location.protocol === 'file:') {
-      return 'https://velora-e-commerce-qby7.onrender.com';
-    }
-    if (port === '5000' || port === '3000' || (!port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
-      return window.location.origin;
-    }
-  }
   return 'https://velora-e-commerce-qby7.onrender.com';
 }
 
@@ -384,7 +375,29 @@ async function loadAndRenderOrders(currentUser) {
   let serverOrders = [];
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
-  // 1. Fetch live orders from backend API
+  // Helper to verify if an order strictly belongs to the currently logged in user
+  const isUserOrder = (o) => {
+    if (!o || !currentUser) return false;
+    const ordId = String(o.orderNumber || o.id || '');
+    // Discard static mock orders
+    if (ordId.includes('390561') || ordId.includes('VEL-84920')) return false;
+
+    const currId = String(currentUser.id || '').toLowerCase().trim();
+    const currEmail = String(currentUser.email || '').toLowerCase().trim();
+    const orderUserId = String(o.userId || o.user_id || '').toLowerCase().trim();
+    const orderEmail = String(
+      o.customer?.email ||
+      o.shipping?.email ||
+      o.email ||
+      ''
+    ).toLowerCase().trim();
+
+    if (currId && orderUserId && currId === orderUserId) return true;
+    if (currEmail && orderEmail && currEmail === orderEmail) return true;
+    return false;
+  };
+
+  // 1. Fetch live orders from backend API (PostgreSQL database)
   if (token) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -398,45 +411,61 @@ async function loadAndRenderOrders(currentUser) {
       if (response.ok) {
         const data = await response.json();
         if (data.success && Array.isArray(data.orders)) {
-          serverOrders = data.orders;
+          serverOrders = data.orders.filter(isUserOrder);
         }
       }
     } catch (err) {
-      console.warn('Backend orders fetch failed, reading local cache:', err);
+      console.warn('Backend orders fetch failed, reading user cache:', err);
     }
   }
 
-  // 2. Read local order history cache
+  // 2. Read user-scoped local order history cache
   let localOrders = [];
   try {
+    const userScopedKey = `velora_orders_history_${currentUser.id || currentUser.email}`;
+    const rawScoped = localStorage.getItem(userScopedKey);
+    if (rawScoped) {
+      const parsed = JSON.parse(rawScoped);
+      if (Array.isArray(parsed)) localOrders = parsed.filter(isUserOrder);
+    }
+
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) localOrders = parsed;
+      if (Array.isArray(parsed)) {
+        parsed.filter(isUserOrder).forEach(o => {
+          if (!localOrders.some(x => (x.orderNumber || x.id) === (o.orderNumber || o.id))) {
+            localOrders.push(o);
+          }
+        });
+      }
     }
+
     const lastOrderRaw = localStorage.getItem('velora_last_order');
     if (lastOrderRaw) {
       const lastOrder = JSON.parse(lastOrderRaw);
-      if (lastOrder && !localOrders.some(o => (o.orderNumber || o.id) === (lastOrder.orderNumber || lastOrder.id))) {
+      if (lastOrder && isUserOrder(lastOrder) && !localOrders.some(o => (o.orderNumber || o.id) === (lastOrder.orderNumber || lastOrder.id))) {
         localOrders.unshift(lastOrder);
       }
     }
   } catch (_) {}
 
-  // 3. Merge server orders with local orders (deduplicating by orderNumber / id)
+  // 3. Merge server orders with validated user-specific local orders
   const combinedMap = new Map();
 
-  // Add server orders first
+  // Add server orders first (these are authoritative from PostgreSQL for this user)
   serverOrders.forEach(o => {
     const key = String(o.orderNumber || o.id);
     combinedMap.set(key, o);
   });
 
-  // Merge any local orders not present on server
+  // Only merge local orders that strictly belong to this logged-in user
   localOrders.forEach(o => {
-    const key = String(o.orderNumber || o.id);
-    if (!combinedMap.has(key)) {
-      combinedMap.set(key, o);
+    if (isUserOrder(o)) {
+      const key = String(o.orderNumber || o.id);
+      if (!combinedMap.has(key)) {
+        combinedMap.set(key, o);
+      }
     }
   });
 
