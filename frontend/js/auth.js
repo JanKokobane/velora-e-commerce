@@ -4,7 +4,7 @@ const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
 
 // ============================================================
-// GET ALL USERS
+// GET ALL REGISTERED USERS
 // ============================================================
 
 export function getUsers() {
@@ -17,9 +17,21 @@ export function getUsers() {
   try {
     const users = JSON.parse(data);
 
-    return Array.isArray(users) ? users : [];
-  } catch (e) {
-    console.error('Unable to read Velora users:', e);
+    if (!Array.isArray(users)) {
+      return [];
+    }
+
+    return users.filter((user) => {
+      return (
+        user &&
+        typeof user === 'object' &&
+        user.id &&
+        user.email &&
+        user.password
+      );
+    });
+  } catch (error) {
+    console.error('Unable to read Velora users:', error);
     return [];
   }
 }
@@ -30,10 +42,27 @@ export function getUsers() {
 // ============================================================
 
 export function saveUsers(users) {
+  if (!Array.isArray(users)) {
+    return;
+  }
+
   localStorage.setItem(
     USERS_STORAGE_KEY,
     JSON.stringify(users)
   );
+}
+
+
+// ============================================================
+// VALIDATE EMAIL
+// ============================================================
+
+function isValidEmail(email) {
+  if (!email) {
+    return false;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 
@@ -49,11 +78,57 @@ export function getCurrentUser() {
   }
 
   try {
-    return JSON.parse(data);
-  } catch (e) {
+    const sessionUser = JSON.parse(data);
+
+    /*
+     * A valid session must contain a real user ID
+     * and email.
+     */
+    if (
+      !sessionUser ||
+      !sessionUser.id ||
+      !sessionUser.email
+    ) {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      return null;
+    }
+
+    /*
+     * IMPORTANT:
+     *
+     * Also verify that the logged-in user still exists
+     * in the registered users database.
+     *
+     * This prevents an old/stale session from being
+     * treated as a valid login after the user is removed.
+     */
+    const registeredUser = findUserById(
+      sessionUser.id
+    );
+
+    if (!registeredUser) {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      return null;
+    }
+
+    /*
+     * Make sure the email in the session matches
+     * the registered account.
+     */
+    if (
+      registeredUser.email.trim().toLowerCase() !==
+      sessionUser.email.trim().toLowerCase()
+    ) {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      return null;
+    }
+
+    return sessionUser;
+
+  } catch (error) {
     console.error(
       'Unable to read current Velora user:',
-      e
+      error
     );
 
     localStorage.removeItem(CURRENT_USER_KEY);
@@ -68,30 +143,51 @@ export function getCurrentUser() {
 // ============================================================
 
 export function setCurrentUser(user) {
-  if (!user) {
+  if (!user || !user.id || !user.email) {
     localStorage.removeItem(CURRENT_USER_KEY);
 
     updateGlobalHeaderUser();
 
-    return;
+    return false;
   }
 
   /*
-   * Store only the information required for the
-   * current session.
+   * Only allow a user to become logged in if that
+   * user actually exists in the registered users list.
+   */
+  const registeredUser = findUserById(user.id);
+
+  if (!registeredUser) {
+    console.error(
+      'Login blocked: user is not registered.'
+    );
+
+    localStorage.removeItem(CURRENT_USER_KEY);
+
+    updateGlobalHeaderUser();
+
+    return false;
+  }
+
+  /*
+   * Store only session information.
    *
-   * Password is NOT stored in the current-user session.
+   * NEVER store the password inside the current
+   * logged-in session.
    */
   const sessionUser = {
-    id: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    phone: user.phone,
-    city: user.city,
-    province: user.province,
-    street: user.street || '',
-    memberTier: user.memberTier || 'Velora Client',
-    joinedDate: user.joinedDate || ''
+    id: registeredUser.id,
+    fullName: registeredUser.fullName,
+    email: registeredUser.email,
+    phone: registeredUser.phone,
+    city: registeredUser.city,
+    province: registeredUser.province,
+    street: registeredUser.street || '',
+    memberTier:
+      registeredUser.memberTier ||
+      'Velora Client',
+    joinedDate:
+      registeredUser.joinedDate || ''
   };
 
   localStorage.setItem(
@@ -100,6 +196,8 @@ export function setCurrentUser(user) {
   );
 
   updateGlobalHeaderUser();
+
+  return true;
 }
 
 
@@ -135,15 +233,23 @@ export function findUserByEmail(email) {
   const normalizedEmail =
     email.trim().toLowerCase();
 
+  if (!isValidEmail(normalizedEmail)) {
+    return null;
+  }
+
   const users = getUsers();
 
   return (
-    users.find(
-      (user) =>
-        user.email &&
+    users.find((user) => {
+      if (!user.email) {
+        return false;
+      }
+
+      return (
         user.email.trim().toLowerCase() ===
-          normalizedEmail
-    ) || null
+        normalizedEmail
+      );
+    }) || null
   );
 }
 
@@ -161,7 +267,9 @@ export function findUserById(userId) {
 
   return (
     users.find(
-      (user) => user.id === userId
+      (user) =>
+        user &&
+        user.id === userId
     ) || null
   );
 }
@@ -179,15 +287,15 @@ export function updateGlobalHeaderUser() {
       '.account-btn-label, #headerAccountText'
     );
 
-  accountLabels.forEach((el) => {
+  accountLabels.forEach((element) => {
     if (user && user.fullName) {
       const firstName = user.fullName
         .trim()
         .split(/\s+/)[0];
 
-      el.textContent = firstName;
+      element.textContent = firstName;
     } else {
-      el.textContent = 'Account';
+      element.textContent = 'Account';
     }
   });
 
@@ -224,9 +332,12 @@ export function getUserOrders() {
   const currentUser = getCurrentUser();
 
   /*
-   * If nobody is logged in, return no orders.
+   * No logged-in user = no orders.
    */
-  if (!currentUser || !currentUser.id) {
+  if (
+    !currentUser ||
+    !currentUser.id
+  ) {
     return [];
   }
 
@@ -248,16 +359,18 @@ export function getUserOrders() {
 
     /*
      * Only return orders belonging to the
-     * currently logged-in user.
+     * currently authenticated user.
      */
     return orders.filter(
       (order) =>
+        order &&
         order.userId === currentUser.id
     );
-  } catch (e) {
+
+  } catch (error) {
     console.error(
       'Unable to read Velora orders:',
-      e
+      error
     );
 
     return [];
@@ -292,12 +405,14 @@ export function getOrdersForUser(userId) {
 
     return orders.filter(
       (order) =>
+        order &&
         order.userId === userId
     );
-  } catch (e) {
+
+  } catch (error) {
     console.error(
       'Unable to read user orders:',
-      e
+      error
     );
 
     return [];
@@ -326,9 +441,9 @@ export function initAuthPage() {
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // RETURN TARGET
-  // ----------------------------------------------------------
+  // ==========================================================
 
   const urlParams =
     new URLSearchParams(
@@ -339,9 +454,9 @@ export function initAuthPage() {
     urlParams.get('return');
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // POST AUTH REDIRECT
-  // ----------------------------------------------------------
+  // ==========================================================
 
   function handlePostAuthRedirect() {
     if (returnTarget === 'checkout') {
@@ -354,9 +469,9 @@ export function initAuthPage() {
   }
 
 
-  // ----------------------------------------------------------
-  // CHECK CURRENT USER
-  // ----------------------------------------------------------
+  // ==========================================================
+  // CHECK CURRENT SESSION
+  // ==========================================================
 
   const currentUser =
     getCurrentUser();
@@ -496,7 +611,6 @@ export function initAuthPage() {
           'true'
         );
 
-
         tabRegisterBtn.classList.remove(
           'active'
         );
@@ -505,7 +619,6 @@ export function initAuthPage() {
           'aria-selected',
           'false'
         );
-
 
         panelSignIn.classList.add(
           'active'
@@ -531,7 +644,6 @@ export function initAuthPage() {
           'true'
         );
 
-
         tabSignInBtn.classList.remove(
           'active'
         );
@@ -540,7 +652,6 @@ export function initAuthPage() {
           'aria-selected',
           'false'
         );
-
 
         panelRegister.classList.add(
           'active'
@@ -563,7 +674,6 @@ export function initAuthPage() {
       'authSignOutBtn'
     );
 
-
   if (authSignOutBtn) {
 
     authSignOutBtn.addEventListener(
@@ -572,12 +682,10 @@ export function initAuthPage() {
 
         logoutUser();
 
-
         if (alreadySignedInCard) {
           alreadySignedInCard.style.display =
             'none';
         }
-
 
         if (authCard) {
           authCard.style.display =
@@ -597,21 +705,18 @@ export function initAuthPage() {
       'forgotPasswordBtn'
     );
 
-
   if (forgotBtn) {
 
     forgotBtn.addEventListener(
       'click',
-      (e) => {
+      (event) => {
 
-        e.preventDefault();
-
+        event.preventDefault();
 
         const alert =
           document.getElementById(
             'signInAlert'
           );
-
 
         if (alert) {
 
@@ -630,7 +735,7 @@ export function initAuthPage() {
 
 
   // ==========================================================
-  // SIGN IN FORM
+  // SIGN IN
   // ==========================================================
 
   const signInForm =
@@ -638,14 +743,13 @@ export function initAuthPage() {
       'signInForm'
     );
 
-
   if (signInForm) {
 
     signInForm.addEventListener(
       'submit',
-      (e) => {
+      (event) => {
 
-        e.preventDefault();
+        event.preventDefault();
 
 
         const emailInput =
@@ -671,7 +775,6 @@ export function initAuthPage() {
                 .toLowerCase()
             : '';
 
-
         const password =
           passwordInput
             ? passwordInput.value
@@ -679,19 +782,15 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // VALIDATION
+        // REQUIRED FIELDS
         // ------------------------------------------------------
 
         if (!email || !password) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'Please provide both email and password.';
           }
@@ -701,7 +800,25 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // FIND EXISTING USER
+        // EMAIL VALIDATION
+        // ------------------------------------------------------
+
+        if (!isValidEmail(email)) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'Please enter a valid email address.';
+          }
+
+          return;
+        }
+
+
+        // ------------------------------------------------------
+        // FIND REGISTERED USER
         // ------------------------------------------------------
 
         const user =
@@ -709,21 +826,40 @@ export function initAuthPage() {
 
 
         /*
-         * Do NOT create users during login.
+         * IMPORTANT:
+         *
+         * NEVER create an account during login.
+         *
+         * If the email was never registered,
+         * login MUST fail.
          */
 
         if (!user) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
-              'No account was found with this email address. Please create an account first.';
+              'No registered account was found with this email address. Please create an account first.';
+          }
+
+          return;
+        }
+
+
+        // ------------------------------------------------------
+        // VERIFY USER ID
+        // ------------------------------------------------------
+
+        if (!user.id) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'This account is invalid. Please register again.';
           }
 
           return;
@@ -734,18 +870,39 @@ export function initAuthPage() {
         // VERIFY PASSWORD
         // ------------------------------------------------------
 
-        if (user.password !== password) {
+        if (
+          !user.password ||
+          user.password !== password
+        ) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'Incorrect password. Please check your password and try again.';
+          }
+
+          return;
+        }
+
+
+        // ------------------------------------------------------
+        // CREATE AUTHENTICATED SESSION
+        // ------------------------------------------------------
+
+        const loginSuccessful =
+          setCurrentUser(user);
+
+
+        if (!loginSuccessful) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'Unable to create your login session. Please try again.';
           }
 
           return;
@@ -756,16 +913,10 @@ export function initAuthPage() {
         // LOGIN SUCCESS
         // ------------------------------------------------------
 
-        setCurrentUser(user);
-
-
         if (alert) {
-          alert.style.display =
-            'none';
-
+          alert.style.display = 'none';
           alert.textContent = '';
         }
-
 
         handlePostAuthRedirect();
       }
@@ -774,7 +925,7 @@ export function initAuthPage() {
 
 
   // ==========================================================
-  // REGISTER FORM
+  // REGISTER
   // ==========================================================
 
   const registerForm =
@@ -782,14 +933,13 @@ export function initAuthPage() {
       'registerForm'
     );
 
-
   if (registerForm) {
 
     registerForm.addEventListener(
       'submit',
-      (e) => {
+      (event) => {
 
-        e.preventDefault();
+        event.preventDefault();
 
 
         const fullNameInput =
@@ -838,7 +988,6 @@ export function initAuthPage() {
             ? fullNameInput.value.trim()
             : '';
 
-
         const email =
           emailInput
             ? emailInput.value
@@ -846,32 +995,25 @@ export function initAuthPage() {
                 .toLowerCase()
             : '';
 
-
         const phone =
           phoneInput
             ? phoneInput.value.trim()
             : '';
 
-
         const city =
           cityInput
-            ? cityInput.value.trim() ||
-              'Cape Town'
-            : 'Cape Town';
-
+            ? cityInput.value.trim()
+            : '';
 
         const province =
           provinceInput
-            ? provinceInput.value ||
-              'Western Cape'
-            : 'Western Cape';
-
+            ? provinceInput.value.trim()
+            : '';
 
         const password =
           passwordInput
             ? passwordInput.value
             : '';
-
 
         const confirmPassword =
           confirmPasswordInput
@@ -887,19 +1029,36 @@ export function initAuthPage() {
           !fullName ||
           !email ||
           !phone ||
-          !password
+          !city ||
+          !province ||
+          !password ||
+          !confirmPassword
         ) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'Please fill in all required fields.';
+          }
+
+          return;
+        }
+
+
+        // ------------------------------------------------------
+        // EMAIL VALIDATION
+        // ------------------------------------------------------
+
+        if (!isValidEmail(email)) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'Please enter a valid email address.';
           }
 
           return;
@@ -913,13 +1072,9 @@ export function initAuthPage() {
         if (password.length < 6) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'Password must contain at least 6 characters.';
           }
@@ -938,13 +1093,9 @@ export function initAuthPage() {
         ) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'Passwords do not match. Please re-enter.';
           }
@@ -954,34 +1105,39 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // CHECK EXISTING USER
+        // GET REGISTERED USERS
         // ------------------------------------------------------
 
         const users =
           getUsers();
 
 
-        const existing =
-          users.find(
-            (user) =>
-              user.email &&
+        // ------------------------------------------------------
+        // CHECK DUPLICATE EMAIL
+        // ------------------------------------------------------
+
+        const existingUser =
+          users.find((user) => {
+
+            if (!user.email) {
+              return false;
+            }
+
+            return (
               user.email
                 .trim()
                 .toLowerCase() ===
-                email
-          );
+              email
+            );
+          });
 
 
-        if (existing) {
+        if (existingUser) {
 
           if (alert) {
-
-            alert.style.display =
-              'block';
-
+            alert.style.display = 'block';
             alert.className =
               'auth-alert error';
-
             alert.textContent =
               'An account with this email already exists. Please sign in instead.';
           }
@@ -991,7 +1147,7 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // CREATE USER
+        // CREATE REGISTERED USER
         // ------------------------------------------------------
 
         const newUser = {
@@ -999,7 +1155,7 @@ export function initAuthPage() {
           id:
             `usr_${Date.now()}_${Math.random()
               .toString(36)
-              .substring(2, 8)}`,
+              .substring(2, 10)}`,
 
           fullName,
 
@@ -1030,7 +1186,7 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // SAVE NEW USER
+        // SAVE REGISTERED USER
         // ------------------------------------------------------
 
         users.push(newUser);
@@ -1039,10 +1195,50 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // LOG NEW USER IN
+        // VERIFY USER WAS SAVED
         // ------------------------------------------------------
 
-        setCurrentUser(newUser);
+        const savedUser =
+          findUserByEmail(email);
+
+
+        if (
+          !savedUser ||
+          savedUser.id !== newUser.id
+        ) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'Your account could not be created. Please try again.';
+          }
+
+          return;
+        }
+
+
+        // ------------------------------------------------------
+        // CREATE SESSION
+        // ------------------------------------------------------
+
+        const loginSuccessful =
+          setCurrentUser(savedUser);
+
+
+        if (!loginSuccessful) {
+
+          if (alert) {
+            alert.style.display = 'block';
+            alert.className =
+              'auth-alert error';
+            alert.textContent =
+              'Your account was created, but we could not sign you in. Please sign in manually.';
+          }
+
+          return;
+        }
 
 
         // ------------------------------------------------------

@@ -15,45 +15,65 @@ const adminAuthMiddleware = require('../middleware/adminAuthMiddleware');
 
 const router = express.Router();
 
-// Register
-router.post('/register', registerUser);
 
-// Login
-router.post('/login', loginUser);
+// ============================================================
+// PUBLIC AUTH ROUTES
+// ============================================================
 
-// Get currently logged-in user
+router.post(
+  '/register',
+  registerUser
+);
+
+router.post(
+  '/login',
+  loginUser
+);
+
+
+// ============================================================
+// LOGGED-IN USER
+// ============================================================
+
 router.get(
   '/me',
   userAuthMiddleware,
   getCurrentUser
 );
 
-// Get all users - Admin only
+
+// ============================================================
+// ADMIN ROUTES
+// ============================================================
+
 router.get(
   '/',
   adminAuthMiddleware,
   getUsers
 );
 
-// Get a specific user - Admin only
 router.get(
   '/:id',
   adminAuthMiddleware,
   getUser
 );
 
-// Update user - Authenticated user
+
+// ============================================================
+// USER ACCOUNT ROUTES
+// ============================================================
+
 router.put(
   '/:id',
   userAuthMiddleware,
   editUser
 );
 
-// Delete user - Authenticated user
 router.delete(
   '/:id',
   userAuthMiddleware,
   removeUser
 );
+
 
 module.exports = router;
