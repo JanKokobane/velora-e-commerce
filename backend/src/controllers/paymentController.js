@@ -1,14 +1,6 @@
+
 const paymentService = require('../services/paymentService');
 
-
-/**
- * Start a payment for an order
- *
- * POST /api/payments
- *
- * Requires:
- * Authorization: Bearer <JWT>
- */
 const createPayment = async (req, res) => {
   try {
     const userId = req.user?.user_id;
@@ -54,19 +46,24 @@ const createPayment = async (req, res) => {
       });
     }
 
-    const payment = await paymentService.createPayment({
-      userId,
-      orderNumber,
-      paymentMethod
-    });
+    const payment =
+      await paymentService.createPayment({
+        userId,
+        orderNumber,
+        paymentMethod
+      });
 
     return res.status(201).json({
       success: true,
       message: 'Payment initiated successfully.',
       payment
     });
+
   } catch (error) {
-    console.error('Create payment error:', error);
+    console.error(
+      'Create payment error:',
+      error
+    );
 
     if (error.code === 'ORDER_NOT_FOUND') {
       return res.status(404).json({
@@ -109,7 +106,9 @@ const getOrderPayment = async (req, res) => {
       });
     }
 
-    const { orderNumber } = req.params;
+    const {
+      orderNumber
+    } = req.params;
 
     if (!orderNumber) {
       return res.status(400).json({
@@ -118,10 +117,11 @@ const getOrderPayment = async (req, res) => {
       });
     }
 
-    const payment = await paymentService.getPaymentByOrderNumber({
-      userId,
-      orderNumber
-    });
+    const payment =
+      await paymentService.getPaymentByOrderNumber({
+        userId,
+        orderNumber
+      });
 
     if (!payment) {
       return res.status(404).json({
@@ -134,12 +134,51 @@ const getOrderPayment = async (req, res) => {
       success: true,
       payment
     });
+
   } catch (error) {
-    console.error('Get order payment error:', error);
+    console.error(
+      'Get order payment error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
       message: 'Unable to retrieve payment information.'
+    });
+  }
+};
+
+
+/**
+ * Get all payments for the admin section
+ *
+ * GET /api/payments/admin
+ *
+ * Requires:
+ * Authorization: Bearer <ADMIN JWT>
+ */
+const getAllPayments = async (req, res) => {
+  try {
+
+    const payments =
+      await paymentService.getAllPayments();
+
+    return res.status(200).json({
+      success: true,
+      count: payments.length,
+      payments
+    });
+
+  } catch (error) {
+
+    console.error(
+      'Get all payments error:',
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve payments.'
     });
   }
 };
@@ -154,17 +193,24 @@ const getOrderPayment = async (req, res) => {
  */
 const paymentWebhook = async (req, res) => {
   try {
-    const result = await paymentService.handlePaymentWebhook(
-      req.body
-    );
+
+    const result =
+      await paymentService.handlePaymentWebhook(
+        req.body
+      );
 
     return res.status(200).json({
       success: true,
       message: 'Payment notification received.',
       result
     });
+
   } catch (error) {
-    console.error('Payment webhook error:', error);
+
+    console.error(
+      'Payment webhook error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -177,5 +223,6 @@ const paymentWebhook = async (req, res) => {
 module.exports = {
   createPayment,
   getOrderPayment,
+  getAllPayments,
   paymentWebhook
 };

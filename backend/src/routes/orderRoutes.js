@@ -2,17 +2,14 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const {
-  createOrder,
-  getMyOrders,
-  getMyOrder,
-  getAllOrders
-} = require('../controllers/orderController');
+  createPayment,
+  getOrderPayment,
+  getAllPayments,
+  paymentWebhook
+} = require('../controllers/paymentController');
 
 const router = express.Router();
 
-/**
- * Flexible auth middleware allowing both user and admin JWTs
- */
 const flexibleAuthMiddleware = (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
@@ -40,7 +37,11 @@ const flexibleAuthMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, secret);
 
     req.user = decoded;
-    if (decoded.role === 'admin' || decoded.admin_id) {
+
+    if (
+      decoded.role === 'admin' ||
+      decoded.admin_id
+    ) {
       req.admin = decoded;
     }
 
@@ -53,11 +54,28 @@ const flexibleAuthMiddleware = (req, res, next) => {
   }
 };
 
-router.use(flexibleAuthMiddleware);
-router.post('/', createOrder);
-router.get('/', getMyOrders);
-router.get('/all', getAllOrders);
-router.get('/:orderNumber', getMyOrder);
+router.post(
+  '/webhook',
+  paymentWebhook
+);
+
+router.use(
+  flexibleAuthMiddleware
+);
+
+router.post(
+  '/',
+  createPayment
+);
+
+router.get(
+  '/admin',
+  getAllPayments
+);
+
+router.get(
+  '/:orderNumber',
+  getOrderPayment
+);
 
 module.exports = router;
-

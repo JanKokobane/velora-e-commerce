@@ -1,4 +1,3 @@
-
 const db = require('../config/db');
 
 /**
@@ -236,6 +235,8 @@ const createPayment = async ({
 
 /**
  * Get payment information for an order.
+ *
+ * Customer endpoint.
  */
 const getPaymentByOrderNumber = async ({
   userId,
@@ -313,6 +314,107 @@ const getPaymentByOrderNumber = async ({
 
 
 /**
+ * Get all payments.
+ *
+ * Admin endpoint.
+ *
+ * Returns payment information together with
+ * customer and order information.
+ */
+const getAllPayments = async () => {
+
+  const result = await db.query(
+    `
+    SELECT
+      p.id,
+      p.order_id,
+      p.user_id,
+      p.amount,
+      p.payment_method,
+      p.payment_status,
+      p.transaction_reference,
+      p.gateway_reference,
+      p.created_at,
+      p.updated_at,
+
+      o.order_number,
+      o.status AS order_status,
+      o.payment_status AS order_payment_status,
+
+      u.full_name,
+      u.email,
+      u.phone
+
+    FROM payments p
+
+    INNER JOIN orders o
+      ON o.id = p.order_id
+
+    INNER JOIN users u
+      ON u.id = p.user_id
+
+    ORDER BY p.created_at DESC
+    `
+  );
+
+
+  return result.rows.map((payment) => {
+
+    return {
+      id: payment.id,
+
+      orderId: payment.order_id,
+
+      orderNumber:
+        payment.order_number,
+
+      userId:
+        payment.user_id,
+
+      customer: {
+        fullName:
+          payment.full_name,
+
+        email:
+          payment.email,
+
+        phone:
+          payment.phone
+      },
+
+      amount:
+        Number(payment.amount),
+
+      paymentMethod:
+        payment.payment_method,
+
+      paymentStatus:
+        payment.payment_status,
+
+      orderStatus:
+        payment.order_status,
+
+      orderPaymentStatus:
+        payment.order_payment_status,
+
+      transactionReference:
+        payment.transaction_reference,
+
+      gatewayReference:
+        payment.gateway_reference,
+
+      createdAt:
+        payment.created_at,
+
+      updatedAt:
+        payment.updated_at
+    };
+
+  });
+};
+
+
+/**
  * Payment gateway webhook.
  *
  * This will be completed once the actual gateway
@@ -330,7 +432,9 @@ const handlePaymentWebhook = async (
 
   return {
     received: true,
+
     processed: false,
+
     message:
       'Payment gateway webhook handler is awaiting gateway integration.'
   };
@@ -339,6 +443,11 @@ const handlePaymentWebhook = async (
 
 module.exports = {
   createPayment,
+
   getPaymentByOrderNumber,
+
+  getAllPayments,
+
   handlePaymentWebhook
 };
+
