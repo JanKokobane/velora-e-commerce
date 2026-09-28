@@ -594,7 +594,7 @@ const editUser = async (req, res) => {
 
     if (
       authenticatedRole !== "admin" &&
-      authenticatedUserId !== id
+      String(authenticatedUserId) !== String(id)
     ) {
       return res.status(403).json({
         success: false,
@@ -780,11 +780,17 @@ const editUser = async (req, res) => {
       ]
     );
 
+    const updatedRow = result.rows[0];
+    const userPayload = {
+      ...updatedRow,
+      street: req.body.street !== undefined ? String(req.body.street).trim() : (existingUser.street || "")
+    };
+
     return res.status(200).json({
       success: true,
       message:
         "User updated successfully.",
-      user: result.rows[0]
+      user: userPayload
     });
 
   } catch (error) {

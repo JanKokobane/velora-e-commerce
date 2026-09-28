@@ -1,13 +1,30 @@
 import { updateGlobalHeaderUser } from './auth.js';
 
+function resolveBackendBaseUrl() {
+  if (typeof window !== 'undefined' && window.VELORA_API_BASE_URL) {
+    return window.VELORA_API_BASE_URL;
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const port = String(window.location.port || '');
+    if (['5500', '5501', '5502', '8080', '8081'].includes(port) || window.location.protocol === 'file:') {
+      return 'https://velora-e-commerce-qby7.onrender.com';
+    }
+    if (port === '5000' || port === '3000' || (!port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
+      return window.location.origin;
+    }
+  }
+  return 'https://velora-e-commerce-qby7.onrender.com';
+}
+
+const API_BASE_URL = resolveBackendBaseUrl();
 const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
-// Default mock parcel if none exists in history
+// Default parcel benchmark for demonstration if no orders exist yet
 const DEFAULT_PARCEL = {
   id: 'VEL-84920',
   trackingNumber: 'TRK-ZA-8492019',
   date: '18 Sep 2026',
-  estimatedDelivery: 'Tomorrow, 19 Sep (14:00 – 17:00)',
+  estimatedDelivery: 'Tomorrow (14:00 – 17:00)',
   status: 'In Transit — Out for Express Delivery',
   currentStageIndex: 3,
   carrier: 'Velora Express Courier (www.velora.co.za)',
@@ -27,11 +44,11 @@ const DEFAULT_PARCEL = {
   processingPartner: 'Velora Logistics Infrastructure (www.velora.co.za)',
   items: [
     {
-      title: 'Cloud-step sneakers',
-      size: 'UK 7 (EU 40)',
+      title: 'Adizero Running Gel Pocket Crop Top',
+      size: 'M',
       quantity: 1,
-      price: 1290,
-      image: 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
+      price: 999,
+      image: 'https://assets.adidas.com/images/w_1880,f_auto,q_auto/963f264df7f749b8905416d3a2e43307_9366/KT4859_21_model.jpg'
     }
   ],
   milestones: [
@@ -40,7 +57,7 @@ const DEFAULT_PARCEL = {
       location: 'Velora Digital Gateway',
       time: '18 Sep 2026, 09:15',
       completed: true,
-      description: 'Transaction authorized via Ozow SSL gateway. Digital invoice generated.'
+      description: 'Transaction authorized via Velora SSL gateway. Digital invoice generated.'
     },
     {
       title: 'Velora Order Processing & Atelier Allocation',
@@ -59,21 +76,21 @@ const DEFAULT_PARCEL = {
     {
       title: 'Out for Express Delivery',
       location: 'City Bowl & Atlantic Seaboard Route',
-      time: '19 Sep 2026, 08:30',
+      time: 'Today, 08:30',
       completed: true,
       description: 'Parcel loaded into express courier van. Courier Sipho K. is currently on route.'
     },
     {
       title: 'Final Handover & Recipient Signature',
       location: '14 Kloof Street, Gardens, Cape Town',
-      time: 'Expected 19 Sep 2026, 14:00 – 17:00',
+      time: 'Expected Today, 14:00 – 17:00',
       completed: false,
-      description: 'Signature required upon handover. Mobile pin verification enabled.'
+      description: 'Signature required upon handover. Mobile PIN verification enabled.'
     }
   ]
 };
 
-// Retrieve all orders
+// Retrieve all local orders
 function getAllOrders() {
   const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
   if (!raw) return [DEFAULT_PARCEL];
@@ -85,33 +102,179 @@ function getAllOrders() {
   }
 }
 
+// Convert a backend order into a parcel tracking model
+function buildParcelFromOrder(o) {
+  const orderId = o.orderNumber || o.id || 'VEL-84920';
+  const customer = o.shipping || o.customer || {
+    fullName: o.fullName || 'Elena Vance',
+    email: o.email || 'elena@example.com',
+    phone: o.phone || '+27 82 000 0000',
+    street: o.street || '14 Kloof Street',
+    city: o.city || 'Cape Town'
+  };
+
+  const items = Array.isArray(o.items) && o.items.length > 0 ? o.items.map(item => ({
+    title: item.productName || item.title || item.name || 'Velora Item',
+    size: item.size || 'Standard',
+    quantity: Number(item.quantity) || 1,
+    price: Number(item.unitPrice || item.price) || 0,
+    image: item.image || item.image_url || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
+  })) : DEFAULT_PARCEL.items;
+
+  const dateStr = o.createdAt
+    ? new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : (o.date || 'Recent');
+
+  const fullAddr = customer.street
+    ? `${customer.street}, ${customer.city || 'Cape Town'}, ${customer.province || 'Western Cape'}`
+    : (customer.address || '14 Kloof Street, Gardens, Cape Town');
+
+  const isDelivered = o.status === 'delivered';
+
+  return {
+    id: orderId,
+    trackingNumber: o.trackingNumber || `TRK-ZA-${String(orderId).replace(/\D/g, '').slice(-7) || Math.floor(1000000 + Math.random() * 9000000)}`,
+    date: dateStr,
+    estimatedDelivery: o.estimatedDelivery || 'In 2-3 Business Days (14:00 – 17:00)',
+    status: isDelivered ? 'Delivered & Signed' : 'In Transit — Out for Express Delivery',
+    currentStageIndex: isDelivered ? 4 : 3,
+    carrier: 'Velora Express Courier (www.velora.co.za)',
+    driver: {
+      name: 'Sipho Khumalo',
+      vehicle: 'Toyota Hilux Van (CA 892 411)',
+      phone: '+27 82 555 0192',
+      rating: '4.9 ★'
+    },
+    customer: {
+      fullName: customer.fullName || 'Elena Vance',
+      email: customer.email || 'elena@example.com',
+      phone: customer.phone || '+27 82 000 0000',
+      address: fullAddr
+    },
+    paymentMethod: o.paymentMethod || 'Secure Card / EFT — Verified',
+    processingPartner: 'Velora Logistics Infrastructure (www.velora.co.za)',
+    items,
+    total: Number(o.total) || 0,
+    milestones: [
+      {
+        title: 'Order Verified & Payment Cleared',
+        location: 'Velora Digital Gateway',
+        time: `${dateStr}, 09:15`,
+        completed: true,
+        description: 'Transaction authorized via Velora SSL gateway. Digital invoice generated.'
+      },
+      {
+        title: 'Velora Order Processing & Atelier Allocation',
+        location: 'Woodstock Studio, Cape Town',
+        time: `${dateStr}, 11:30`,
+        completed: true,
+        description: 'Handcrafted goods inspected by master artisan. Packed in biodegradable raw cotton dust bag.'
+      },
+      {
+        title: 'Dispatched to Velora Logistics Hub',
+        location: 'Airport Industria Dispatch Hub, Western Cape',
+        time: `${dateStr}, 16:45`,
+        completed: true,
+        description: 'Waybill scanned and audited by Velora logistics system (www.velora.co.za).'
+      },
+      {
+        title: 'Out for Express Delivery',
+        location: `${customer.city || 'Cape Town'} Hub Route`,
+        time: 'Today, 08:30',
+        completed: true,
+        description: 'Parcel loaded into express courier van. Courier Sipho K. is currently on route.'
+      },
+      {
+        title: 'Final Handover & Recipient Signature',
+        location: fullAddr,
+        time: 'Expected 14:00 – 17:00',
+        completed: isDelivered,
+        description: 'Signature required upon handover. Mobile PIN verification enabled.'
+      }
+    ]
+  };
+}
+
 // Find order by ID or Tracking
-function findOrder(query) {
+function findLocalOrder(query) {
   if (!query) return null;
   const clean = query.trim().toUpperCase();
   const orders = getAllOrders();
 
   return orders.find(o => 
     (o.id && o.id.toUpperCase() === clean) ||
+    (o.orderNumber && o.orderNumber.toUpperCase() === clean) ||
     (o.trackingNumber && o.trackingNumber.toUpperCase() === clean) ||
     (o.id && o.id.replace(/\D/g, '') === clean.replace(/\D/g, ''))
   ) || null;
 }
 
+// Fetch order directly from backend
+async function fetchOrderFromBackend(orderId) {
+  const token = localStorage.getItem('velora_auth_token');
+  if (!token) return null;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/orders/${encodeURIComponent(orderId)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.order) {
+        return buildParcelFromOrder(data.order);
+      }
+    }
+  } catch (e) {
+    console.warn('Direct order fetch error:', e);
+  }
+
+  // Fallback: search within user's orders list
+  try {
+    const listRes = await fetch(`${API_BASE_URL}/api/orders`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (listRes.ok) {
+      const listData = await listRes.json();
+      if (listData.success && Array.isArray(listData.orders)) {
+        const clean = orderId.trim().toUpperCase();
+        const found = listData.orders.find(o =>
+          (o.orderNumber && o.orderNumber.toUpperCase() === clean) ||
+          (String(o.id) === clean) ||
+          (o.trackingNumber && o.trackingNumber.toUpperCase() === clean)
+        );
+        if (found) {
+          return buildParcelFromOrder(found);
+        }
+      }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
 // Initialize Order Processing Page
-export function initOrdersPage() {
+export async function initOrdersPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = urlParams.get('orderId') || urlParams.get('tracking');
 
   let activeOrder = null;
   if (requestedId) {
-    activeOrder = findOrder(requestedId);
+    const local = findLocalOrder(requestedId);
+    if (local) {
+      activeOrder = buildParcelFromOrder(local);
+    } else {
+      activeOrder = await fetchOrderFromBackend(requestedId);
+    }
   }
 
-  // If not found or not specified, use the first order from history or DEFAULT_PARCEL
+  // If not found or not specified, check most recent order
   if (!activeOrder) {
     const orders = getAllOrders();
-    activeOrder = orders[0] || DEFAULT_PARCEL;
+    activeOrder = orders[0] ? buildParcelFromOrder(orders[0]) : DEFAULT_PARCEL;
   }
 
   renderOrdersInterface(activeOrder);
@@ -122,14 +285,12 @@ export function initOrdersPage() {
 // Render the main tracking interface using safe DOM manipulation
 function renderOrdersInterface(order) {
   const customerName = order.customer?.fullName || 'Elena Vance';
-  const deliveryAddress = order.customer?.street 
-    ? `${order.customer.street}, ${order.customer.city || 'Cape Town'}`
-    : (order.customer?.address || '14 Kloof Street, Gardens, Cape Town');
+  const deliveryAddress = order.customer?.address || '14 Kloof Street, Gardens, Cape Town';
   const items = order.items || [];
   const milestones = order.milestones || DEFAULT_PARCEL.milestones;
-  const totalDisplay = typeof order.total === 'number' 
-    ? `R${order.total.toLocaleString('en-ZA')}` 
-    : (order.total || 'R1,290');
+  const totalDisplay = typeof order.total === 'number' && order.total > 0
+    ? `R ${order.total.toLocaleString('en-ZA')}` 
+    : 'R 999';
 
   // Search input and chips
   const searchInput = document.getElementById('orderSearchInput');
@@ -152,7 +313,7 @@ function renderOrdersInterface(order) {
   if (orderRefEl) orderRefEl.textContent = order.id || 'VEL-84920';
 
   const etaTimeEl = document.getElementById('etaTimeDisplay');
-  if (etaTimeEl) etaTimeEl.textContent = order.estimatedDelivery || 'Tomorrow, 19 Sep (14:00 – 17:00)';
+  if (etaTimeEl) etaTimeEl.textContent = order.estimatedDelivery || 'In 2-3 Business Days (14:00 – 17:00)';
 
   const routeDestCity = document.getElementById('routeCustomerCity');
   if (routeDestCity) routeDestCity.textContent = customerName;
@@ -198,41 +359,36 @@ function renderOrdersInterface(order) {
 
   // Courier Info
   const driverNameEl = document.getElementById('driverName');
-  const driverRatingEl = document.getElementById('driverRating');
-  const driverVehicleEl = document.getElementById('driverVehicle');
-  const driverAvatarEl = document.getElementById('driverAvatar');
-
   if (driverNameEl) driverNameEl.textContent = order.driver?.name || 'Sipho Khumalo';
-  if (driverRatingEl) {
-    driverRatingEl.textContent = `Velora Senior Courier • ${order.driver?.rating || '4.9 ★'} (1,420 deliveries)`;
-  }
-  if (driverVehicleEl) {
-    driverVehicleEl.textContent = `Vehicle: ${order.driver?.vehicle || 'Toyota Hilux Van (CA 892 411)'}`;
-  }
-  if (driverAvatarEl) {
-    const initials = (order.driver?.name || 'Sipho Khumalo')
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-    driverAvatarEl.textContent = initials || 'SK';
-  }
 
-  // Delivery Destination
-  const destCustomer = document.getElementById('destCustomerName');
-  const destAddress = document.getElementById('destDeliveryAddress');
+  const driverVehicleEl = document.getElementById('driverVehicle');
+  if (driverVehicleEl) driverVehicleEl.textContent = order.driver?.vehicle || 'Toyota Hilux Van (CA 892 411)';
 
-  if (destCustomer) destCustomer.textContent = customerName;
-  if (destAddress) destAddress.textContent = deliveryAddress;
+  const driverPhoneEl = document.getElementById('driverPhone');
+  if (driverPhoneEl) driverPhoneEl.textContent = order.driver?.phone || '+27 82 555 0192';
 
-  // Items Manifest
-  const manifestHeading = document.getElementById('manifestCardHeading');
-  if (manifestHeading) {
-    manifestHeading.textContent = `Parcel Contents (${items.length} ${items.length === 1 ? 'item' : 'items'})`;
-  }
+  const driverRatingEl = document.getElementById('driverRating');
+  if (driverRatingEl) driverRatingEl.textContent = order.driver?.rating || '4.9 ★';
 
-  const manifestContainer = document.getElementById('manifestItemsListContainer');
+  // Delivery Address Card
+  const shipCustomerEl = document.getElementById('shipCustomerName');
+  if (shipCustomerEl) shipCustomerEl.textContent = customerName;
+
+  const shipStreetEl = document.getElementById('shipStreetAddress');
+  if (shipStreetEl) shipStreetEl.textContent = deliveryAddress;
+
+  const shipPhoneEl = document.getElementById('shipPhoneContact');
+  if (shipPhoneEl) shipPhoneEl.textContent = order.customer?.phone || '+27 82 492 8102';
+
+  const shipEmailEl = document.getElementById('shipEmailContact');
+  if (shipEmailEl) shipEmailEl.textContent = order.customer?.email || 'customer@example.com';
+
+  // Payment Breakdown
+  const paymentMethodBadge = document.getElementById('orderPaymentMethodBadge');
+  if (paymentMethodBadge) paymentMethodBadge.textContent = order.paymentMethod || 'Instant EFT (Capitec Bank) — Verified';
+
+  // Manifest items using <template id="manifestItemTemplate">
+  const manifestContainer = document.getElementById('manifestItemsContainer');
   const manifestTemplate = document.getElementById('manifestItemTemplate');
 
   if (manifestContainer && manifestTemplate) {
@@ -243,17 +399,17 @@ function renderOrdersInterface(order) {
       const thumb = clone.querySelector('.manifest-thumb');
       const title = clone.querySelector('.manifest-title');
       const meta = clone.querySelector('.manifest-meta');
-      const price = clone.querySelector('.manifest-item-price');
+      const price = clone.querySelector('.manifest-price');
 
       if (thumb) {
-        thumb.src = item.image || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg';
-        thumb.alt = item.title || 'Product item';
+        thumb.src = item.image;
+        thumb.alt = item.title;
       }
-      if (title) title.textContent = item.title || 'Velora item';
-      if (meta) meta.textContent = `Size: ${item.size || 'Standard'} × ${item.quantity || 1}`;
+      if (title) title.textContent = item.title;
+      if (meta) meta.textContent = `Size: ${item.size} • Qty: ${item.quantity}`;
       if (price) {
-        const itemLineTotal = (item.price || 0) * (item.quantity || 1);
-        price.textContent = `R${itemLineTotal.toLocaleString('en-ZA')}`;
+        const itemP = typeof item.price === 'number' ? item.price : 999;
+        price.textContent = `R ${(itemP * item.quantity).toLocaleString('en-ZA')}`;
       }
 
       manifestContainer.appendChild(clone);
@@ -273,37 +429,59 @@ function bindEvents() {
 
   const form = document.getElementById('orderSearchForm');
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('orderSearchInput');
       const val = input ? input.value.trim() : '';
       if (!val) return;
 
-      const found = findOrder(val);
-      if (found) {
-        renderOrdersInterface(found);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        // Create custom tracking preview for the entered code
-        const customOrder = {
-          ...DEFAULT_PARCEL,
-          id: val.toUpperCase().startsWith('VEL-') ? val.toUpperCase() : `VEL-${val}`,
-          trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`
-        };
-        renderOrdersInterface(customOrder);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      const submitBtn = document.getElementById('trackParcelSubmitBtn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Searching...';
       }
+
+      let found = findLocalOrder(val);
+      if (found) {
+        renderOrdersInterface(buildParcelFromOrder(found));
+      } else {
+        const remote = await fetchOrderFromBackend(val);
+        if (remote) {
+          renderOrdersInterface(remote);
+        } else {
+          // Custom generated tracking for the entered identifier
+          const customOrder = buildParcelFromOrder({
+            id: val.toUpperCase().startsWith('VEL-') ? val.toUpperCase() : `VEL-${val}`,
+            trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`,
+            total: 999,
+            status: 'In Transit — Live Tracking Enabled'
+          });
+          renderOrdersInterface(customOrder);
+        }
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Track Parcel ↗';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 
   // Quick Chips
   const chips = document.querySelectorAll('.quick-chip');
   chips.forEach(chip => {
-    chip.addEventListener('click', () => {
+    chip.addEventListener('click', async () => {
       const code = chip.dataset.code;
-      const found = findOrder(code);
+      const found = findLocalOrder(code);
       if (found) {
-        renderOrdersInterface(found);
+        renderOrdersInterface(buildParcelFromOrder(found));
+      } else {
+        const remote = await fetchOrderFromBackend(code);
+        if (remote) {
+          renderOrdersInterface(remote);
+        }
       }
     });
   });
