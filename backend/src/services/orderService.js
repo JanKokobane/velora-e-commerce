@@ -1,9 +1,6 @@
 const db = require('../config/db');
 const { randomUUID } = require('crypto');
 
-/**
- * Generate a unique order number
- */
 const generateOrderNumber = () => {
   const date = new Date()
     .toISOString()
@@ -18,10 +15,6 @@ const generateOrderNumber = () => {
   return `VEL-${date}-${randomPart}`;
 };
 
-
-/**
- * Calculate delivery fee on the backend.
- */
 const calculateDeliveryFee = (deliveryMethod) => {
   if (deliveryMethod === 'express') {
     return 99.00;
@@ -34,10 +27,6 @@ const calculateDeliveryFee = (deliveryMethod) => {
   return 0.00;
 };
 
-
-/**
- * Create a new pending order.
- */
 const createOrder = async ({
   userId,
   items,
@@ -49,9 +38,6 @@ const createOrder = async ({
   try {
     await client.query('BEGIN');
 
-    /*
-     * Verify authenticated user.
-     */
     const userResult = await client.query(
       `
       SELECT
@@ -71,10 +57,6 @@ const createOrder = async ({
       throw error;
     }
 
-
-    /*
-     * Validate order items.
-     */
     const productIds = items.map(
       (item) => item.productId
     );
@@ -89,10 +71,6 @@ const createOrder = async ({
       throw error;
     }
 
-
-    /*
-     * Get the real products and prices from PostgreSQL.
-     */
     const productsResult = await client.query(
       `
       SELECT
@@ -106,13 +84,8 @@ const createOrder = async ({
       [productIds]
     );
 
-
     const products = productsResult.rows;
 
-
-    /*
-     * Make sure every product exists.
-     */
     if (products.length !== productIds.length) {
       const error = new Error(
         'One or more products could not be found.'
@@ -123,10 +96,6 @@ const createOrder = async ({
       throw error;
     }
 
-
-    /*
-     * Calculate subtotal using database prices.
-     */
     let subtotal = 0;
 
     const orderItems = items.map((item) => {
@@ -146,7 +115,6 @@ const createOrder = async ({
         throw error;
       }
 
-
       const quantity = Number(item.quantity);
 
       if (!Number.isInteger(quantity) || quantity <= 0) {
@@ -159,11 +127,9 @@ const createOrder = async ({
         throw error;
       }
 
-
       const unitPrice = Number(product.price);
 
       subtotal += unitPrice * quantity;
-
 
       return {
         productId: product.id,
@@ -175,35 +141,16 @@ const createOrder = async ({
       };
     });
 
-
-    /*
-     * Discount is currently zero.
-     *
-     * This can later be replaced with your
-     * coupon/promotion system.
-     */
     const discount = 0.00;
 
-
-    /*
-     * Calculate delivery fee.
-     */
     const deliveryFee =
       calculateDeliveryFee(deliveryMethod);
 
-
-    /*
-     * Calculate final total.
-     */
     const total =
       subtotal -
       discount +
       deliveryFee;
 
-
-    /*
-     * Generate unique order number.
-     */
     let orderNumber;
     let orderCreated = false;
 
@@ -226,7 +173,6 @@ const createOrder = async ({
       }
     }
 
-
     if (!orderCreated) {
       const error = new Error(
         'Unable to generate a unique order number.'
@@ -238,13 +184,6 @@ const createOrder = async ({
       throw error;
     }
 
-
-    /*
-     * Create order.
-     *
-     * Payment status stays pending until
-     * the payment gateway confirms payment.
-     */
     const orderResult = await client.query(
       `
       INSERT INTO orders (
@@ -308,13 +247,8 @@ const createOrder = async ({
       ]
     );
 
-
     const order = orderResult.rows[0];
 
-
-    /*
-     * Insert order items.
-     */
     for (const item of orderItems) {
       await client.query(
         `
@@ -349,26 +283,18 @@ const createOrder = async ({
       );
     }
 
-
-    /*
-     * Commit transaction.
-     */
     await client.query('COMMIT');
-
 
     return {
       id: order.id,
       orderNumber: order.order_number,
       userId: order.user_id,
-
       status: order.status,
       paymentStatus: order.payment_status,
-
       subtotal: Number(order.subtotal),
       discount: Number(order.discount),
       deliveryFee: Number(order.delivery_fee),
       total: Number(order.total),
-
       shipping: {
         fullName: order.full_name,
         email: order.email,
@@ -379,14 +305,10 @@ const createOrder = async ({
         postalCode: order.postal_code,
         province: order.province
       },
-
       deliveryMethod: order.delivery_method,
-
       trackingNumber: order.tracking_number,
-
       createdAt: order.created_at,
       updatedAt: order.updated_at,
-
       items: orderItems
     };
 
@@ -405,10 +327,6 @@ const createOrder = async ({
   }
 };
 
-
-/**
- * Get all orders belonging to the authenticated user.
- */
 const getOrdersByUserId = async (userId) => {
   const ordersResult = await db.query(
     `
@@ -440,9 +358,7 @@ const getOrdersByUserId = async (userId) => {
     [userId]
   );
 
-
   const orders = [];
-
 
   for (const order of ordersResult.rows) {
     const itemsResult = await db.query(
@@ -463,19 +379,15 @@ const getOrdersByUserId = async (userId) => {
       [order.id]
     );
 
-
     orders.push({
       id: order.id,
       orderNumber: order.order_number,
-
       status: order.status,
       paymentStatus: order.payment_status,
-
       subtotal: Number(order.subtotal),
       discount: Number(order.discount),
       deliveryFee: Number(order.delivery_fee),
       total: Number(order.total),
-
       shipping: {
         fullName: order.full_name,
         email: order.email,
@@ -486,14 +398,10 @@ const getOrdersByUserId = async (userId) => {
         postalCode: order.postal_code,
         province: order.province
       },
-
       deliveryMethod: order.delivery_method,
-
       trackingNumber: order.tracking_number,
-
       createdAt: order.created_at,
       updatedAt: order.updated_at,
-
       items: itemsResult.rows.map((item) => ({
         id: item.id,
         productId: item.product_id,
@@ -507,14 +415,9 @@ const getOrdersByUserId = async (userId) => {
     });
   }
 
-
   return orders;
 };
 
-
-/**
- * Get one order belonging to the authenticated user.
- */
 const getOrderByNumberForUser = async (
   orderNumber,
   userId
@@ -554,14 +457,11 @@ const getOrderByNumberForUser = async (
     ]
   );
 
-
   if (orderResult.rows.length === 0) {
     return null;
   }
 
-
   const order = orderResult.rows[0];
-
 
   const itemsResult = await db.query(
     `
@@ -581,20 +481,16 @@ const getOrderByNumberForUser = async (
     [order.id]
   );
 
-
   return {
     id: order.id,
     orderNumber: order.order_number,
     userId: order.user_id,
-
     status: order.status,
     paymentStatus: order.payment_status,
-
     subtotal: Number(order.subtotal),
     discount: Number(order.discount),
     deliveryFee: Number(order.delivery_fee),
     total: Number(order.total),
-
     shipping: {
       fullName: order.full_name,
       email: order.email,
@@ -605,14 +501,10 @@ const getOrderByNumberForUser = async (
       postalCode: order.postal_code,
       province: order.province
     },
-
     deliveryMethod: order.delivery_method,
-
     trackingNumber: order.tracking_number,
-
     createdAt: order.created_at,
     updatedAt: order.updated_at,
-
     items: itemsResult.rows.map((item) => ({
       id: item.id,
       productId: item.product_id,
@@ -626,12 +518,9 @@ const getOrderByNumberForUser = async (
   };
 };
 
-
 module.exports = {
   createOrder,
   getOrdersByUserId,
   getOrderByNumberForUser
 };
-
-const db = require('../config/db');
 
