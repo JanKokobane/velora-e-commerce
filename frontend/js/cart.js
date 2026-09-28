@@ -1,3 +1,5 @@
+import { initMobileNav } from './navigation.js';
+
 export const CART_STORAGE_KEY = 'velora_cart';
 export const LEGACY_STORAGE_KEY = 'cart';
 
@@ -830,5 +832,6 @@ document.addEventListener(
     updateCartBadge();
     initCartPage();
     initCheckoutPage();
+    initMobileNav();
   }
 );

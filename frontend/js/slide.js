@@ -26,23 +26,10 @@ const slides = [
   },
 ]
 
+import { initMobileNav } from './navigation.js';
+
 // ---------- Mobile hamburger menu ----------
-const menuButton = document.querySelector('.menu-button')
-const header = document.querySelector('.site-header')
-
-menuButton.addEventListener('click', () => {
-  const isOpen = header.classList.toggle('menu-open')
-  menuButton.setAttribute('aria-expanded', String(isOpen))
-  menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu')
-})
-
-document.querySelectorAll('.mobile-nav a').forEach((link) => {
-  link.addEventListener('click', () => {
-    header.classList.remove('menu-open')
-    menuButton.setAttribute('aria-expanded', 'false')
-    menuButton.setAttribute('aria-label', 'Open menu')
-  })
-})
+initMobileNav();
 
 // ---------- Hero slideshow ----------
 let currentSlide = 0

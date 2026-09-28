@@ -1,4 +1,5 @@
 import { addToCart, updateCartBadge, getCart } from './cart.js';
+import { initMobileNav } from './navigation.js';
 
 const API_URL = 'https://velora-e-commerce-qby7.onrender.com';
 
@@ -718,34 +719,7 @@ async function loadRelatedProducts(product) {
 }
 
 function initMobileMenu() {
-  const menuButton =
-    document.querySelector(
-      '.menu-button'
-    );
-
-  const siteHeader =
-    document.querySelector(
-      '.site-header'
-    );
-
-  if (!menuButton || !siteHeader) {
-    return;
-  }
-
-  menuButton.addEventListener(
-    'click',
-    () => {
-      const isOpen =
-        siteHeader.classList.toggle(
-          'menu-open'
-        );
-
-      menuButton.setAttribute(
-        'aria-expanded',
-        String(isOpen)
-      );
-    }
-  );
+  initMobileNav();
 }
 
 function initNewsletter() {

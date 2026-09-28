@@ -424,7 +424,7 @@
       viewBtn.style.flex = 'initial';
       viewBtn.style.padding = '5px 10px';
       viewBtn.style.fontSize = '11.5px';
-      viewBtn.textContent = 'Orders ↗';
+      viewBtn.textContent = 'Orders';
       viewBtn.addEventListener('click', () => {
         window.viewCustomerOrders(cust.name);
       });

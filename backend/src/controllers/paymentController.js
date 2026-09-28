@@ -1,5 +1,6 @@
 
 const paymentService = require('../services/paymentService');
+const { createNotification } = require('../services/notificationService');
 
 const createPayment = async (req, res) => {
   try {
@@ -52,6 +53,22 @@ const createPayment = async (req, res) => {
         orderNumber,
         paymentMethod
       });
+
+    try {
+      const amount = Number(payment?.amount || payment?.total || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+      await createNotification({
+        type: 'payment_received',
+        category: 'payments',
+        title: 'Payment Received',
+        message: `Payment of R ${amount} processed via ${String(paymentMethod).toUpperCase()} for Order #${orderNumber}.`,
+        entityType: 'payment',
+        entityId: payment?.id || null,
+        actionUrl: '/admin#payments',
+        isActionable: true
+      });
+    } catch (notifErr) {
+      console.warn('Payment notification warning:', notifErr.message);
+    }
 
     return res.status(201).json({
       success: true,
@@ -198,6 +215,21 @@ const paymentWebhook = async (req, res) => {
       await paymentService.handlePaymentWebhook(
         req.body
       );
+
+    try {
+      await createNotification({
+        type: 'payment_settled',
+        category: 'payments',
+        title: 'Payment Confirmed',
+        message: `Payment gateway settlement confirmed for Order #${req.body?.orderNumber || req.body?.reference || 'recent'}.`,
+        entityType: 'payment',
+        entityId: result?.id || null,
+        actionUrl: '/admin#payments',
+        isActionable: false
+      });
+    } catch (notifErr) {
+      console.warn('Payment webhook notification warning:', notifErr.message);
+    }
 
     return res.status(200).json({
       success: true,

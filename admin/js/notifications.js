@@ -4,23 +4,30 @@ const NOTIFICATIONS_API =
   'https://velora-e-commerce-qby7.onrender.com/api/notifications';
 
 const getNotificationToken = () => {
-  return localStorage.getItem('token');
+  return (
+    localStorage.getItem('velora_admin_token') ||
+    sessionStorage.getItem('velora_admin_token') ||
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('token') ||
+    ''
+  );
 };
 
 const notificationRequest = async (url, options = {}) => {
   const token = getNotificationToken();
 
-  if (!token) {
-    throw new Error('Authentication token not found.');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...(options.headers || {})
-    }
+    headers
   });
 
   let data = null;
@@ -53,6 +60,7 @@ const getNotificationType = (notification) => {
 
   if (
     notification.type === 'order' ||
+    notification.type === 'order_created' ||
     notification.category === 'orders'
   ) {
     return 'order';
@@ -61,10 +69,22 @@ const getNotificationType = (notification) => {
   if (
     notification.type === 'refund' ||
     notification.type === 'payment' ||
+    notification.type === 'payment_received' ||
+    notification.type === 'payment_settled' ||
     notification.category === 'payment' ||
+    notification.category === 'payments' ||
     notification.category === 'finance'
   ) {
     return 'refund';
+  }
+
+  if (
+    notification.type === 'user_registered' ||
+    notification.type === 'customer' ||
+    notification.category === 'customers' ||
+    notification.category === 'users'
+  ) {
+    return 'customer';
   }
 
   return 'system';
@@ -85,9 +105,18 @@ const getNotificationIcon = (notification) => {
 
   if (
     notification.type === 'order' ||
+    notification.type === 'order_created' ||
     notification.category === 'orders'
   ) {
     return '🛒';
+  }
+
+  if (
+    notification.type === 'payment_received' ||
+    notification.type === 'payment_settled' ||
+    notification.category === 'payments'
+  ) {
+    return '💳';
   }
 
   if (
@@ -95,6 +124,14 @@ const getNotificationIcon = (notification) => {
     notification.type === 'payment'
   ) {
     return '↶';
+  }
+
+  if (
+    notification.type === 'user_registered' ||
+    notification.category === 'customers' ||
+    notification.category === 'users'
+  ) {
+    return '👤';
   }
 
   if (notification.category === 'inventory') {
@@ -174,7 +211,16 @@ const normalizeNotification = (notification) => {
       notification.action_url ||
       notification.actionUrl ||
       null,
-    actionTab: null,
+    actionTab:
+      type === 'order'
+        ? 'orders'
+        : type === 'customer'
+          ? 'customers'
+          : type === 'refund'
+            ? 'payments'
+            : type === 'stock'
+              ? 'inventory'
+              : null,
     entityType:
       notification.entity_type ||
       notification.entityType ||
@@ -379,6 +425,19 @@ window.renderNotificationsView = function() {
       ).length.toString();
   }
 
+  const countCustomersEl =
+    document.getElementById(
+      'pillCountCustomers'
+    );
+
+  if (countCustomersEl) {
+    countCustomersEl.textContent =
+      notifications.filter(
+        notification =>
+          notification.type === 'customer'
+      ).length.toString();
+  }
+
   const feedList =
     document.getElementById(
       'notificationsFeedList'
@@ -421,6 +480,14 @@ window.renderNotificationsView = function() {
     items = items.filter(
       notification =>
         notification.type === 'refund'
+    );
+  } else if (
+    window.currentNotifCategory ===
+    'customer'
+  ) {
+    items = items.filter(
+      notification =>
+        notification.type === 'customer'
     );
   }
 
@@ -608,6 +675,12 @@ window.renderNotificationsView = function() {
       ) {
         badge.textContent =
           'Finance';
+      } else if (
+        notification.type ===
+        'customer'
+      ) {
+        badge.textContent =
+          'Customer';
       } else {
         badge.textContent =
           'System';

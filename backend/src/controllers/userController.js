@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const pool = require("../config/db");
 const bcrypt = require("bcrypt");
+const { createNotification } = require("../services/notificationService");
 
 
 // ============================================================
@@ -206,6 +207,21 @@ const registerUser = async (req, res) => {
     );
 
     const user = result.rows[0];
+
+    try {
+      await createNotification({
+        type: "user_registered",
+        category: "customers",
+        title: "New Customer Registration",
+        message: `${user?.full_name || normalizedName} (${user?.email || normalizedEmail}) registered an account.`,
+        entityType: "user",
+        entityId: user?.id || null,
+        actionUrl: "/admin#customers",
+        isActionable: true,
+      });
+    } catch (notifErr) {
+      console.warn("User registration notification warning:", notifErr.message);
+    }
 
     return res.status(201).json({
       success: true,

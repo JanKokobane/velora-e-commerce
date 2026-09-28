@@ -1267,8 +1267,9 @@ footer { background: var(--cream); }
   }
   .announcement a { white-space: nowrap; }
 
-  .site-header { min-height: 68px; padding-inline: 16px; }
+  .site-header { min-height: 68px; padding-inline: 16px; position: sticky; top: 0; z-index: 100; }
   .desktop-nav { display: none; }
+  .account-btn-label { display: none; }
 
   .menu-button {
     display: flex;
@@ -1279,14 +1280,19 @@ footer { background: var(--cream); }
     height: 30px;
     padding: 0;
     background: transparent;
+    cursor: pointer;
   }
   .menu-button i { display: block; width: 22px; height: 1px; background: var(--ink); transition: transform .25s; }
-  .menu-open .menu-button i:first-child { transform: translateY(3.5px) rotate(45deg); }
-  .menu-open .menu-button i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+  .menu-open .menu-button i:first-child,
+  .site-header.menu-open .menu-button i:first-child,
+  body.menu-open .menu-button i:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .menu-open .menu-button i:last-child,
+  .site-header.menu-open .menu-button i:last-child,
+  body.menu-open .menu-button i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
 
   .mobile-nav {
     position: absolute;
-    top: 68px;
+    top: 100%;
     left: 0;
     right: 0;
     display: flex;
@@ -1295,10 +1301,13 @@ footer { background: var(--cream); }
     overflow: hidden;
     background: var(--cream);
     border-bottom: 0 solid var(--line);
-    transition: max-height .35s, border-bottom-width .35s;
-    z-index: 45;
+    transition: max-height .35s ease, border-bottom-width .35s ease;
+    z-index: 1000;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
   }
-  .menu-open .mobile-nav { max-height: 280px; border-bottom-width: 1px; }
+  .menu-open .mobile-nav,
+  .site-header.menu-open .mobile-nav,
+  body.menu-open .mobile-nav { max-height: 380px; border-bottom-width: 1px; }
   .mobile-nav a {
     padding: 17px 20px;
     border-bottom: 1px solid var(--line);

@@ -1,4 +1,5 @@
 const orderService = require('../services/orderService');
+const { createNotification } = require('../services/notificationService');
 
 /**
  * Create a new pending order
@@ -64,6 +65,22 @@ const createOrder = async (req, res) => {
       shipping,
       deliveryMethod
     });
+
+    try {
+      const orderTotal = Number(order?.total || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+      await createNotification({
+        type: 'order_created',
+        category: 'orders',
+        title: 'New Order Placed',
+        message: `Order #${order?.order_number || order?.id} placed by ${shipping.fullName} for R ${orderTotal}.`,
+        entityType: 'order',
+        entityId: order?.id || null,
+        actionUrl: '/admin#orders',
+        isActionable: true
+      });
+    } catch (notifErr) {
+      console.warn('Order notification warning:', notifErr.message);
+    }
 
     return res.status(201).json({
       success: true,

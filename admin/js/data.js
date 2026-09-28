@@ -41,8 +41,6 @@ const INITIAL_PAYMENTS = [
   { ref: 'PAY-ZA-8898', orderId: '#390557', customer: 'Lara Croft-Mthembu', gateway: 'Ozow Instant EFT', grossAmount: 450.00, fee: 6.75, netAmount: 443.25, timestamp: '10 Apr, 18:02', status: 'Refunded', bank: 'ABSA Bank' }
 ];
 
-
-// Helper to load or initialize from localStorage
 function loadStorage(key, defaultVal) {
   try {
     const raw = localStorage.getItem(key);

@@ -442,10 +442,7 @@ export async function loginUser(
     );
   }
 
-  console.log(
-    'Velora login request:',
-    `${API_BASE_URL}/api/users/login`
-  );
+
 
   const data =
     await apiRequest(
@@ -568,10 +565,7 @@ export async function registerUser({
     );
   }
 
-  console.log(
-    'Velora registration request:',
-    `${API_BASE_URL}/api/users/register`
-  );
+ 
 
   const data =
     await apiRequest(

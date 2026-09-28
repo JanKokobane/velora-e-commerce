@@ -1,4 +1,5 @@
 import { addToCart, updateCartBadge, parseCurrency } from './cart.js';
+import { initMobileNav } from './navigation.js';
 
 const API_URL = 'https://velora-e-commerce-qby7.onrender.com';
 
@@ -6,6 +7,7 @@ let shopProducts = [];
 let currentFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', () => {
+  initMobileNav();
   updateCartBadge();
   initShopCartButtons();
   initShopFilters();
