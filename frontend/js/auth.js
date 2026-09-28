@@ -1,55 +1,73 @@
-const USERS_STORAGE_KEY = 'velora_users_db';
+// ============================================================
+// VELORA AUTHENTICATION
+// ============================================================
+// Backend/PostgreSQL is the ONLY source of truth.
+//
+// Backend:
+// https://velora-e-commerce-qby7.onrender.com
+//
+// Routes:
+// POST /api/users/register
+// POST /api/users/login
+// GET  /api/users/me
+// ============================================================
+
+const API_BASE_URL =
+  window.VELORA_API_BASE_URL ||
+  'https://velora-e-commerce-qby7.onrender.com';
+
+const AUTH_TOKEN_KEY = 'velora_auth_token';
 const CURRENT_USER_KEY = 'velora_current_user';
 const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
 
 // ============================================================
-// GET ALL REGISTERED USERS
+// API REQUEST HELPER
 // ============================================================
 
-export function getUsers() {
-  const data = localStorage.getItem(USERS_STORAGE_KEY);
+async function apiRequest(endpoint, options = {}) {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
-  if (!data) {
-    return [];
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
+
+  const response = await fetch(
+    `${API_BASE_URL}${endpoint}`,
+    {
+      ...options,
+      headers
+    }
+  );
+
+  let data = null;
 
   try {
-    const users = JSON.parse(data);
-
-    if (!Array.isArray(users)) {
-      return [];
-    }
-
-    return users.filter((user) => {
-      return (
-        user &&
-        typeof user === 'object' &&
-        user.id &&
-        user.email &&
-        user.password
-      );
-    });
+    data = await response.json();
   } catch (error) {
-    console.error('Unable to read Velora users:', error);
-    return [];
-  }
-}
-
-
-// ============================================================
-// SAVE USERS
-// ============================================================
-
-export function saveUsers(users) {
-  if (!Array.isArray(users)) {
-    return;
+    data = null;
   }
 
-  localStorage.setItem(
-    USERS_STORAGE_KEY,
-    JSON.stringify(users)
-  );
+  if (!response.ok) {
+    const message =
+      data?.message ||
+      data?.error ||
+      `Request failed with status ${response.status}.`;
+
+    const requestError = new Error(message);
+
+    requestError.status = response.status;
+    requestError.data = data;
+
+    throw requestError;
+  }
+
+  return data;
 }
 
 
@@ -67,63 +85,126 @@ function isValidEmail(email) {
 
 
 // ============================================================
-// GET CURRENT LOGGED-IN USER
+// NORMALIZE USER FROM BACKEND
+// ============================================================
+
+function normalizeUser(user) {
+  if (!user || typeof user !== 'object') {
+    return null;
+  }
+
+  if (!user.id || !user.email) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+
+    fullName:
+      user.fullName ??
+      user.full_name ??
+      '',
+
+    email:
+      user.email ??
+      '',
+
+    phone:
+      user.phone ??
+      '',
+
+    city:
+      user.city ??
+      '',
+
+    province:
+      user.province ??
+      '',
+
+    street:
+      user.street ??
+      '',
+
+    memberTier:
+      user.memberTier ??
+      user.member_tier ??
+      'Velora Client',
+
+    joinedDate:
+      user.joinedDate ??
+      user.joined_date ??
+      user.createdAt ??
+      user.created_at ??
+      ''
+  };
+}
+
+
+// ============================================================
+// GET AUTH TOKEN
+// ============================================================
+
+export function getAuthToken() {
+  return localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+
+// ============================================================
+// SAVE AUTH TOKEN
+// ============================================================
+
+function setAuthToken(token) {
+  if (!token) {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    return false;
+  }
+
+  localStorage.setItem(
+    AUTH_TOKEN_KEY,
+    token
+  );
+
+  return true;
+}
+
+
+// ============================================================
+// GET CURRENT USER
+// ============================================================
+//
+// This reads the current frontend session.
+//
+// IMPORTANT:
+// The authoritative version is fetchCurrentUser(),
+// which asks the backend /api/users/me.
 // ============================================================
 
 export function getCurrentUser() {
-  const data = localStorage.getItem(CURRENT_USER_KEY);
+  const data =
+    localStorage.getItem(
+      CURRENT_USER_KEY
+    );
 
   if (!data) {
     return null;
   }
 
   try {
-    const sessionUser = JSON.parse(data);
+    const user = JSON.parse(data);
 
-    /*
-     * A valid session must contain a real user ID
-     * and email.
-     */
     if (
-      !sessionUser ||
-      !sessionUser.id ||
-      !sessionUser.email
+      !user ||
+      !user.id ||
+      !user.email
     ) {
-      localStorage.removeItem(CURRENT_USER_KEY);
+      localStorage.removeItem(
+        CURRENT_USER_KEY
+      );
+
       return null;
     }
 
-    /*
-     * IMPORTANT:
-     *
-     * Also verify that the logged-in user still exists
-     * in the registered users database.
-     *
-     * This prevents an old/stale session from being
-     * treated as a valid login after the user is removed.
-     */
-    const registeredUser = findUserById(
-      sessionUser.id
-    );
-
-    if (!registeredUser) {
-      localStorage.removeItem(CURRENT_USER_KEY);
-      return null;
-    }
-
-    /*
-     * Make sure the email in the session matches
-     * the registered account.
-     */
-    if (
-      registeredUser.email.trim().toLowerCase() !==
-      sessionUser.email.trim().toLowerCase()
-    ) {
-      localStorage.removeItem(CURRENT_USER_KEY);
-      return null;
-    }
-
-    return sessionUser;
+    return user;
 
   } catch (error) {
     console.error(
@@ -131,7 +212,9 @@ export function getCurrentUser() {
       error
     );
 
-    localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(
+      CURRENT_USER_KEY
+    );
 
     return null;
   }
@@ -139,74 +222,154 @@ export function getCurrentUser() {
 
 
 // ============================================================
-// SET CURRENT LOGGED-IN USER
+// SAVE CURRENT USER
+// ============================================================
+//
+// NEVER save passwords.
+// NEVER save password_hash.
 // ============================================================
 
-export function setCurrentUser(user) {
-  if (!user || !user.id || !user.email) {
-    localStorage.removeItem(CURRENT_USER_KEY);
+function saveCurrentUser(user) {
+  const normalizedUser =
+    normalizeUser(user);
 
-    updateGlobalHeaderUser();
-
-    return false;
-  }
-
-  /*
-   * Only allow a user to become logged in if that
-   * user actually exists in the registered users list.
-   */
-  const registeredUser = findUserById(user.id);
-
-  if (!registeredUser) {
-    console.error(
-      'Login blocked: user is not registered.'
+  if (!normalizedUser) {
+    localStorage.removeItem(
+      CURRENT_USER_KEY
     );
 
-    localStorage.removeItem(CURRENT_USER_KEY);
-
-    updateGlobalHeaderUser();
-
     return false;
   }
-
-  /*
-   * Store only session information.
-   *
-   * NEVER store the password inside the current
-   * logged-in session.
-   */
-  const sessionUser = {
-    id: registeredUser.id,
-    fullName: registeredUser.fullName,
-    email: registeredUser.email,
-    phone: registeredUser.phone,
-    city: registeredUser.city,
-    province: registeredUser.province,
-    street: registeredUser.street || '',
-    memberTier:
-      registeredUser.memberTier ||
-      'Velora Client',
-    joinedDate:
-      registeredUser.joinedDate || ''
-  };
 
   localStorage.setItem(
     CURRENT_USER_KEY,
-    JSON.stringify(sessionUser)
+    JSON.stringify(normalizedUser)
   );
-
-  updateGlobalHeaderUser();
 
   return true;
 }
 
 
 // ============================================================
+// SET CURRENT USER
+// ============================================================
+//
+// This function only stores a user returned by the backend.
+// It does NOT create users.
+// It does NOT validate passwords.
+// ============================================================
+
+export function setCurrentUser(user) {
+  const normalizedUser =
+    normalizeUser(user);
+
+  if (!normalizedUser) {
+    localStorage.removeItem(
+      CURRENT_USER_KEY
+    );
+
+    updateGlobalHeaderUser();
+
+    return false;
+  }
+
+  const saved =
+    saveCurrentUser(normalizedUser);
+
+  updateGlobalHeaderUser();
+
+  return saved;
+}
+
+
+// ============================================================
+// FETCH CURRENT USER FROM BACKEND
+// ============================================================
+//
+// This is the authoritative session check.
+//
+// GET:
+// https://velora-e-commerce-qby7.onrender.com/api/users/me
+// ============================================================
+
+export async function fetchCurrentUser() {
+  const token = getAuthToken();
+
+  if (!token) {
+    localStorage.removeItem(
+      CURRENT_USER_KEY
+    );
+
+    return null;
+  }
+
+  try {
+    const data =
+      await apiRequest(
+        '/api/users/me',
+        {
+          method: 'GET'
+        }
+      );
+
+    if (
+      !data ||
+      data.success !== true ||
+      !data.user
+    ) {
+      throw new Error(
+        'Unable to verify your account.'
+      );
+    }
+
+    const user =
+      normalizeUser(data.user);
+
+    if (!user) {
+      throw new Error(
+        'The server returned an invalid user account.'
+      );
+    }
+
+    saveCurrentUser(user);
+
+    updateGlobalHeaderUser();
+
+    return user;
+
+  } catch (error) {
+
+    console.error(
+      'Unable to verify current Velora user:',
+      error
+    );
+
+    // Token is invalid/expired.
+    if (
+      error.status === 401
+    ) {
+      logoutUser();
+    }
+
+    return null;
+  }
+}
+
+
+// ============================================================
 // CHECK LOGIN STATUS
+// ============================================================
+//
+// This checks whether a token and local session exist.
+// Pages requiring strict authentication should call
+// fetchCurrentUser().
 // ============================================================
 
 export function isUserLoggedIn() {
-  return !!getCurrentUser();
+  return !!(
+    getAuthToken() &&
+    getCurrentUser()
+  );
 }
 
 
@@ -215,62 +378,298 @@ export function isUserLoggedIn() {
 // ============================================================
 
 export function logoutUser() {
-  localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(
+    AUTH_TOKEN_KEY
+  );
+
+  localStorage.removeItem(
+    CURRENT_USER_KEY
+  );
 
   updateGlobalHeaderUser();
 }
 
 
 // ============================================================
+// LOGIN USER
+// ============================================================
+//
+// IMPORTANT:
+// There is NO localStorage user lookup.
+// There is NO local password comparison.
+//
+// The backend verifies:
+// email + password
+//
+// PostgreSQL is the source of truth.
+// ============================================================
+
+export async function loginUser(
+  email,
+  password
+) {
+  const normalizedEmail =
+    String(email || '')
+      .trim()
+      .toLowerCase();
+
+  if (
+    !normalizedEmail ||
+    !password
+  ) {
+    throw new Error(
+      'Please provide both email and password.'
+    );
+  }
+
+  if (
+    !isValidEmail(normalizedEmail)
+  ) {
+    throw new Error(
+      'Please enter a valid email address.'
+    );
+  }
+
+  console.log(
+    'Velora login request:',
+    `${API_BASE_URL}/api/users/login`
+  );
+
+  const data =
+    await apiRequest(
+      '/api/users/login',
+      {
+        method: 'POST',
+
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password
+        })
+      }
+    );
+
+  if (
+    !data ||
+    data.success !== true ||
+    !data.token ||
+    !data.user
+  ) {
+    throw new Error(
+      data?.message ||
+      'Login failed. Please check your credentials.'
+    );
+  }
+
+  // Save JWT returned by backend.
+  const tokenSaved =
+    setAuthToken(data.token);
+
+  if (!tokenSaved) {
+    throw new Error(
+      'Unable to create your login session.'
+    );
+  }
+
+  const user =
+    normalizeUser(data.user);
+
+  if (!user) {
+    localStorage.removeItem(
+      AUTH_TOKEN_KEY
+    );
+
+    throw new Error(
+      'The server returned an invalid user account.'
+    );
+  }
+
+  saveCurrentUser(user);
+
+  updateGlobalHeaderUser();
+
+  return user;
+}
+
+
+// ============================================================
+// REGISTER USER
+// ============================================================
+//
+// Registration is handled by PostgreSQL through the backend.
+//
+// The frontend NEVER:
+// - creates a user ID
+// - saves a password
+// - saves a user to velora_users_db
+// ============================================================
+
+export async function registerUser({
+  fullName,
+  email,
+  phone,
+  city,
+  province,
+  password,
+  consent = false
+}) {
+  const normalizedFullName =
+    String(fullName || '').trim();
+
+  const normalizedEmail =
+    String(email || '')
+      .trim()
+      .toLowerCase();
+
+  const normalizedPhone =
+    String(phone || '').trim();
+
+  const normalizedCity =
+    String(city || '').trim();
+
+  const normalizedProvince =
+    String(province || '').trim();
+
+  if (
+    !normalizedFullName ||
+    !normalizedEmail ||
+    !normalizedPhone ||
+    !normalizedCity ||
+    !normalizedProvince ||
+    !password
+  ) {
+    throw new Error(
+      'Please fill in all required fields.'
+    );
+  }
+
+  if (
+    !isValidEmail(normalizedEmail)
+  ) {
+    throw new Error(
+      'Please enter a valid email address.'
+    );
+  }
+
+  if (password.length < 6) {
+    throw new Error(
+      'Password must contain at least 6 characters.'
+    );
+  }
+
+  console.log(
+    'Velora registration request:',
+    `${API_BASE_URL}/api/users/register`
+  );
+
+  const data =
+    await apiRequest(
+      '/api/users/register',
+      {
+        method: 'POST',
+
+        body: JSON.stringify({
+          fullName:
+            normalizedFullName,
+
+          email:
+            normalizedEmail,
+
+          phone:
+            normalizedPhone,
+
+          city:
+            normalizedCity,
+
+          province:
+            normalizedProvince,
+
+          password,
+
+          consent:
+            Boolean(consent)
+        })
+      }
+    );
+
+  if (
+    !data ||
+    data.success !== true
+  ) {
+    throw new Error(
+      data?.message ||
+      'Registration failed. Please try again.'
+    );
+  }
+
+  return data;
+}
+
+
+// ============================================================
 // FIND USER BY EMAIL
+// ============================================================
+//
+// Compatibility function.
+//
+// IMPORTANT:
+// This does NOT search a local users database.
+//
+// It only checks the currently authenticated user.
 // ============================================================
 
 export function findUserByEmail(email) {
-  if (!email) {
+  const currentUser =
+    getCurrentUser();
+
+  if (
+    !currentUser ||
+    !email
+  ) {
     return null;
   }
 
   const normalizedEmail =
-    email.trim().toLowerCase();
+    String(email)
+      .trim()
+      .toLowerCase();
 
-  if (!isValidEmail(normalizedEmail)) {
-    return null;
+  if (
+    currentUser.email
+      .trim()
+      .toLowerCase() ===
+    normalizedEmail
+  ) {
+    return currentUser;
   }
 
-  const users = getUsers();
-
-  return (
-    users.find((user) => {
-      if (!user.email) {
-        return false;
-      }
-
-      return (
-        user.email.trim().toLowerCase() ===
-        normalizedEmail
-      );
-    }) || null
-  );
+  return null;
 }
 
 
 // ============================================================
 // FIND USER BY ID
 // ============================================================
+//
+// Compatibility function.
+//
+// It only returns the currently authenticated user.
+// ============================================================
 
 export function findUserById(userId) {
-  if (!userId) {
+  const currentUser =
+    getCurrentUser();
+
+  if (
+    !currentUser ||
+    !userId
+  ) {
     return null;
   }
 
-  const users = getUsers();
-
   return (
-    users.find(
-      (user) =>
-        user &&
-        user.id === userId
-    ) || null
+    currentUser.id === userId
+      ? currentUser
+      : null
   );
 }
 
@@ -280,24 +679,35 @@ export function findUserById(userId) {
 // ============================================================
 
 export function updateGlobalHeaderUser() {
-  const user = getCurrentUser();
+  const user =
+    getCurrentUser();
 
   const accountLabels =
     document.querySelectorAll(
       '.account-btn-label, #headerAccountText'
     );
 
-  accountLabels.forEach((element) => {
-    if (user && user.fullName) {
-      const firstName = user.fullName
-        .trim()
-        .split(/\s+/)[0];
+  accountLabels.forEach(
+    (element) => {
 
-      element.textContent = firstName;
-    } else {
-      element.textContent = 'Account';
+      if (
+        user &&
+        user.fullName
+      ) {
+        const firstName =
+          user.fullName
+            .trim()
+            .split(/\s+/)[0];
+
+        element.textContent =
+          firstName;
+
+      } else {
+        element.textContent =
+          'Account';
+      }
     }
-  });
+  );
 
 
   const accountLinks =
@@ -305,35 +715,47 @@ export function updateGlobalHeaderUser() {
       '.header-account-link, #headerAccountBtn'
     );
 
-  accountLinks.forEach((link) => {
-    const isComponent =
-      window.location.pathname.includes(
-        '/components/'
-      );
+  accountLinks.forEach(
+    (link) => {
 
-    if (user) {
-      link.href = isComponent
-        ? './account.html'
-        : './components/account.html';
-    } else {
-      link.href = isComponent
-        ? './auth.html'
-        : './components/auth.html';
+      const isComponent =
+        window.location.pathname.includes(
+          '/components/'
+        );
+
+      if (user) {
+
+        link.href =
+          isComponent
+            ? './account.html'
+            : './components/account.html';
+
+      } else {
+
+        link.href =
+          isComponent
+            ? './auth.html'
+            : './components/auth.html';
+      }
     }
-  });
+  );
 }
 
 
 // ============================================================
 // GET CURRENT USER'S ORDERS
 // ============================================================
+//
+// Orders can remain in localStorage for now.
+//
+// They are filtered using the authenticated backend
+// user's ID.
+// ============================================================
 
 export function getUserOrders() {
-  const currentUser = getCurrentUser();
+  const currentUser =
+    getCurrentUser();
 
-  /*
-   * No logged-in user = no orders.
-   */
   if (
     !currentUser ||
     !currentUser.id
@@ -351,23 +773,23 @@ export function getUserOrders() {
   }
 
   try {
-    const orders = JSON.parse(rawOrders);
+
+    const orders =
+      JSON.parse(rawOrders);
 
     if (!Array.isArray(orders)) {
       return [];
     }
 
-    /*
-     * Only return orders belonging to the
-     * currently authenticated user.
-     */
     return orders.filter(
       (order) =>
         order &&
-        order.userId === currentUser.id
+        order.userId ===
+          currentUser.id
     );
 
   } catch (error) {
+
     console.error(
       'Unable to read Velora orders:',
       error
@@ -381,42 +803,24 @@ export function getUserOrders() {
 // ============================================================
 // GET ORDERS FOR SPECIFIC USER
 // ============================================================
+//
+// Security:
+// A normal user can only request their own orders.
+// ============================================================
 
 export function getOrdersForUser(userId) {
-  if (!userId) {
+  const currentUser =
+    getCurrentUser();
+
+  if (
+    !currentUser ||
+    !currentUser.id ||
+    currentUser.id !== userId
+  ) {
     return [];
   }
 
-  const rawOrders =
-    localStorage.getItem(
-      ORDERS_STORAGE_KEY
-    );
-
-  if (!rawOrders) {
-    return [];
-  }
-
-  try {
-    const orders = JSON.parse(rawOrders);
-
-    if (!Array.isArray(orders)) {
-      return [];
-    }
-
-    return orders.filter(
-      (order) =>
-        order &&
-        order.userId === userId
-    );
-
-  } catch (error) {
-    console.error(
-      'Unable to read user orders:',
-      error
-    );
-
-    return [];
-  }
+  return getUserOrders();
 }
 
 
@@ -425,8 +829,11 @@ export function getOrdersForUser(userId) {
 // ============================================================
 
 export function initAuthPage() {
+
   const authCard =
-    document.getElementById('authCard');
+    document.getElementById(
+      'authCard'
+    );
 
   const alreadySignedInCard =
     document.getElementById(
@@ -459,10 +866,17 @@ export function initAuthPage() {
   // ==========================================================
 
   function handlePostAuthRedirect() {
-    if (returnTarget === 'checkout') {
+
+    if (
+      returnTarget ===
+      'checkout'
+    ) {
+
       window.location.href =
         'checkout.html';
+
     } else {
+
       window.location.href =
         'account.html';
     }
@@ -476,10 +890,13 @@ export function initAuthPage() {
   const currentUser =
     getCurrentUser();
 
-
   if (currentUser) {
 
-    if (returnTarget === 'checkout') {
+    if (
+      returnTarget ===
+      'checkout'
+    ) {
+
       window.location.href =
         'checkout.html';
 
@@ -515,6 +932,7 @@ export function initAuthPage() {
 
 
       if (avatarEl) {
+
         avatarEl.textContent =
           currentUser.fullName
             ? currentUser.fullName
@@ -525,6 +943,7 @@ export function initAuthPage() {
 
 
       if (greetingEl) {
+
         greetingEl.textContent =
           `You are signed in as ${
             currentUser.fullName ||
@@ -534,12 +953,15 @@ export function initAuthPage() {
 
 
       if (emailEl) {
+
         emailEl.textContent =
-          currentUser.email || '';
+          currentUser.email ||
+          '';
       }
 
 
       if (tierEl) {
+
         tierEl.textContent =
           currentUser.memberTier ||
           'Velora Client';
@@ -548,6 +970,7 @@ export function initAuthPage() {
 
 
     if (authCard) {
+
       authCard.style.display =
         'none';
     }
@@ -555,11 +978,13 @@ export function initAuthPage() {
   } else {
 
     if (alreadySignedInCard) {
+
       alreadySignedInCard.style.display =
         'none';
     }
 
     if (authCard) {
+
       authCard.style.display =
         'block';
     }
@@ -683,11 +1108,13 @@ export function initAuthPage() {
         logoutUser();
 
         if (alreadySignedInCard) {
+
           alreadySignedInCard.style.display =
             'none';
         }
 
         if (authCard) {
+
           authCard.style.display =
             'block';
         }
@@ -747,7 +1174,7 @@ export function initAuthPage() {
 
     signInForm.addEventListener(
       'submit',
-      (event) => {
+      async (event) => {
 
         event.preventDefault();
 
@@ -785,12 +1212,19 @@ export function initAuthPage() {
         // REQUIRED FIELDS
         // ------------------------------------------------------
 
-        if (!email || !password) {
+        if (
+          !email ||
+          !password
+        ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Please provide both email and password.';
           }
@@ -803,12 +1237,18 @@ export function initAuthPage() {
         // EMAIL VALIDATION
         // ------------------------------------------------------
 
-        if (!isValidEmail(email)) {
+        if (
+          !isValidEmail(email)
+        ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Please enter a valid email address.';
           }
@@ -818,107 +1258,76 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // FIND REGISTERED USER
+        // LOGIN AGAINST BACKEND
         // ------------------------------------------------------
 
-        const user =
-          findUserByEmail(email);
-
-
-        /*
-         * IMPORTANT:
-         *
-         * NEVER create an account during login.
-         *
-         * If the email was never registered,
-         * login MUST fail.
-         */
-
-        if (!user) {
+        try {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
-              'auth-alert error';
+              'auth-alert info';
+
             alert.textContent =
-              'No registered account was found with this email address. Please create an account first.';
+              'Signing you in...';
           }
 
-          return;
-        }
+
+          const user =
+            await loginUser(
+              email,
+              password
+            );
 
 
-        // ------------------------------------------------------
-        // VERIFY USER ID
-        // ------------------------------------------------------
+          if (!user) {
 
-        if (!user.id) {
+            throw new Error(
+              'Unable to sign you in.'
+            );
+          }
+
+
+          // ----------------------------------------------------
+          // LOGIN SUCCESS
+          // ----------------------------------------------------
 
           if (alert) {
-            alert.style.display = 'block';
-            alert.className =
-              'auth-alert error';
+
+            alert.style.display =
+              'none';
+
             alert.textContent =
-              'This account is invalid. Please register again.';
+              '';
           }
 
-          return;
-        }
 
+          handlePostAuthRedirect();
 
-        // ------------------------------------------------------
-        // VERIFY PASSWORD
-        // ------------------------------------------------------
+        } catch (error) {
 
-        if (
-          !user.password ||
-          user.password !== password
-        ) {
+          console.error(
+            'Velora login failed:',
+            error
+          );
+
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
-              'Incorrect password. Please check your password and try again.';
+              error?.message ||
+              'Login failed. Please check your email and password.';
           }
-
-          return;
         }
-
-
-        // ------------------------------------------------------
-        // CREATE AUTHENTICATED SESSION
-        // ------------------------------------------------------
-
-        const loginSuccessful =
-          setCurrentUser(user);
-
-
-        if (!loginSuccessful) {
-
-          if (alert) {
-            alert.style.display = 'block';
-            alert.className =
-              'auth-alert error';
-            alert.textContent =
-              'Unable to create your login session. Please try again.';
-          }
-
-          return;
-        }
-
-
-        // ------------------------------------------------------
-        // LOGIN SUCCESS
-        // ------------------------------------------------------
-
-        if (alert) {
-          alert.style.display = 'none';
-          alert.textContent = '';
-        }
-
-        handlePostAuthRedirect();
       }
     );
   }
@@ -937,7 +1346,7 @@ export function initAuthPage() {
 
     registerForm.addEventListener(
       'submit',
-      (event) => {
+      async (event) => {
 
         event.preventDefault();
 
@@ -1036,9 +1445,13 @@ export function initAuthPage() {
         ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Please fill in all required fields.';
           }
@@ -1051,12 +1464,18 @@ export function initAuthPage() {
         // EMAIL VALIDATION
         // ------------------------------------------------------
 
-        if (!isValidEmail(email)) {
+        if (
+          !isValidEmail(email)
+        ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Please enter a valid email address.';
           }
@@ -1069,12 +1488,18 @@ export function initAuthPage() {
         // PASSWORD LENGTH
         // ------------------------------------------------------
 
-        if (password.length < 6) {
+        if (
+          password.length < 6
+        ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Password must contain at least 6 characters.';
           }
@@ -1093,9 +1518,13 @@ export function initAuthPage() {
         ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
               'Passwords do not match. Please re-enter.';
           }
@@ -1105,147 +1534,150 @@ export function initAuthPage() {
 
 
         // ------------------------------------------------------
-        // GET REGISTERED USERS
+        // REGISTER THROUGH BACKEND
+        // ------------------------------------------------------
+        //
+        // IMPORTANT:
+        // We DO NOT:
+        //
+        // - call getUsers()
+        // - search velora_users_db
+        // - create a fake ID
+        // - save a password in localStorage
+        // - call saveUsers()
+        //
+        // PostgreSQL handles all of that.
         // ------------------------------------------------------
 
-        const users =
-          getUsers();
+        try {
+
+          if (alert) {
+
+            alert.style.display =
+              'block';
+
+            alert.className =
+              'auth-alert info';
+
+            alert.textContent =
+              'Creating your Velora account...';
+          }
 
 
-        // ------------------------------------------------------
-        // CHECK DUPLICATE EMAIL
-        // ------------------------------------------------------
-
-        const existingUser =
-          users.find((user) => {
-
-            if (!user.email) {
-              return false;
-            }
-
-            return (
-              user.email
-                .trim()
-                .toLowerCase() ===
-              email
-            );
+          await registerUser({
+            fullName,
+            email,
+            phone,
+            city,
+            province,
+            password,
+            consent: false
           });
 
 
-        if (existingUser) {
+          // ----------------------------------------------------
+          // REGISTRATION SUCCESS
+          // ----------------------------------------------------
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
-              'auth-alert error';
+              'auth-alert success';
+
             alert.textContent =
-              'An account with this email already exists. Please sign in instead.';
+              'Your account has been created successfully. Please sign in.';
           }
 
-          return;
-        }
+
+          // ----------------------------------------------------
+          // SWITCH TO SIGN-IN TAB
+          // ----------------------------------------------------
+
+          if (
+            tabSignInBtn &&
+            tabRegisterBtn &&
+            panelSignIn &&
+            panelRegister
+          ) {
+
+            tabSignInBtn.classList.add(
+              'active'
+            );
+
+            tabSignInBtn.setAttribute(
+              'aria-selected',
+              'true'
+            );
+
+            tabRegisterBtn.classList.remove(
+              'active'
+            );
+
+            tabRegisterBtn.setAttribute(
+              'aria-selected',
+              'false'
+            );
+
+            panelSignIn.classList.add(
+              'active'
+            );
+
+            panelRegister.classList.remove(
+              'active'
+            );
+          }
 
 
-        // ------------------------------------------------------
-        // CREATE REGISTERED USER
-        // ------------------------------------------------------
+          // ----------------------------------------------------
+          // PUT REGISTERED EMAIL INTO LOGIN FORM
+          // ----------------------------------------------------
 
-        const newUser = {
+          const loginEmail =
+            document.getElementById(
+              'loginEmail'
+            );
 
-          id:
-            `usr_${Date.now()}_${Math.random()
-              .toString(36)
-              .substring(2, 10)}`,
-
-          fullName,
-
-          email,
-
-          phone,
-
-          city,
-
-          province,
-
-          street: '',
-
-          password,
-
-          memberTier:
-            'Velora Client',
-
-          joinedDate:
-            new Date().toLocaleDateString(
-              'en-US',
-              {
-                month: 'long',
-                year: 'numeric'
-              }
-            )
-        };
+          if (loginEmail) {
+            loginEmail.value =
+              email;
+          }
 
 
-        // ------------------------------------------------------
-        // SAVE REGISTERED USER
-        // ------------------------------------------------------
+          // Clear passwords.
+          if (passwordInput) {
+            passwordInput.value =
+              '';
+          }
 
-        users.push(newUser);
+          if (confirmPasswordInput) {
+            confirmPasswordInput.value =
+              '';
+          }
 
-        saveUsers(users);
+        } catch (error) {
 
+          console.error(
+            'Velora registration failed:',
+            error
+          );
 
-        // ------------------------------------------------------
-        // VERIFY USER WAS SAVED
-        // ------------------------------------------------------
-
-        const savedUser =
-          findUserByEmail(email);
-
-
-        if (
-          !savedUser ||
-          savedUser.id !== newUser.id
-        ) {
 
           if (alert) {
-            alert.style.display = 'block';
+
+            alert.style.display =
+              'block';
+
             alert.className =
               'auth-alert error';
+
             alert.textContent =
-              'Your account could not be created. Please try again.';
+              error?.message ||
+              'Registration failed. Please try again.';
           }
-
-          return;
         }
-
-
-        // ------------------------------------------------------
-        // CREATE SESSION
-        // ------------------------------------------------------
-
-        const loginSuccessful =
-          setCurrentUser(savedUser);
-
-
-        if (!loginSuccessful) {
-
-          if (alert) {
-            alert.style.display = 'block';
-            alert.className =
-              'auth-alert error';
-            alert.textContent =
-              'Your account was created, but we could not sign you in. Please sign in manually.';
-          }
-
-          return;
-        }
-
-
-        // ------------------------------------------------------
-        // REDIRECT
-        // ------------------------------------------------------
-
-        handlePostAuthRedirect();
       }
     );
   }
@@ -1256,7 +1688,10 @@ export function initAuthPage() {
 // AUTO INITIALIZE
 // ============================================================
 
-if (typeof document !== 'undefined') {
+if (
+  typeof document !==
+  'undefined'
+) {
 
   document.addEventListener(
     'DOMContentLoaded',

@@ -6,24 +6,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Velora Client Account & Parcel Tracking — Sign in or register to track your parcels live via Velora Logistics.">
   <title>Client Account & Parcel Tracking — Velora</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="./css/common.css">
   <link rel="stylesheet" href="./css/auth.css">
 </head>
 
 <body id="top">
 
-  <!-- Top Announcement Bar -->
+  <!-- ============================================================
+       TOP ANNOUNCEMENT BAR
+       ============================================================ -->
   <div class="announcement">
     <span>Complimentary courier delivery on orders over R800</span>
-    <a href="shop.html">Shop the collection <span aria-hidden="true">&#8599;</span></a>
+    <a href="shop.html">
+      Shop the collection <span aria-hidden="true">&#8599;</span>
+    </a>
   </div>
 
-  <!-- Header / Navigation -->
+
+  <!-- ============================================================
+       HEADER / NAVIGATION
+       ============================================================ -->
   <header class="site-header" id="header">
-    <a class="brand" href="../index.html" aria-label="Velora home">VELORA<span>.</span></a>
+
+    <a class="brand" href="../index.html" aria-label="Velora home">
+      VELORA<span>.</span>
+    </a>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
       <a href="../index.html">Home</a>
@@ -34,30 +46,78 @@
     </nav>
 
     <div class="header-actions">
-      <button class="icon-button search-button" type="button" aria-label="Search collection">
+
+      <!-- Search -->
+      <button
+        class="icon-button search-button"
+        type="button"
+        aria-label="Search collection"
+      >
         <span></span>
       </button>
 
-      <!-- User icon next to search with Account text -->
-      <a class="header-account-link active" href="auth.html" id="headerAccountBtn" aria-label="Account">
-        <svg class="account-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+
+      <!-- Account -->
+      <a
+        class="header-account-link active"
+        href="auth.html"
+        id="headerAccountBtn"
+        aria-label="Account"
+      >
+        <svg
+          class="account-icon"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
-        <span class="account-btn-label" id="headerAccountText">Account</span>
+
+        <span
+          class="account-btn-label"
+          id="headerAccountText"
+        >
+          Account
+        </span>
       </a>
 
-      <a class="icon-button bag-button" href="cart.html" aria-label="Shopping bag">
+
+      <!-- Shopping Bag -->
+      <a
+        class="icon-button bag-button"
+        href="cart.html"
+        aria-label="Shopping bag"
+      >
         <span id="cartCount">0</span>
       </a>
 
-      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
-        <i></i><i></i>
+
+      <!-- Mobile Menu -->
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+      >
+        <i></i>
+        <i></i>
       </button>
+
     </div>
 
+
     <!-- Mobile Navigation -->
-    <nav class="mobile-nav" aria-label="Mobile navigation">
+    <nav
+      class="mobile-nav"
+      aria-label="Mobile navigation"
+    >
       <a href="../index.html">Home</a>
       <a href="./blog.html">Blog</a>
       <a href="./shop.html">Shop</a>
@@ -65,152 +125,537 @@
       <a href="./contact.html">Contact</a>
       <a href="./orders.html">Order Processing & Tracking</a>
     </nav>
+
   </header>
 
+
+  <!-- ============================================================
+       MAIN AUTH PAGE
+       ============================================================ -->
   <main class="auth-page-container">
-    
-    <!-- Hero Header -->
+
+
+    <!-- ==========================================================
+         HERO HEADER
+         ========================================================== -->
     <div class="auth-hero-header">
-      <p class="eyebrow">Client Services</p>
-      <!-- <h1>Client Account & Parcel Tracking</h1> -->
-      <p>Sign in or register your account to monitor active parcels, view express courier milestones, and manage delivery addresses.</p>
+
+      <p class="eyebrow">
+        Client Services
+      </p>
+
+      <!--
+      <h1>
+        Client Account & Parcel Tracking
+      </h1>
+      -->
+
+      <p>
+        Sign in or register your account to monitor active parcels,
+        view express courier milestones, and manage delivery addresses.
+      </p>
+
     </div>
 
-    <!-- Already Signed In State (hidden by default) -->
-    <div class="already-signed-in-card" id="alreadySignedInCard" style="display: none;">
-      <div class="signed-in-avatar" id="signedInAvatar">V</div>
-      <h3 id="signedInGreeting">You are signed in</h3>
-      <p class="signed-in-email" id="signedInEmail"></p>
-      <span class="signed-in-tier" id="signedInTier">Velora Privilege Client</span>
+
+    <!-- ==========================================================
+         ALREADY SIGNED IN STATE
+         ========================================================== -->
+    <div
+      class="already-signed-in-card"
+      id="alreadySignedInCard"
+      style="display: none;"
+    >
+
+      <div
+        class="signed-in-avatar"
+        id="signedInAvatar"
+      >
+        V
+      </div>
+
+      <h3 id="signedInGreeting">
+        You are signed in
+      </h3>
+
+      <p
+        class="signed-in-email"
+        id="signedInEmail"
+      ></p>
+
+      <span
+        class="signed-in-tier"
+        id="signedInTier"
+      >
+        Velora Privilege Client
+      </span>
+
       <div class="signed-in-actions">
-        <a href="account.html" class="signed-in-primary-btn" id="goToAccountBtn">
+
+        <a
+          href="account.html"
+          class="signed-in-primary-btn"
+          id="goToAccountBtn"
+        >
           Go to My Account & Orders &#8599;
         </a>
-        <button type="button" class="signed-in-secondary-btn" id="authSignOutBtn">
+
+        <button
+          type="button"
+          class="signed-in-secondary-btn"
+          id="authSignOutBtn"
+        >
           Sign Out of Account
         </button>
+
       </div>
+
     </div>
 
-    <!-- Auth Card with Sign In and Register Tabs -->
-    <div class="auth-card" id="authCard">
-      
-      <!-- Tab Navigation -->
-      <div class="auth-tabs" role="tablist">
-        <button type="button" class="auth-tab active" id="tabSignInBtn" role="tab" aria-selected="true" aria-controls="panelSignIn">
+
+    <!-- ==========================================================
+         AUTH CARD
+         ========================================================== -->
+    <div
+      class="auth-card"
+      id="authCard"
+    >
+
+
+      <!-- ========================================================
+           TAB NAVIGATION
+           ======================================================== -->
+      <div
+        class="auth-tabs"
+        role="tablist"
+      >
+
+        <button
+          type="button"
+          class="auth-tab active"
+          id="tabSignInBtn"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panelSignIn"
+        >
           Sign In
         </button>
-        <button type="button" class="auth-tab" id="tabRegisterBtn" role="tab" aria-selected="false" aria-controls="panelRegister">
+
+        <button
+          type="button"
+          class="auth-tab"
+          id="tabRegisterBtn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panelRegister"
+        >
           Create Account
         </button>
+
       </div>
 
-      <!-- Tab Content Area -->
+
+      <!-- ========================================================
+           TAB CONTENT
+           ======================================================== -->
       <div class="auth-content">
-        
-        <!-- SIGN IN FORM -->
-        <div class="auth-panel active" id="panelSignIn" role="tabpanel">
+
+
+        <!-- ======================================================
+             SIGN IN FORM
+             ====================================================== -->
+        <div
+          class="auth-panel active"
+          id="panelSignIn"
+          role="tabpanel"
+        >
+
           <div class="auth-intro">
-            <h2>Welcome to Velora</h2>
-            <p>Sign in to track your parcels in real-time, view order history, and manage your delivery addresses.</p>
+
+            <h2>
+              Welcome to Velora
+            </h2>
+
+            <p>
+              Sign in to track your parcels in real-time,
+              view order history, and manage your delivery addresses.
+            </p>
+
           </div>
 
-          <form id="signInForm" class="auth-form" novalidate>
-            <div id="signInAlert" class="auth-alert" style="display: none;"></div>
 
+          <form
+            id="signInForm"
+            class="auth-form"
+            novalidate
+          >
+
+            <!-- Login Alert -->
+            <div
+              id="signInAlert"
+              class="auth-alert"
+              style="display: none;"
+            ></div>
+
+
+            <!-- Email -->
             <div class="form-group">
-              <label for="loginEmail">Email Address</label>
-              <input type="email" id="loginEmail" placeholder="e.g. elena@example.com" value="elena@example.com" required autocomplete="email">
-            </div>
 
-            <div class="form-group">
-              <div class="form-label-row">
-                <label for="loginPassword">Password</label>
-                <a href="#forgot" class="forgot-link" id="forgotPasswordBtn">Forgot password?</a>
-              </div>
-              <input type="password" id="loginPassword" placeholder="••••••••" value="password123" required autocomplete="current-password">
-            </div>
-
-            <div class="form-options">
-              <label class="checkbox-label">
-                <input type="checkbox" id="rememberMe" checked>
-                <span>Remember this device</span>
+              <label for="loginEmail">
+                Email Address
               </label>
+
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="e.g. elena@example.com"
+                value="elena@example.com"
+                required
+                autocomplete="email"
+              >
+
             </div>
 
-            <button type="submit" class="auth-submit-btn" id="signInSubmitBtn">
+
+            <!-- Password -->
+            <div class="form-group">
+
+              <div class="form-label-row">
+
+                <label for="loginPassword">
+                  Password
+                </label>
+
+                <a
+                  href="#forgot"
+                  class="forgot-link"
+                  id="forgotPasswordBtn"
+                >
+                  Forgot password?
+                </a>
+
+              </div>
+
+
+              <!-- Password Input + View Button -->
+              <div class="password-input-wrapper">
+
+                <input
+                  type="password"
+                  id="loginPassword"
+                  placeholder="••••••••"
+                  value="password123"
+                  required
+                  autocomplete="current-password"
+                >
+
+                <button
+                  type="button"
+                  class="password-toggle"
+                  data-password-target="loginPassword"
+                  aria-label="Show password"
+                  title="Show password"
+                >
+                  👁
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <!-- Remember Me -->
+            <div class="form-options">
+
+              <label class="checkbox-label">
+
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked
+                >
+
+                <span>
+                  Remember this device
+                </span>
+
+              </label>
+
+            </div>
+
+
+            <!-- Sign In Button -->
+            <button
+              type="submit"
+              class="auth-submit-btn"
+              id="signInSubmitBtn"
+            >
               Sign In to Account &#8599;
             </button>
 
           </form>
+
         </div>
 
-        <!-- REGISTER FORM -->
-        <div class="auth-panel" id="panelRegister" role="tabpanel">
+
+        <!-- ======================================================
+             REGISTER FORM
+             ====================================================== -->
+        <div
+          class="auth-panel"
+          id="panelRegister"
+          role="tabpanel"
+        >
+
           <div class="auth-intro">
-            <h2>Create Your Account</h2>
-            <p>Join Velora to receive seamless order tracking, express delivery dispatch notifications, and bespoke concierge care.</p>
+
+            <h2>
+              Create Your Account
+            </h2>
+
+            <p>
+              Join Velora to receive seamless order tracking,
+              express delivery dispatch notifications,
+              and bespoke concierge care.
+            </p>
+
           </div>
 
-          <form id="registerForm" class="auth-form" novalidate>
-            <div id="registerAlert" class="auth-alert" style="display: none;"></div>
 
+          <form
+            id="registerForm"
+            class="auth-form"
+            novalidate
+          >
+
+            <!-- Register Alert -->
+            <div
+              id="registerAlert"
+              class="auth-alert"
+              style="display: none;"
+            ></div>
+
+
+            <!-- Full Name -->
             <div class="form-group">
-              <label for="regFullName">Full Name *</label>
-              <input type="text" id="regFullName" placeholder="e.g. Marcus Dlamini" required>
-            </div>
 
-            <div class="form-group">
-              <label for="regEmail">Email Address *</label>
-              <input type="email" id="regEmail" placeholder="e.g. marcus@example.co.za" required>
-            </div>
-
-            <div class="form-group">
-              <label for="regPhone">Mobile Phone (For Courier Parcel SMS) *</label>
-              <input type="tel" id="regPhone" placeholder="+27 82 123 4567" required>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regCity">City</label>
-                <input type="text" id="regCity" placeholder="Cape Town" value="Cape Town">
-              </div>
-              <div class="form-group">
-                <label for="regProvince">Province</label>
-                <select id="regProvince" class="auth-select">
-                  <option value="Western Cape" selected>Western Cape</option>
-                  <option value="Gauteng">Gauteng</option>
-                  <option value="KwaZulu-Natal">KwaZulu-Natal</option>
-                  <option value="Eastern Cape">Eastern Cape</option>
-                  <option value="Free State">Free State</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regPassword">Password *</label>
-                <input type="password" id="regPassword" placeholder="Minimum 6 characters" required>
-              </div>
-              <div class="form-group">
-                <label for="regConfirmPassword">Confirm Password *</label>
-                <input type="password" id="regConfirmPassword" placeholder="Repeat password" required>
-              </div>
-            </div>
-
-            <div class="form-options">
-              <label class="checkbox-label">
-                <input type="checkbox" id="regConsent" checked required>
-                <span>I agree to receive SMS and email parcel dispatch updates via Velora Logistics</span>
+              <label for="regFullName">
+                Full Name *
               </label>
+
+              <input
+                type="text"
+                id="regFullName"
+                placeholder="e.g. Marcus Dlamini"
+                required
+              >
+
             </div>
 
-            <button type="submit" class="auth-submit-btn" id="registerSubmitBtn">
+
+            <!-- Email -->
+            <div class="form-group">
+
+              <label for="regEmail">
+                Email Address *
+              </label>
+
+              <input
+                type="email"
+                id="regEmail"
+                placeholder="e.g. marcus@example.co.za"
+                required
+              >
+
+            </div>
+
+
+            <!-- Phone -->
+            <div class="form-group">
+
+              <label for="regPhone">
+                Mobile Phone (For Courier Parcel SMS) *
+              </label>
+
+              <input
+                type="tel"
+                id="regPhone"
+                placeholder="+27 82 123 4567"
+                required
+              >
+
+            </div>
+
+
+            <!-- City + Province -->
+            <div class="form-row">
+
+              <div class="form-group">
+
+                <label for="regCity">
+                  City
+                </label>
+
+                <input
+                  type="text"
+                  id="regCity"
+                  placeholder="Cape Town"
+                  value="Cape Town"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="regProvince">
+                  Province
+                </label>
+
+                <select
+                  id="regProvince"
+                  class="auth-select"
+                >
+
+                  <option
+                    value="Western Cape"
+                    selected
+                  >
+                    Western Cape
+                  </option>
+
+                  <option value="Gauteng">
+                    Gauteng
+                  </option>
+
+                  <option value="KwaZulu-Natal">
+                    KwaZulu-Natal
+                  </option>
+
+                  <option value="Eastern Cape">
+                    Eastern Cape
+                  </option>
+
+                  <option value="Free State">
+                    Free State
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 PASSWORD + CONFIRM PASSWORD
+                 ================================================== -->
+            <div class="form-row">
+
+
+              <!-- Password -->
+              <div class="form-group">
+
+                <label for="regPassword">
+                  Password *
+                </label>
+
+                <div class="password-input-wrapper">
+
+                  <input
+                    type="password"
+                    id="regPassword"
+                    placeholder="Minimum 6 characters"
+                    required
+                    autocomplete="new-password"
+                  >
+
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-password-target="regPassword"
+                    aria-label="Show password"
+                    title="Show password"
+                  >
+                    👁
+                  </button>
+
+                </div>
+
+              </div>
+
+
+              <!-- Confirm Password -->
+              <div class="form-group">
+
+                <label for="regConfirmPassword">
+                  Confirm Password *
+                </label>
+
+                <div class="password-input-wrapper">
+
+                  <input
+                    type="password"
+                    id="regConfirmPassword"
+                    placeholder="Repeat password"
+                    required
+                    autocomplete="new-password"
+                  >
+
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    data-password-target="regConfirmPassword"
+                    aria-label="Show password"
+                    title="Show password"
+                  >
+                    👁
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- Consent -->
+            <div class="form-options">
+
+              <label class="checkbox-label">
+
+                <input
+                  type="checkbox"
+                  id="regConsent"
+                  checked
+                  required
+                >
+
+                <span>
+                  I agree to receive SMS and email parcel dispatch
+                  updates via Velora Logistics
+                </span>
+
+              </label>
+
+            </div>
+
+
+            <!-- Register Button -->
+            <button
+              type="submit"
+              class="auth-submit-btn"
+              id="registerSubmitBtn"
+            >
               Create Client Account &#8599;
             </button>
+
           </form>
-          
+
         </div>
 
       </div>
@@ -219,44 +664,253 @@
 
   </main>
 
-  <!-- Footer -->
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
   <footer class="site-footer">
+
     <div class="footer-top">
+
       <div class="footer-brand">
-        <a class="brand" href="../index.html">VELORA<span>.</span></a>
-        <p>Thoughtful essentials crafted for modern living. Designed in Cape Town, made to endure.</p>
+
+        <a
+          class="brand"
+          href="../index.html"
+        >
+          VELORA<span>.</span>
+        </a>
+
+        <p>
+          Thoughtful essentials crafted for modern living.
+          Designed in Cape Town, made to endure.
+        </p>
+
       </div>
+
+
       <div class="footer-col">
-        <h4>Order & Tracking</h4>
-        <a href="./orders.html">Track Parcel Dispatch</a>
-        <a href="./orders.html">Velora Logistics (www.velora.co.za)</a>
-        <a href="./contact.html">Shipping & Returns</a>
-        <a href="./contact.html#faq">Concierge Support</a>
+
+        <h4>
+          Order & Tracking
+        </h4>
+
+        <a href="./orders.html">
+          Track Parcel Dispatch
+        </a>
+
+        <a href="./orders.html">
+          Velora Logistics (www.velora.co.za)
+        </a>
+
+        <a href="./contact.html">
+          Shipping & Returns
+        </a>
+
+        <a href="./contact.html#faq">
+          Concierge Support
+        </a>
+
       </div>
+
+
       <div class="footer-col">
-        <h4>Collections</h4>
-        <a href="./shop.html">Apparel & Linens</a>
-        <a href="./shop.html">Leather Goods</a>
-        <a href="./shop.html">Footwear & Basics</a>
-        <a href="./shop.html">Limited Editions</a>
+
+        <h4>
+          Collections
+        </h4>
+
+        <a href="./shop.html">
+          Apparel & Linens
+        </a>
+
+        <a href="./shop.html">
+          Leather Goods
+        </a>
+
+        <a href="./shop.html">
+          Footwear & Basics
+        </a>
+
+        <a href="./shop.html">
+          Limited Editions
+        </a>
+
       </div>
+
+
       <div class="footer-col">
-        <h4>The House</h4>
-        <a href="./about.html">Our Philosophy</a>
-        <a href="./blog.html">Journal & Stories</a>
-        <a href="./contact.html">Cape Town Studio</a>
+
+        <h4>
+          The House
+        </h4>
+
+        <a href="./about.html">
+          Our Philosophy
+        </a>
+
+        <a href="./blog.html">
+          Journal & Stories
+        </a>
+
+        <a href="./contact.html">
+          Cape Town Studio
+        </a>
+
       </div>
+
     </div>
+
+
     <div class="footer-bottom">
-      <p>&copy; 2026 Velora Goods (Pty) Ltd. In partnership with <a href="./orders.html" style="color: inherit; text-decoration: underline;">Velora Logistics</a>. All rights reserved.</p>
+
+      <p>
+        &copy; 2026 Velora Goods (Pty) Ltd.
+        In partnership with
+        <a
+          href="./orders.html"
+          style="color: inherit; text-decoration: underline;"
+        >
+          Velora Logistics
+        </a>.
+        All rights reserved.
+      </p>
+
       <div class="footer-payments">
-        <span>Secure Payments via Ozow, Visa, Mastercard & SnapScan</span>
+
+        <span>
+          Secure Payments via Ozow, Visa, Mastercard & SnapScan
+        </span>
+
       </div>
+
     </div>
+
   </footer>
 
-  <script type="module" src="../js/cart.js"></script>
-  <script type="module" src="../js/auth.js"></script>
+
+  <!-- ============================================================
+       JAVASCRIPT
+       ============================================================ -->
+
+  <script
+    type="module"
+    src="../js/cart.js"
+  ></script>
+
+  <script
+    type="module"
+    src="../js/auth.js"
+  ></script>
+
+
+  <!-- ============================================================
+       PASSWORD VIEW / HIDE SCRIPT
+       ============================================================ -->
+  <script>
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+
+        const passwordToggleButtons =
+          document.querySelectorAll(
+            '.password-toggle'
+          );
+
+
+        passwordToggleButtons.forEach(
+          (button) => {
+
+            button.addEventListener(
+              'click',
+              () => {
+
+                const targetId =
+                  button.getAttribute(
+                    'data-password-target'
+                  );
+
+
+                if (!targetId) {
+                  return;
+                }
+
+
+                const passwordInput =
+                  document.getElementById(
+                    targetId
+                  );
+
+
+                if (!passwordInput) {
+                  return;
+                }
+
+
+                // ==============================================
+                // SHOW PASSWORD
+                // ==============================================
+
+                if (
+                  passwordInput.type ===
+                  'password'
+                ) {
+
+                  passwordInput.type =
+                    'text';
+
+                  button.textContent =
+                    '🙈';
+
+                  button.setAttribute(
+                    'aria-label',
+                    'Hide password'
+                  );
+
+                  button.setAttribute(
+                    'title',
+                    'Hide password'
+                  );
+
+                }
+
+
+                // ==============================================
+                // HIDE PASSWORD
+                // ==============================================
+
+                else {
+
+                  passwordInput.type =
+                    'password';
+
+                  button.textContent =
+                    '👁';
+
+                  button.setAttribute(
+                    'aria-label',
+                    'Show password'
+                  );
+
+                  button.setAttribute(
+                    'title',
+                    'Show password'
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+      }
+    );
+
+  </script>
+
 </body>
 
 </html>

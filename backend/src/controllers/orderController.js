@@ -1,0 +1,179 @@
+const orderService = require('../services/orderService');
+
+/**
+ * Create a new pending order
+ *
+ * POST /api/orders
+ *
+ * Requires:
+ * Authorization: Bearer <JWT>
+ */
+const createOrder = async (req, res) => {
+  try {
+    const userId = req.user?.user_id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authenticated user could not be identified.'
+      });
+    }
+
+    const {
+      items,
+      shipping,
+      deliveryMethod = 'express'
+    } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one order item is required.'
+      });
+    }
+
+    if (!shipping || typeof shipping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        message: 'Shipping information is required.'
+      });
+    }
+
+    const requiredShippingFields = [
+      'fullName',
+      'email',
+      'phone',
+      'street',
+      'city',
+      'postalCode',
+      'province'
+    ];
+
+    for (const field of requiredShippingFields) {
+      if (!String(shipping[field] || '').trim()) {
+        return res.status(400).json({
+          success: false,
+          message: `${field} is required.`
+        });
+      }
+    }
+
+    const order = await orderService.createOrder({
+      userId,
+      items,
+      shipping,
+      deliveryMethod
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Order created successfully.',
+      order
+    });
+  } catch (error) {
+    console.error('Create order error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to create order.'
+    });
+  }
+};
+
+
+/**
+ * Get all orders belonging to the authenticated user
+ *
+ * GET /api/orders
+ *
+ * Requires:
+ * Authorization: Bearer <JWT>
+ */
+const getMyOrders = async (req, res) => {
+  try {
+    const userId = req.user?.user_id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authenticated user could not be identified.'
+      });
+    }
+
+    const orders = await orderService.getOrdersByUserId(userId);
+
+    return res.status(200).json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get user orders error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve orders.'
+    });
+  }
+};
+
+
+/**
+ * Get one order belonging to the authenticated user
+ *
+ * GET /api/orders/:orderNumber
+ *
+ * Requires:
+ * Authorization: Bearer <JWT>
+ */
+const getMyOrder = async (req, res) => {
+  try {
+    const userId = req.user?.user_id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authenticated user could not be identified.'
+      });
+    }
+
+    const { orderNumber } = req.params;
+
+    if (!orderNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order number is required.'
+      });
+    }
+
+    const order = await orderService.getOrderByNumberForUser(
+      orderNumber,
+      userId
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found.'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    console.error('Get order error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve order.'
+    });
+  }
+};
+
+
+module.exports = {
+  createOrder,
+  getMyOrders,
+  getMyOrder
+};

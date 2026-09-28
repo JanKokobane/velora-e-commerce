@@ -6,6 +6,8 @@ const adminAuthRoutes = require("./src/routes/adminAuthRoutes");
 const userRoutes = require("./src/routes/userRoutes");
 const productRoutes = require("./src/routes/productRoutes");
 const notificationRoutes = require("./src/routes/notificationRoutes");
+const orderRoutes = require("./src/routes/orderRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 
 const { connectDB } = require("./src/config/db");
 
@@ -15,6 +17,8 @@ app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
 const startServer = async () => {
   try {
@@ -52,6 +56,14 @@ const startServer = async () => {
 
       console.log(
         "Notification API: /api/notifications"
+      );
+
+      console.log(
+        "Order API: /api/orders"
+      );
+
+      console.log(
+        "Payment API: /api/payments"
       );
     });
   } catch (error) {
