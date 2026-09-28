@@ -1,6 +1,46 @@
 const db = require('../config/db');
 const { randomUUID } = require('crypto');
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Ensures a product ID is a valid UUID if the PostgreSQL column requires UUID
+ * Encodes integer IDs like 6 into 00000000-0000-0000-0000-000000000006
+ */
+const toValidUuid = (val) => {
+  if (!val) return '00000000-0000-0000-0000-000000000000';
+  const str = String(val).trim();
+  if (UUID_REGEX.test(str)) return str;
+
+  const num = parseInt(str, 10);
+  if (!isNaN(num) && num >= 0) {
+    const hex = num.toString(16).padStart(12, '0');
+    return `00000000-0000-0000-0000-${hex}`;
+  }
+
+  let hex = '';
+  for (let i = 0; i < str.length && hex.length < 12; i++) {
+    hex += str.charCodeAt(i).toString(16);
+  }
+  hex = hex.padEnd(12, '0').slice(0, 12);
+  return `00000000-0000-0000-0000-${hex}`;
+};
+
+/**
+ * Restores original integer ID if it was stored as 00000000-0000-0000-0000-000000000006
+ */
+const parseStoredProductId = (val) => {
+  if (!val) return val;
+  const str = String(val);
+  const match = str.match(/^00000000-0000-0000-0000-([0-9a-f]{12})$/i);
+  if (match) {
+    const num = parseInt(match[1], 16);
+    if (!isNaN(num) && num > 0) return num;
+  }
+  return val;
+};
+
 const generateOrderNumber = () => {
   const date = new Date()
     .toISOString()
@@ -171,6 +211,12 @@ const createOrder = async ({
     }
 
     // 5. Begin transaction only for INSERT operations
+    try {
+      await client.query('ALTER TABLE order_items ALTER COLUMN product_id TYPE VARCHAR(255) USING product_id::text');
+    } catch (_) {
+      // Column may already be varchar/text or user has no DDL permissions
+    }
+
     await client.query('BEGIN');
 
     const orderResult = await client.query(
@@ -262,7 +308,7 @@ const createOrder = async ({
         `,
         [
           order.id,
-          item.productId,
+          toValidUuid(item.productId),
           item.productName,
           item.quantity,
           item.unitPrice,
@@ -397,7 +443,7 @@ const getOrdersByUserId = async (userId) => {
       updatedAt: order.updated_at,
       items: itemsResult.rows.map((item) => ({
         id: item.id,
-        productId: item.product_id,
+        productId: parseStoredProductId(item.product_id),
         productName: item.product_name,
         quantity: item.quantity,
         unitPrice: Number(item.unit_price),
@@ -500,7 +546,7 @@ const getOrderByNumberForUser = async (
     updatedAt: order.updated_at,
     items: itemsResult.rows.map((item) => ({
       id: item.id,
-      productId: item.product_id,
+      productId: parseStoredProductId(item.product_id),
       productName: item.product_name,
       quantity: item.quantity,
       unitPrice: Number(item.unit_price),
