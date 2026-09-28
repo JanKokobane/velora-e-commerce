@@ -557,8 +557,100 @@ const getOrderByNumberForUser = async (
   };
 };
 
+const getAllOrders = async () => {
+  const ordersResult = await db.query(
+    `
+    SELECT
+      id,
+      order_number,
+      user_id,
+      status,
+      payment_status,
+      subtotal,
+      discount,
+      delivery_fee,
+      total,
+      full_name,
+      email,
+      phone,
+      street,
+      apartment,
+      city,
+      postal_code,
+      province,
+      delivery_method,
+      tracking_number,
+      created_at,
+      updated_at
+    FROM orders
+    ORDER BY created_at DESC
+    `
+  );
+
+  const orders = [];
+
+  for (const order of ordersResult.rows) {
+    const itemsResult = await db.query(
+      `
+      SELECT
+        id,
+        product_id,
+        product_name,
+        quantity,
+        unit_price,
+        size,
+        image,
+        created_at
+      FROM order_items
+      WHERE order_id = $1
+      ORDER BY created_at ASC
+      `,
+      [order.id]
+    );
+
+    orders.push({
+      id: order.id,
+      orderNumber: order.order_number,
+      userId: order.user_id,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      subtotal: Number(order.subtotal),
+      discount: Number(order.discount),
+      deliveryFee: Number(order.delivery_fee),
+      total: Number(order.total),
+      shipping: {
+        fullName: order.full_name,
+        email: order.email,
+        phone: order.phone,
+        street: order.street,
+        apartment: order.apartment,
+        city: order.city,
+        postalCode: order.postal_code,
+        province: order.province
+      },
+      deliveryMethod: order.delivery_method,
+      trackingNumber: order.tracking_number,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      items: itemsResult.rows.map((item) => ({
+        id: item.id,
+        productId: parseStoredProductId(item.product_id),
+        productName: item.product_name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unit_price),
+        size: item.size,
+        image: item.image,
+        createdAt: item.created_at
+      }))
+    });
+  }
+
+  return orders;
+};
+
 module.exports = {
   createOrder,
   getOrdersByUserId,
-  getOrderByNumberForUser
+  getOrderByNumberForUser,
+  getAllOrders
 };
