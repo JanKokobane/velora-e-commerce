@@ -2,11 +2,11 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const {
-  createPayment,
-  getOrderPayment,
-  getAllPayments,
-  paymentWebhook
-} = require('../controllers/paymentController');
+  createOrder,
+  getMyOrders,
+  getMyOrder,
+  getAllOrders
+} = require('../controllers/orderController');
 
 const router = express.Router();
 
@@ -38,10 +38,7 @@ const flexibleAuthMiddleware = (req, res, next) => {
 
     req.user = decoded;
 
-    if (
-      decoded.role === 'admin' ||
-      decoded.admin_id
-    ) {
+    if (decoded.role === 'admin' || decoded.admin_id) {
       req.admin = decoded;
     }
 
@@ -54,28 +51,14 @@ const flexibleAuthMiddleware = (req, res, next) => {
   }
 };
 
-router.post(
-  '/webhook',
-  paymentWebhook
-);
+router.use(flexibleAuthMiddleware);
 
-router.use(
-  flexibleAuthMiddleware
-);
+router.post('/', createOrder);
 
-router.post(
-  '/',
-  createPayment
-);
+router.get('/', getMyOrders);
 
-router.get(
-  '/admin',
-  getAllPayments
-);
+router.get('/all', getAllOrders);
 
-router.get(
-  '/:orderNumber',
-  getOrderPayment
-);
+router.get('/:orderNumber', getMyOrder);
 
 module.exports = router;

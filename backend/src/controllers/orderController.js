@@ -1,14 +1,14 @@
 const orderService = require('../services/orderService');
 const { createNotification } = require('../services/notificationService');
 
-/**
- * Create a new pending order
- *
- * POST /api/orders
- *
- * Requires:
- * Authorization: Bearer <JWT>
- */
+const isAdminRequest = (req) => {
+  return Boolean(
+    req.user?.role === 'admin' ||
+    req.user?.admin_id ||
+    req.admin
+  );
+};
+
 const createOrder = async (req, res) => {
   try {
     const userId = req.user?.user_id;
@@ -67,19 +67,27 @@ const createOrder = async (req, res) => {
     });
 
     try {
-      const orderTotal = Number(order?.total || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+      const orderTotal = Number(
+        order?.total || 0
+      ).toLocaleString('en-ZA', {
+        minimumFractionDigits: 2
+      });
+
       await createNotification({
         type: 'order_created',
         category: 'orders',
         title: 'New Order Placed',
-        message: `Order #${order?.order_number || order?.id} placed by ${shipping.fullName} for R ${orderTotal}.`,
+        message: `Order #${order?.orderNumber || order?.id} placed by ${shipping.fullName} for R ${orderTotal}.`,
         entityType: 'order',
         entityId: order?.id || null,
         actionUrl: '/admin#orders',
         isActionable: true
       });
     } catch (notifErr) {
-      console.warn('Order notification warning:', notifErr.message);
+      console.warn(
+        'Order notification warning:',
+        notifErr.message
+      );
     }
 
     return res.status(201).json({
@@ -88,7 +96,10 @@ const createOrder = async (req, res) => {
       order
     });
   } catch (error) {
-    console.error('Create order error:', error);
+    console.error(
+      'Create order error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -97,20 +108,11 @@ const createOrder = async (req, res) => {
   }
 };
 
-
-/**
- * Get all orders (for admin) or orders belonging to the authenticated user
- *
- * GET /api/orders
- *
- * Requires:
- * Authorization: Bearer <JWT>
- */
 const getMyOrders = async (req, res) => {
   try {
-    // If the caller is an admin, return all orders from the database
-    if (req.user?.role === 'admin' || req.user?.admin_id || req.admin) {
-      const orders = await orderService.getAllOrders();
+    if (isAdminRequest(req)) {
+      const orders =
+        await orderService.getAllOrders();
 
       return res.status(200).json({
         success: true,
@@ -119,7 +121,9 @@ const getMyOrders = async (req, res) => {
       });
     }
 
-    const userId = req.user?.user_id || req.user?.id;
+    const userId =
+      req.user?.user_id ||
+      req.user?.id;
 
     if (!userId) {
       return res.status(401).json({
@@ -128,7 +132,10 @@ const getMyOrders = async (req, res) => {
       });
     }
 
-    const orders = await orderService.getOrdersByUserId(userId);
+    const orders =
+      await orderService.getOrdersByUserId(
+        userId
+      );
 
     return res.status(200).json({
       success: true,
@@ -136,7 +143,10 @@ const getMyOrders = async (req, res) => {
       orders
     });
   } catch (error) {
-    console.error('Get user orders error:', error);
+    console.error(
+      'Get user orders error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -145,15 +155,17 @@ const getMyOrders = async (req, res) => {
   }
 };
 
-
-/**
- * Get all orders across the system (Admin only)
- *
- * GET /api/orders/all
- */
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await orderService.getAllOrders();
+    if (!isAdminRequest(req)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Administrator access is required.'
+      });
+    }
+
+    const orders =
+      await orderService.getAllOrders();
 
     return res.status(200).json({
       success: true,
@@ -161,7 +173,10 @@ const getAllOrders = async (req, res) => {
       orders
     });
   } catch (error) {
-    console.error('Get all orders error:', error);
+    console.error(
+      'Get all orders error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -170,27 +185,10 @@ const getAllOrders = async (req, res) => {
   }
 };
 
-
-/**
- * Get one order belonging to the authenticated user
- *
- * GET /api/orders/:orderNumber
- *
- * Requires:
- * Authorization: Bearer <JWT>
- */
 const getMyOrder = async (req, res) => {
   try {
-    const userId = req.user?.user_id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authenticated user could not be identified.'
-      });
-    }
-
-    const { orderNumber } = req.params;
+    const { orderNumber } =
+      req.params;
 
     if (!orderNumber) {
       return res.status(400).json({
@@ -199,10 +197,48 @@ const getMyOrder = async (req, res) => {
       });
     }
 
-    const order = await orderService.getOrderByNumberForUser(
-      orderNumber,
-      userId
-    );
+    if (isAdminRequest(req)) {
+      const orders =
+        await orderService.getAllOrders();
+
+      const order =
+        orders.find(
+          item =>
+            String(
+              item.orderNumber || ''
+            ).toLowerCase() ===
+            String(orderNumber).toLowerCase()
+        );
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found.'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        order
+      });
+    }
+
+    const userId =
+      req.user?.user_id ||
+      req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authenticated user could not be identified.'
+      });
+    }
+
+    const order =
+      await orderService.getOrderByNumberForUser(
+        orderNumber,
+        userId
+      );
 
     if (!order) {
       return res.status(404).json({
@@ -216,7 +252,10 @@ const getMyOrder = async (req, res) => {
       order
     });
   } catch (error) {
-    console.error('Get order error:', error);
+    console.error(
+      'Get order error:',
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -224,7 +263,6 @@ const getMyOrder = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   createOrder,
