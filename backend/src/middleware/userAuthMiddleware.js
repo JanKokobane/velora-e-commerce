@@ -21,9 +21,10 @@ const userAuthMiddleware = (req, res, next) => {
       });
     }
 
+    const secret = process.env.JWT_SECRET || 'velora-super-secret-key-change-in-production';
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET
+      secret
     );
 
     req.user = decoded;

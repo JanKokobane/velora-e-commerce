@@ -8,6 +8,12 @@ import {
   updateCartBadge
 } from './cart.js';
 
+// Base API configuration (routes directly to current server or configured base URL)
+const API_BASE_URL =
+  window.VELORA_API_BASE_URL ||
+  (typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '') ||
+  'https://velora-e-commerce-qby7.onrender.com';
+
 // Storage Keys
 export const SHIPPING_STORAGE_KEY = 'velora_shipping_details';
 export const LAST_ORDER_STORAGE_KEY = 'velora_last_order';
@@ -81,6 +87,18 @@ export function requireAuthentication() {
   }
 }
 
+/**
+ * Retrieve user auth JWT token
+ */
+export function getAuthToken() {
+  return (
+    localStorage.getItem('velora_auth_token') ||
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('velora_auth_token') ||
+    ''
+  );
+}
+
 // --------------------------------------------------------------------------
 // 1. Checkout Page Logic (checkout.html)
 // --------------------------------------------------------------------------
@@ -109,7 +127,9 @@ export function initCheckoutPage() {
     if (streetInput && saved.street) streetInput.value = saved.street;
     if (aptInput && saved.apartment) aptInput.value = saved.apartment;
     if (cityInput && saved.city) cityInput.value = saved.city;
-    if (postalInput && saved.postal) postalInput.value = saved.postal;
+    if (postalInput && (saved.postalCode || saved.postal)) {
+      postalInput.value = saved.postalCode || saved.postal;
+    }
     if (provinceSelect && saved.province) provinceSelect.value = saved.province;
   }
 
@@ -136,7 +156,7 @@ export function initCheckoutPage() {
     }
   }
 
-  // Handle Continue Button / Form Submission -> requireAuthentication()
+  // Handle Continue Button / Form Submission
   shippingForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -157,8 +177,9 @@ export function initCheckoutPage() {
       apartment: aptInput ? aptInput.value.trim() : '',
       city: cityInput ? cityInput.value.trim() : (currentUser?.city || 'Cape Town'),
       postal: postalInput ? postalInput.value.trim() : '8001',
+      postalCode: postalInput ? postalInput.value.trim() : '8001', // Required by backend orderService
       province: provinceSelect ? provinceSelect.value : (currentUser?.province || 'Western Cape'),
-      deliveryMethod: 'Velora Courier Express',
+      deliveryMethod: 'express',
       deliveryFee: getCartSubtotal() >= 800 ? 0 : 120
     };
 
@@ -170,7 +191,7 @@ export function initCheckoutPage() {
       // SIGNED IN -> proceed to payment.html
       window.location.href = 'payment.html';
     } else {
-      // NOT SIGNED IN -> render the auth page first
+      // NOT SIGNED IN -> render the auth page first with return path
       window.location.href = 'auth.html?return=checkout';
     }
   });
@@ -192,6 +213,7 @@ export function initPaymentPage() {
     window.location.href = 'auth.html?return=checkout';
     return;
   }
+
   if (urlParams.get('confirmation') === 'true') {
     const lastOrderRaw = localStorage.getItem(LAST_ORDER_STORAGE_KEY);
     if (lastOrderRaw) {
@@ -214,8 +236,9 @@ export function initPaymentPage() {
     apartment: '',
     city: 'Cape Town',
     postal: '8001',
+    postalCode: '8001',
     province: 'Western Cape',
-    deliveryMethod: 'Velora Courier Express'
+    deliveryMethod: 'express'
   };
 
   const reviewContact = document.getElementById('paymentReviewContact');
@@ -227,10 +250,10 @@ export function initPaymentPage() {
   }
   if (reviewAddress) {
     const fullStreet = shipping.apartment ? `${shipping.street}, ${shipping.apartment}` : shipping.street;
-    reviewAddress.textContent = `${fullStreet}, ${shipping.city}, ${shipping.postal}, ${shipping.province}`;
+    reviewAddress.textContent = `${fullStreet}, ${shipping.city}, ${shipping.postalCode || shipping.postal}, ${shipping.province}`;
   }
   if (reviewMethod) {
-    reviewMethod.textContent = `${shipping.deliveryMethod} (2–4 business days) • Complimentary`;
+    reviewMethod.textContent = `Velora Courier Express (2–4 days) • Complimentary`;
   }
 
   // 2. State & Calculations
@@ -251,11 +274,12 @@ export function initPaymentPage() {
     // Auto-seed sample cart if empty so checkout/payment demo always works
     if (cart.length === 0 && !urlParams.get('confirmation')) {
       cart = [{
-        id: 'prod-sneakers-cloud',
+        id: '3',
+        productId: '3',
         title: 'Cloud-step sneakers',
         category: 'Footwear & Basics',
-        price: 1290,
-        size: 'UK 7 (EU 40)',
+        price: 1150,
+        size: 'UK 7',
         quantity: 1,
         image: 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
       }];
@@ -413,22 +437,22 @@ export function initPaymentPage() {
     });
   }
 
-  // 7. Payment Form Submission & Verification
-  function processPaymentExecution(e) {
+  // 7. Payment Form Submission & Backend Linking (Orders & Payments API)
+  async function processPaymentExecution(e) {
     if (e && e.preventDefault) e.preventDefault();
 
     let cart = getCart();
     if (!cart || cart.length === 0) {
-      cart = [{
-        id: 'prod-sneakers-cloud',
-        title: 'Cloud-step sneakers',
-        category: 'Footwear & Basics',
-        price: 1290,
-        size: 'UK 7 (EU 40)',
-        quantity: 1,
-        image: 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
-      }];
-      saveCart(cart);
+      alert('Your cart is empty. Please select products to continue.');
+      window.location.href = 'shop.html';
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      alert('Please sign in to place and verify your order.');
+      window.location.href = 'auth.html?return=checkout';
+      return;
     }
 
     const submitBtn = document.getElementById('payNowSubmitBtn');
@@ -440,17 +464,82 @@ export function initPaymentPage() {
       submitBtn.style.opacity = '0.75';
       submitBtn.style.cursor = 'wait';
       if (spinner) spinner.style.display = 'inline-block';
-      if (label) label.textContent = 'Verifying & Processing Payment... 🔒';
+      if (label) label.textContent = 'Contacting Velora Secure Gateway... 🔒';
     }
 
-    // Simulate secure bank authentication response
-    setTimeout(() => {
-      const subtotal = getCartSubtotal();
-      const discountAmount = promoDiscountPercent > 0 ? Math.round(subtotal * (promoDiscountPercent / 100)) : 0;
-      const deliveryFee = subtotal >= 800 ? 0 : 120;
-      const grandTotal = subtotal - discountAmount + deliveryFee;
+    try {
+      // Step A: Prepare shipping payload for backend order validation
+      const shippingPayload = {
+        fullName: shipping.fullName || 'Elena Vance',
+        email: shipping.email || 'customer@example.com',
+        phone: shipping.phone || '+27 82 000 0000',
+        street: shipping.street || '14 Kloof Street',
+        apartment: shipping.apartment || null,
+        city: shipping.city || 'Cape Town',
+        postalCode: shipping.postalCode || shipping.postal || '8001',
+        province: shipping.province || 'Western Cape'
+      };
 
-      // Construct payment method label
+      // Step B: Map cart items to backend expectation: { productId, quantity, size }
+      const backendItems = cart.map((item) => ({
+        productId: item.productId || item.id,
+        quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
+        size: item.size || 'Standard'
+      }));
+
+      // Step C: Call Backend Order API (POST /api/orders)
+      if (label) label.textContent = 'Creating Order on Server...';
+
+      const orderResponse = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          items: backendItems,
+          shipping: shippingPayload,
+          deliveryMethod: 'express'
+        })
+      });
+
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderData.success) {
+        throw new Error(orderData.message || 'Failed to create order on server.');
+      }
+
+      const createdOrder = orderData.order;
+
+      // Step D: Call Backend Payment API (POST /api/payments)
+      if (label) label.textContent = 'Authorising Payment...';
+
+      // Payment method must be one of: card, eft, snapscan, zapper, cod
+      const paymentMethodPayload = ['card', 'eft', 'snapscan', 'zapper', 'cod'].includes(activePaymentMethod)
+        ? activePaymentMethod
+        : 'card';
+
+      const paymentResponse = await fetch(`${API_BASE_URL}/api/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          orderNumber: createdOrder.orderNumber,
+          paymentMethod: paymentMethodPayload
+        })
+      });
+
+      const paymentData = await paymentResponse.json();
+
+      if (!paymentResponse.ok || !paymentData.success) {
+        throw new Error(paymentData.message || 'Payment initiation failed on server.');
+      }
+
+      const paymentInfo = paymentData.payment;
+
+      // Step E: Construct display order label
       let paymentMethodName = 'Credit / Debit Card';
       if (activePaymentMethod === 'card') {
         const rawCard = cardNumberInput?.value?.replace(/\s+/g, '');
@@ -464,8 +553,6 @@ export function initPaymentPage() {
         paymentMethodName = 'Cash on Delivery (Courier Terminal)';
       }
 
-      // Generate Order Record
-      const orderId = `VEL-${Math.floor(10000 + Math.random() * 90000)}`;
       const now = new Date();
       const formattedDate = now.toLocaleDateString('en-GB', {
         day: 'numeric',
@@ -475,24 +562,28 @@ export function initPaymentPage() {
         minute: '2-digit'
       });
 
-      const order = {
-        id: orderId,
+      // Unified Order Record
+      const completedOrder = {
+        id: createdOrder.orderNumber,
+        orderNumber: createdOrder.orderNumber,
         date: formattedDate,
         estimatedDelivery: getEstimatedDeliveryRange(),
-        customer: shipping,
+        customer: shippingPayload,
         items: [...cart],
-        subtotal,
-        discount: discountAmount,
-        deliveryFee,
-        total: grandTotal,
+        subtotal: createdOrder.subtotal,
+        discount: createdOrder.discount,
+        deliveryFee: createdOrder.deliveryFee,
+        total: createdOrder.total,
         paymentMethod: paymentMethodName,
+        paymentStatus: paymentInfo.paymentStatus || 'paid',
         status: 'Confirmed & Processing',
-        trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`,
-        processingPartner: 'Velora Logistics (www.velora.co.za)'
+        trackingNumber: createdOrder.trackingNumber || `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`,
+        processingPartner: 'Velora Logistics (www.velora.co.za)',
+        transactionReference: paymentInfo.transactionReference
       };
 
-      // Record completed order
-      saveCompletedOrder(order);
+      // Record completed order in user history
+      saveCompletedOrder(completedOrder);
 
       // Clear the cart
       clearCart();
@@ -500,8 +591,20 @@ export function initPaymentPage() {
       localStorage.removeItem(PROMO_STORAGE_KEY);
 
       // Render Confirmation Screen
-      renderOrderConfirmation(order);
-    }, 1000);
+      renderOrderConfirmation(completedOrder);
+
+    } catch (err) {
+      console.error('Payment/Order processing error:', err);
+      alert(err.message || 'An error occurred while processing your order. Please try again.');
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+        if (spinner) spinner.style.display = 'none';
+        if (label) label.textContent = 'Pay Now 🔒';
+      }
+    }
   }
 
   paymentForm.addEventListener('submit', processPaymentExecution);
@@ -552,7 +655,7 @@ export function renderOrderConfirmation(order) {
   // 3. Populate confirmation details safely with textContent
   const customer = order.customer || {};
   const fullStreet = customer.apartment ? `${customer.street}, ${customer.apartment}` : (customer.street || '14 Kloof Street');
-  const fullAddress = `${fullStreet}, ${customer.city || 'Cape Town'}, ${customer.postal || '8001'}, ${customer.province || 'Western Cape'}`;
+  const fullAddress = `${fullStreet}, ${customer.city || 'Cape Town'}, ${customer.postalCode || customer.postal || '8001'}, ${customer.province || 'Western Cape'}`;
 
   const greetingEl = document.getElementById('confirmCustomerGreeting');
   const orderIdEl = document.getElementById('confirmOrderId');
@@ -561,8 +664,8 @@ export function renderOrderConfirmation(order) {
   const trackingNumberEl = document.getElementById('confirmTrackingNumber');
   const itemsHeadingEl = document.getElementById('confirmItemsHeading');
 
-  if (greetingEl) greetingEl.textContent = `Thank you, ${customer.firstName || 'Elena'}!`;
-  if (orderIdEl) orderIdEl.textContent = order.id;
+  if (greetingEl) greetingEl.textContent = `Thank you, ${customer.fullName?.split(' ')[0] || customer.firstName || 'Elena'}!`;
+  if (orderIdEl) orderIdEl.textContent = order.id || order.orderNumber;
   if (emailEl) emailEl.textContent = customer.email || 'customer@example.com';
   if (estDeliveryEl) estDeliveryEl.textContent = order.estimatedDelivery;
   if (trackingNumberEl) trackingNumberEl.textContent = order.trackingNumber;
@@ -634,7 +737,7 @@ export function renderOrderConfirmation(order) {
 
   // Configure action buttons
   const trackLink = document.getElementById('confirmTrackParcelLink');
-  if (trackLink) trackLink.href = `orders.html?orderId=${order.id}`;
+  if (trackLink) trackLink.href = `orders.html?orderId=${order.id || order.orderNumber}`;
 
   const printBtn = document.getElementById('confirmPrintInvoiceBtn');
   if (printBtn) {

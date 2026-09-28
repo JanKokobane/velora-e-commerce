@@ -71,18 +71,34 @@ const createOrder = async ({
       throw error;
     }
 
-    const productsResult = await client.query(
-      `
-      SELECT
-        id,
-        name,
-        price,
-        image
-      FROM products
-      WHERE id = ANY($1::uuid[])
-      `,
-      [productIds]
-    );
+    let productsResult;
+    try {
+      productsResult = await client.query(
+        `
+        SELECT
+          id,
+          COALESCE(NULLIF(title, ''), NULLIF(name, ''), 'Velora Essential') AS name,
+          price,
+          COALESCE(NULLIF(image_url, ''), NULLIF(image, ''), '') AS image
+        FROM products
+        WHERE id::text = ANY($1::text[])
+        `,
+        [productIds.map(String)]
+      );
+    } catch (_) {
+      productsResult = await client.query(
+        `
+        SELECT
+          id,
+          name,
+          price,
+          image
+        FROM products
+        WHERE id = ANY($1::uuid[])
+        `,
+        [productIds]
+      );
+    }
 
     const products = productsResult.rows;
 

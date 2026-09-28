@@ -1,4 +1,6 @@
 
+const db = require('../config/db');
+
 /**
  * Create a payment for an order.
  *

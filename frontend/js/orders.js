@@ -1,4 +1,4 @@
-mport { updateGlobalHeaderUser } from './auth.js';
+import { updateGlobalHeaderUser } from './auth.js';
 
 const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
