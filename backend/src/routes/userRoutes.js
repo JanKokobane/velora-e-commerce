@@ -11,6 +11,8 @@ const {
 } = require('../controllers/userController');
 
 const userAuthMiddleware = require('../middleware/userAuthMiddleware');
+const adminAuthMiddleware = require('../middleware/adminAuthMiddleware');
+const userOrAdminAuthMiddleware = require('../middleware/userOrAdminAuthMiddleware');
 
 const router = express.Router();
 
@@ -26,28 +28,27 @@ router.get(
 
 router.get(
   '/',
-  userAuthMiddleware,
+  adminAuthMiddleware,
   getUsers
 );
 
 router.get(
   '/:id',
-  userAuthMiddleware,
+  adminAuthMiddleware,
   getUser
 );
 
 router.put(
   '/:id',
-  userAuthMiddleware,
+  userOrAdminAuthMiddleware,
   editUser
 );
 
 router.delete(
   '/:id',
-  userAuthMiddleware,
+  userOrAdminAuthMiddleware,
   removeUser
 );
-
 
 module.exports = router;
 
