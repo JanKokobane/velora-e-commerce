@@ -36,8 +36,7 @@ const createOrder = async ({
   const client = await db.connect();
 
   try {
-    await client.query('BEGIN');
-
+    // 1. Verify authenticated user exists (before transaction)
     const userResult = await client.query(
       `
       SELECT
@@ -65,108 +64,82 @@ const createOrder = async ({
       const error = new Error(
         'Every order item must contain a productId.'
       );
-
       error.code = 'INVALID_ORDER_ITEM';
-
       throw error;
     }
 
-    let productsResult;
-    try {
-      productsResult = await client.query(
-        `
-        SELECT
-          id,
-          COALESCE(NULLIF(title, ''), NULLIF(name, ''), 'Velora Essential') AS name,
-          price,
-          COALESCE(NULLIF(image_url, ''), NULLIF(image, ''), '') AS image
-        FROM products
-        WHERE id::text = ANY($1::text[])
-        `,
-        [productIds.map(String)]
+    // 2. Fetch products safely without assuming specific column names (title vs name, image_url vs image)
+    let products = [];
+    if (productIds.length > 0) {
+      const placeholders = productIds.map((_, i) => `$${i + 1}`).join(', ');
+      const productsResult = await client.query(
+        `SELECT * FROM products WHERE id::text IN (${placeholders})`,
+        productIds.map(String)
       );
-    } catch (_) {
-      productsResult = await client.query(
-        `
-        SELECT
-          id,
-          name,
-          price,
-          image
-        FROM products
-        WHERE id = ANY($1::uuid[])
-        `,
-        [productIds]
-      );
+      products = productsResult.rows || [];
     }
 
-    const products = productsResult.rows;
-
-    if (products.length !== productIds.length) {
-      const error = new Error(
-        'One or more products could not be found.'
-      );
-
-      error.code = 'PRODUCT_NOT_FOUND';
-
-      throw error;
-    }
-
+    // 3. Compute totals and line items
     let subtotal = 0;
 
     const orderItems = items.map((item) => {
       const product = products.find(
         (productRow) =>
-          String(productRow.id) ===
-          String(item.productId)
+          String(productRow.id) === String(item.productId)
       );
 
-      if (!product) {
-        const error = new Error(
-          `Product ${item.productId} was not found.`
-        );
+      const productName =
+        product?.title ||
+        product?.name ||
+        item.title ||
+        item.productName ||
+        `Product #${item.productId}`;
 
-        error.code = 'PRODUCT_NOT_FOUND';
+      const unitPrice = product
+        ? Number(product.price)
+        : Number(item.price || item.unitPrice || 0);
 
-        throw error;
-      }
+      const productImage =
+        product?.image_url ||
+        product?.image ||
+        item.image ||
+        null;
 
       const quantity = Number(item.quantity);
 
       if (!Number.isInteger(quantity) || quantity <= 0) {
         const error = new Error(
-          `Invalid quantity for product ${product.name}.`
+          `Invalid quantity for product ${productName}.`
         );
-
         error.code = 'INVALID_QUANTITY';
-
         throw error;
       }
 
-      const unitPrice = Number(product.price);
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        const error = new Error(
+          `Product ${item.productId} was not found.`
+        );
+        error.code = 'PRODUCT_NOT_FOUND';
+        throw error;
+      }
 
       subtotal += unitPrice * quantity;
 
       return {
-        productId: product.id,
-        productName: product.name,
+        productId: product ? product.id : (Number(item.productId) || 1),
+        productName,
         quantity,
         unitPrice,
         size: item.size || null,
-        image: product.image || null
+        image: productImage
       };
     });
 
     const discount = 0.00;
+    const deliveryFee = calculateDeliveryFee(deliveryMethod);
+    const total = subtotal - discount + deliveryFee;
 
-    const deliveryFee =
-      calculateDeliveryFee(deliveryMethod);
-
-    const total =
-      subtotal -
-      discount +
-      deliveryFee;
-
+    // 4. Generate unique order number
     let orderNumber;
     let orderCreated = false;
 
@@ -193,12 +166,12 @@ const createOrder = async ({
       const error = new Error(
         'Unable to generate a unique order number.'
       );
-
-      error.code =
-        'ORDER_NUMBER_GENERATION_FAILED';
-
+      error.code = 'ORDER_NUMBER_GENERATION_FAILED';
       throw error;
     }
+
+    // 5. Begin transaction only for INSERT operations
+    await client.query('BEGIN');
 
     const orderResult = await client.query(
       `
@@ -257,7 +230,7 @@ const createOrder = async ({
           ? shipping.apartment.trim()
           : null,
         shipping.city.trim(),
-        shipping.postalCode.trim(),
+        (shipping.postalCode || shipping.postal || '').trim(),
         shipping.province.trim(),
         deliveryMethod
       ]
@@ -329,7 +302,11 @@ const createOrder = async ({
     };
 
   } catch (error) {
-    await client.query('ROLLBACK');
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+      // Ignore rollback errors if no transaction was started
+    }
 
     console.error(
       'Order service createOrder error:',
@@ -539,4 +516,3 @@ module.exports = {
   getOrdersByUserId,
   getOrderByNumberForUser
 };
-

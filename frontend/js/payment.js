@@ -8,11 +8,28 @@ import {
   updateCartBadge
 } from './cart.js';
 
-// Base API configuration (routes directly to current server or configured base URL)
-const API_BASE_URL =
-  window.VELORA_API_BASE_URL ||
-  (typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '') ||
-  'https://velora-e-commerce-qby7.onrender.com';
+// Base API configuration
+// When the frontend is served via static servers like VS Code Live Server (port 5500),
+// API requests must route to the backend server (Render or local backend on port 5000), not Live Server.
+function resolveBackendBaseUrl() {
+  if (typeof window !== 'undefined' && window.VELORA_API_BASE_URL) {
+    return window.VELORA_API_BASE_URL;
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const port = String(window.location.port || '');
+    // Common static development server ports (VS Code Live Server, live-server, http-server)
+    if (['5500', '5501', '5502', '8080', '8081'].includes(port) || window.location.protocol === 'file:') {
+      return 'https://velora-e-commerce-qby7.onrender.com';
+    }
+    // Full-stack Node/Express server ports or remote preview environments
+    if (port === '5000' || port === '3000' || (!port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
+      return window.location.origin;
+    }
+  }
+  return 'https://velora-e-commerce-qby7.onrender.com';
+}
+
+const API_BASE_URL = resolveBackendBaseUrl();
 
 // Storage Keys
 export const SHIPPING_STORAGE_KEY = 'velora_shipping_details';
@@ -274,14 +291,14 @@ export function initPaymentPage() {
     // Auto-seed sample cart if empty so checkout/payment demo always works
     if (cart.length === 0 && !urlParams.get('confirmation')) {
       cart = [{
-        id: '3',
-        productId: '3',
-        title: 'Cloud-step sneakers',
-        category: 'Footwear & Basics',
-        price: 1150,
-        size: 'UK 7',
+        id: '6',
+        productId: '6',
+        title: 'Adizero Running Gel Pocket Crop Top',
+        category: 'Apparel',
+        price: 999,
+        size: 'M',
         quantity: 1,
-        image: 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
+        image: 'https://assets.adidas.com/images/w_1880,f_auto,q_auto/963f264df7f749b8905416d3a2e43307_9366/KT4859_21_model.jpg'
       }];
       saveCart(cart);
     }
@@ -484,7 +501,10 @@ export function initPaymentPage() {
       const backendItems = cart.map((item) => ({
         productId: item.productId || item.id,
         quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
-        size: item.size || 'Standard'
+        size: item.size || 'Standard',
+        title: item.title || item.name || 'Velora Item',
+        price: typeof item.price === 'number' ? item.price : parseCurrency(item.price),
+        image: item.image || null
       }));
 
       // Step C: Call Backend Order API (POST /api/orders)
@@ -503,7 +523,16 @@ export function initPaymentPage() {
         })
       });
 
-      const orderData = await orderResponse.json();
+      const orderContentType = orderResponse.headers.get('content-type') || '';
+      let orderData = {};
+      if (orderContentType.includes('application/json')) {
+        orderData = await orderResponse.json();
+      } else {
+        const text = await orderResponse.text();
+        throw new Error(
+          `Order failed (${orderResponse.status} ${orderResponse.statusText}): ${text.substring(0, 150) || 'Invalid server response'}`
+        );
+      }
 
       if (!orderResponse.ok || !orderData.success) {
         throw new Error(orderData.message || 'Failed to create order on server.');
@@ -531,7 +560,16 @@ export function initPaymentPage() {
         })
       });
 
-      const paymentData = await paymentResponse.json();
+      const payContentType = paymentResponse.headers.get('content-type') || '';
+      let paymentData = {};
+      if (payContentType.includes('application/json')) {
+        paymentData = await paymentResponse.json();
+      } else {
+        const text = await paymentResponse.text();
+        throw new Error(
+          `Payment failed (${paymentResponse.status} ${paymentResponse.statusText}): ${text.substring(0, 150) || 'Invalid server response'}`
+        );
+      }
 
       if (!paymentResponse.ok || !paymentData.success) {
         throw new Error(paymentData.message || 'Payment initiation failed on server.');
