@@ -15,7 +15,6 @@ function resolveBackendBaseUrl() {
 const API_BASE_URL = resolveBackendBaseUrl();
 const AUTH_TOKEN_KEY = 'velora_auth_token';
 const CURRENT_USER_KEY = 'velora_current_user';
-const ORDERS_STORAGE_KEY = 'velora_orders_history';
 const SHIPPING_STORAGE_KEY = 'velora_shipping_details';
 
 /**
@@ -372,104 +371,49 @@ async function loadAndRenderOrders(currentUser) {
     </div>
   `;
 
-  let serverOrders = [];
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
-
-  // Helper to verify if an order strictly belongs to the currently logged in user
-  const isUserOrder = (o) => {
-    if (!o || !currentUser) return false;
-    const ordId = String(o.orderNumber || o.id || '');
-    // Discard static mock orders
-    if (ordId.includes('390561') || ordId.includes('VEL-84920')) return false;
-
-    const currId = String(currentUser.id || '').toLowerCase().trim();
-    const currEmail = String(currentUser.email || '').toLowerCase().trim();
-    const orderUserId = String(o.userId || o.user_id || '').toLowerCase().trim();
-    const orderEmail = String(
-      o.customer?.email ||
-      o.shipping?.email ||
-      o.email ||
-      ''
-    ).toLowerCase().trim();
-
-    if (currId && orderUserId && currId === orderUserId) return true;
-    if (currEmail && orderEmail && currEmail === orderEmail) return true;
-    return false;
-  };
-
-  // 1. Fetch live orders from backend API (PostgreSQL database)
-  if (token) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/orders`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && Array.isArray(data.orders)) {
-          serverOrders = data.orders.filter(isUserOrder);
-        }
-      }
-    } catch (err) {
-      console.warn('Backend orders fetch failed, reading user cache:', err);
-    }
+  if (!token) {
+    window.location.href = 'auth.html?return=account';
+    return;
   }
 
-  // 2. Read user-scoped local order history cache
-  let localOrders = [];
+  let orders = [];
+  let userReturns = [];
   try {
-    const userScopedKey = `velora_orders_history_${currentUser.id || currentUser.email}`;
-    const rawScoped = localStorage.getItem(userScopedKey);
-    if (rawScoped) {
-      const parsed = JSON.parse(rawScoped);
-      if (Array.isArray(parsed)) localOrders = parsed.filter(isUserOrder);
-    }
-
-    const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        parsed.filter(isUserOrder).forEach(o => {
-          if (!localOrders.some(x => (x.orderNumber || x.id) === (o.orderNumber || o.id))) {
-            localOrders.push(o);
-          }
-        });
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       }
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(data?.message || `Unable to load orders (${response.status}).`);
     }
+    orders = Array.isArray(data?.orders) ? data.orders : [];
 
-    const lastOrderRaw = localStorage.getItem('velora_last_order');
-    if (lastOrderRaw) {
-      const lastOrder = JSON.parse(lastOrderRaw);
-      if (lastOrder && isUserOrder(lastOrder) && !localOrders.some(o => (o.orderNumber || o.id) === (lastOrder.orderNumber || lastOrder.id))) {
-        localOrders.unshift(lastOrder);
+    try {
+      const returnsResponse = await fetch(`${API_BASE_URL}/api/returns/mine`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const returnsData = await returnsResponse.json().catch(() => null);
+      if (returnsResponse.ok && Array.isArray(returnsData?.returns)) {
+        userReturns = returnsData.returns;
       }
+    } catch (returnError) {
+      console.warn('Unable to load your return requests:', returnError);
     }
-  } catch (_) {}
-
-  // 3. Merge server orders with validated user-specific local orders
-  const combinedMap = new Map();
-
-  // Add server orders first (these are authoritative from PostgreSQL for this user)
-  serverOrders.forEach(o => {
-    const key = String(o.orderNumber || o.id);
-    combinedMap.set(key, o);
-  });
-
-  // Only merge local orders that strictly belong to this logged-in user
-  localOrders.forEach(o => {
-    if (isUserOrder(o)) {
-      const key = String(o.orderNumber || o.id);
-      if (!combinedMap.has(key)) {
-        combinedMap.set(key, o);
-      }
-    }
-  });
-
-  const orders = Array.from(combinedMap.values());
+  } catch (error) {
+    console.error('Backend orders fetch failed:', error);
+    container.replaceChildren();
+    const message = document.createElement('p');
+    message.className = 'orders-load-error';
+    message.textContent = error.message || 'Unable to load your orders. Please try again.';
+    container.appendChild(message);
+    if (badge) badge.textContent = '0';
+    if (summaryCount) summaryCount.textContent = 'Orders unavailable';
+    return;
+  }
 
   // 4. Update badge and counts
   if (badge) badge.textContent = String(orders.length);
@@ -509,6 +453,9 @@ async function loadAndRenderOrders(currentUser) {
     const estDeliveryEl = cardClone.querySelector('.card-est-delivery');
     const totalEl = cardClone.querySelector('.card-order-total');
     const trackBtnEl = cardClone.querySelector('.card-track-btn');
+    const cancelBtnEl = cardClone.querySelector('.card-cancel-btn');
+    const returnBtnEl = cardClone.querySelector('.card-return-btn');
+    const actionMessageEl = cardClone.querySelector('.card-order-action-message');
     const itemsListEl = cardClone.querySelector('.card-items-list');
 
     if (orderIdEl) orderIdEl.textContent = orderId;
@@ -537,6 +484,43 @@ async function loadAndRenderOrders(currentUser) {
     if (trackBtnEl) {
       trackBtnEl.href = `orders.html?orderId=${encodeURIComponent(orderId)}`;
       trackBtnEl.title = `Track parcel ${orderId} in Velora Logistics`;
+    }
+
+    const normalizedStatus = String(order.status || '').toLowerCase();
+    if (cancelBtnEl) {
+      cancelBtnEl.hidden = normalizedStatus !== 'pending';
+      cancelBtnEl.addEventListener('click', async () => {
+        if (!window.confirm(`Cancel order ${orderId}?`)) return;
+        cancelBtnEl.disabled = true;
+        try {
+          await submitOrderAction(`/api/orders/${encodeURIComponent(orderId)}/cancel`, 'PATCH');
+          await loadAndRenderOrders(currentUser);
+        } catch (error) {
+          if (actionMessageEl) actionMessageEl.textContent = error.message;
+          cancelBtnEl.disabled = false;
+        }
+      });
+    }
+    if (returnBtnEl) {
+      const existingReturn = userReturns.find(item => item.order_number === orderId);
+      const returnIsActive = existingReturn && ['pending', 'approved'].includes(existingReturn.status);
+      returnBtnEl.hidden = normalizedStatus !== 'delivered' || Boolean(returnIsActive);
+      if (returnIsActive && actionMessageEl) {
+        actionMessageEl.textContent = `Return ${existingReturn.status}: ${existingReturn.reason}`;
+      }
+      returnBtnEl.addEventListener('click', async () => {
+        const reason = window.prompt('Why are you requesting a return?');
+        if (!reason || !reason.trim()) return;
+        returnBtnEl.disabled = true;
+        try {
+          await submitOrderAction(`/api/orders/${encodeURIComponent(orderId)}/returns`, 'POST', { reason: reason.trim() });
+          if (actionMessageEl) actionMessageEl.textContent = 'Return request sent for review.';
+          returnBtnEl.hidden = true;
+        } catch (error) {
+          if (actionMessageEl) actionMessageEl.textContent = error.message;
+          returnBtnEl.disabled = false;
+        }
+      });
     }
 
     // Render Order Items
@@ -571,6 +555,23 @@ async function loadAndRenderOrders(currentUser) {
 
     container.appendChild(cardClone);
   });
+}
+
+async function submitOrderAction(path, method, body) {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.message || `Request failed (${response.status}).`);
+  }
+  return data;
 }
 
 // ============================================================

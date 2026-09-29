@@ -1,7 +1,9 @@
 window.currentNotifCategory = 'all';
 
-const NOTIFICATIONS_API =
-  'https://velora-e-commerce-qby7.onrender.com/api/notifications';
+const NOTIFICATIONS_API = (() => {
+  const baseUrl = window.VELORA_API_URL || window.VELORA_API_BASE_URL || 'https://velora-e-commerce-qby7.onrender.com';
+  return `${baseUrl.replace(/\/+$/, '')}/api/notifications`;
+})();
 
 const getNotificationToken = () => {
   return (
@@ -212,7 +214,9 @@ const normalizeNotification = (notification) => {
       notification.actionUrl ||
       null,
     actionTab:
-      type === 'order'
+      notification.type === 'return_requested'
+        ? 'returns'
+        : type === 'order'
         ? 'orders'
         : type === 'customer'
           ? 'customers'
@@ -260,8 +264,6 @@ window.fetchNotifications = async function() {
       'Fetch notifications error:',
       error
     );
-
-    window.notificationsData = [];
 
     window.renderNotificationsView();
 
@@ -967,15 +969,6 @@ window.handleNotificationAction =
     }
 
     if (
-      notification.actionUrl
-    ) {
-      window.location.href =
-        notification.actionUrl;
-
-      return;
-    }
-
-    if (
       notification.actionTab &&
       typeof window.switchTab ===
         'function'
@@ -983,6 +976,11 @@ window.handleNotificationAction =
       window.switchTab(
         notification.actionTab
       );
+      return;
+    }
+
+    if (notification.actionUrl) {
+      window.location.href = notification.actionUrl;
     }
   };
 
@@ -1205,5 +1203,16 @@ document.addEventListener(
     window.notificationsData = [];
     window.renderNotificationsView();
     window.fetchNotifications();
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        window.fetchNotifications();
+      }
+    }, 30000);
   }
 );
+
+['veloraAdminLogin', 'veloraAdminSessionRestored'].forEach(eventName => {
+  window.addEventListener(eventName, () => {
+    window.fetchNotifications();
+  });
+});

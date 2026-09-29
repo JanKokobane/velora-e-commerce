@@ -55,24 +55,9 @@ export function saveShippingDetails(details) {
  */
 export function saveCompletedOrder(order) {
   try {
-    localStorage.setItem(LAST_ORDER_STORAGE_KEY, JSON.stringify(order));
-    const historyRaw = localStorage.getItem(ORDERS_HISTORY_KEY);
-    const history = historyRaw ? JSON.parse(historyRaw) : [];
-    // Deduplicate
-    const filtered = history.filter(o => (o.orderNumber || o.id) !== (order.orderNumber || order.id));
-    filtered.unshift(order);
-    localStorage.setItem(ORDERS_HISTORY_KEY, JSON.stringify(filtered));
-
-    // Also record under user-scoped history key
     const user = requireAuthentication();
-    if (user && (user.id || user.email)) {
-      const userScopedKey = `velora_orders_history_${user.id || user.email}`;
-      const userHistRaw = localStorage.getItem(userScopedKey);
-      const userHist = userHistRaw ? JSON.parse(userHistRaw) : [];
-      const userFiltered = userHist.filter(o => (o.orderNumber || o.id) !== (order.orderNumber || order.id));
-      userFiltered.unshift(order);
-      localStorage.setItem(userScopedKey, JSON.stringify(userFiltered));
-    }
+    if (!user) return;
+    sessionStorage.setItem(`${LAST_ORDER_STORAGE_KEY}_${user.id || user.email}`, JSON.stringify(order));
   } catch (e) {
     console.error('Error recording order history:', e);
   }
@@ -228,13 +213,13 @@ export function initPaymentPage() {
 
   // Require authentication on payment page as well
   const authenticatedUser = requireAuthentication();
-  if (!authenticatedUser && urlParams.get('confirmation') !== 'true') {
+  if (!authenticatedUser) {
     window.location.href = 'auth.html?return=checkout';
     return;
   }
 
   if (urlParams.get('confirmation') === 'true') {
-    const lastOrderRaw = localStorage.getItem(LAST_ORDER_STORAGE_KEY);
+    const lastOrderRaw = sessionStorage.getItem(`${LAST_ORDER_STORAGE_KEY}_${authenticatedUser.id || authenticatedUser.email}`);
     if (lastOrderRaw) {
       try {
         const order = JSON.parse(lastOrderRaw);

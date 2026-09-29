@@ -8,6 +8,7 @@ const productRoutes = require("./src/routes/productRoutes");
 const notificationRoutes = require("./src/routes/notificationRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const returnRoutes = require("./src/routes/returnRoutes");
 
 const { connectDB } = require("./src/config/db");
 
@@ -19,6 +20,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/returns", returnRoutes);
 
 const startServer = async () => {
   try {
@@ -64,6 +66,10 @@ const startServer = async () => {
 
       console.log(
         "Payment API: /api/payments"
+      );
+
+      console.log(
+        "Returns API: /api/returns"
       );
     });
   } catch (error) {

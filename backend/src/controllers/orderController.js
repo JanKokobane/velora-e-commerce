@@ -185,6 +185,53 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+const cancelMyOrder = async (req, res) => {
+  try {
+    const userId = req.user?.user_id;
+    const orderNumber = req.params.orderNumber;
+
+    if (req.user?.role !== 'user' || !userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the order owner can cancel this order.'
+      });
+    }
+
+    const order = await orderService.cancelOrderForUser(orderNumber, userId);
+
+    try {
+      await createNotification({
+        type: 'order_cancelled',
+        category: 'orders',
+        title: 'Order Cancellation Requested',
+        message: `Order #${order.order_number} was cancelled by its customer.`,
+        entityType: 'order',
+        entityId: order.id,
+        actionUrl: '/admin#orders',
+        isActionable: true
+      });
+    } catch (notificationError) {
+      console.warn('Order cancellation notification warning:', notificationError.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order cancelled successfully.',
+      order
+    });
+  } catch (error) {
+    const status = error.code === 'ORDER_NOT_FOUND'
+      ? 404
+      : error.code === 'ORDER_NOT_CANCELLABLE'
+        ? 409
+        : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Unable to cancel order.'
+    });
+  }
+};
+
 const getMyOrder = async (req, res) => {
   try {
     const { orderNumber } =
@@ -268,5 +315,6 @@ module.exports = {
   createOrder,
   getMyOrders,
   getMyOrder,
-  getAllOrders
+  getAllOrders,
+  cancelMyOrder
 };

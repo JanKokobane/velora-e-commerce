@@ -3,6 +3,7 @@ window.orderSearchQuery = '';
 window.orderSortMode = 'date-desc';
 window.selectedOrderIds = new Set();
 window._isFetchingOrders = false;
+window.ordersLoadError = '';
 
 function getAdminAuthToken() {
   try {
@@ -405,7 +406,7 @@ window.fetchOrdersFromDb =
 
       const response =
         await fetch(
-          `${baseUrl}/api/orders`,
+          `${baseUrl}/api/orders/all`,
           {
             method: 'GET',
             headers:
@@ -474,6 +475,7 @@ window.fetchOrdersFromDb =
         rawOrders.map(
           mapDbOrder
         );
+      window.ordersLoadError = '';
 
       window.renderKPICards();
       window.renderOrdersTable();
@@ -516,7 +518,9 @@ window.fetchOrdersFromDb =
         error
       );
 
-      window.ordersData = [];
+      window.ordersLoadError =
+        error.message ||
+        'Unable to retrieve orders.';
 
       window.renderKPICards();
       window.renderOrdersTable();
@@ -946,7 +950,9 @@ window.renderOrdersTable =
         'var(--muted)';
 
       cell.textContent =
-        window._isFetchingOrders
+        window.ordersLoadError
+          ? `Could not load orders: ${window.ordersLoadError}`
+          : window._isFetchingOrders
           ? 'Fetching orders from database...'
           : orders.length === 0
           ? 'No orders recorded in the database yet.'

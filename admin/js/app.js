@@ -77,6 +77,9 @@ window.refreshCurrentView = function() {
     }
   } else if (tab === 'returns' && typeof window.renderReturnsView === 'function') {
     window.renderReturnsView();
+    if (typeof window.fetchReturnsFromDb === 'function') {
+      window.fetchReturnsFromDb();
+    }
   } else if (tab === 'inventory' && typeof window.renderInventoryView === 'function') {
     window.renderInventoryView();
   } else if (tab === 'customers') {
@@ -90,6 +93,9 @@ window.refreshCurrentView = function() {
     window.renderPaymentsView();
   } else if (tab === 'notifications' && typeof window.renderNotificationsView === 'function') {
     window.renderNotificationsView();
+    if (typeof window.fetchNotifications === 'function') {
+      window.fetchNotifications();
+    }
   } else if (tab === 'settings' && typeof window.renderSettingsView === 'function') {
     window.renderSettingsView();
   }

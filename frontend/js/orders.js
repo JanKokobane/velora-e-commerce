@@ -8,7 +8,6 @@ function resolveBackendBaseUrl() {
 }
 
 const API_BASE_URL = resolveBackendBaseUrl();
-const ORDERS_STORAGE_KEY = 'velora_orders_history';
 
 // Default parcel benchmark for demonstration if no orders exist yet
 const DEFAULT_PARCEL = {
@@ -81,123 +80,82 @@ const DEFAULT_PARCEL = {
   ]
 };
 
-// Retrieve all local orders
-function getAllOrders() {
-  const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-  if (!raw) return [DEFAULT_PARCEL];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [DEFAULT_PARCEL];
-  } catch (e) {
-    return [DEFAULT_PARCEL];
-  }
-}
-
 // Convert a backend order into a parcel tracking model
 function buildParcelFromOrder(o) {
   const orderId = o.orderNumber || o.id || 'VEL-84920';
   const customer = o.shipping || o.customer || {
-    fullName: o.fullName || 'Elena Vance',
-    email: o.email || 'elena@example.com',
-    phone: o.phone || '+27 82 000 0000',
-    street: o.street || '14 Kloof Street',
-    city: o.city || 'Cape Town'
+    fullName: o.fullName || '',
+    email: o.email || '',
+    phone: o.phone || '',
+    street: o.street || '',
+    city: o.city || ''
   };
 
-  const items = Array.isArray(o.items) && o.items.length > 0 ? o.items.map(item => ({
+  const items = Array.isArray(o.items) ? o.items.map(item => ({
     title: item.productName || item.title || item.name || 'Velora Item',
     size: item.size || 'Standard',
     quantity: Number(item.quantity) || 1,
     price: Number(item.unitPrice || item.price) || 0,
     image: item.image || item.image_url || 'https://images.pexels.com/photos/27204251/pexels-photo-27204251.jpeg?auto=compress&cs=tinysrgb&h=650&w=940'
-  })) : DEFAULT_PARCEL.items;
+  })) : [];
 
   const dateStr = o.createdAt
     ? new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : (o.date || 'Recent');
 
   const fullAddr = customer.street
-    ? `${customer.street}, ${customer.city || 'Cape Town'}, ${customer.province || 'Western Cape'}`
-    : (customer.address || '14 Kloof Street, Gardens, Cape Town');
+    ? `${customer.street}, ${customer.city || ''}, ${customer.province || ''}`.replace(/,\s*,/g, ',').replace(/,$/, '')
+    : (customer.address || '');
 
-  const isDelivered = o.status === 'delivered';
+  const orderStatus = String(o.status || 'pending').toLowerCase();
+  const isDelivered = orderStatus === 'delivered';
+  const statusLabels = {
+    pending: 'Order Pending',
+    processing: 'Processing',
+    confirmed: 'Confirmed',
+    shipped: 'Shipped',
+    transit: 'In Transit',
+    'in-transit': 'In Transit',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled',
+    refunded: 'Refunded'
+  };
+  const statusLabel = statusLabels[orderStatus] || String(o.status || 'Order Pending');
 
   return {
     id: orderId,
-    trackingNumber: o.trackingNumber || `TRK-ZA-${String(orderId).replace(/\D/g, '').slice(-7) || Math.floor(1000000 + Math.random() * 9000000)}`,
+    trackingNumber: o.trackingNumber || 'Not assigned',
     date: dateStr,
-    estimatedDelivery: o.estimatedDelivery || 'In 2-3 Business Days (14:00 – 17:00)',
-    status: isDelivered ? 'Delivered & Signed' : 'In Transit — Out for Express Delivery',
+    estimatedDelivery: o.estimatedDelivery || 'Not available',
+    status: statusLabel,
     currentStageIndex: isDelivered ? 4 : 3,
     carrier: 'Velora Express Courier (www.velora.co.za)',
     driver: {
-      name: 'Sipho Khumalo',
-      vehicle: 'Toyota Hilux Van (CA 892 411)',
-      phone: '+27 82 555 0192',
-      rating: '4.9 ★'
+      name: 'Not assigned',
+      vehicle: 'Not assigned',
+      phone: '',
+      rating: ''
     },
     customer: {
-      fullName: customer.fullName || 'Elena Vance',
-      email: customer.email || 'elena@example.com',
-      phone: customer.phone || '+27 82 000 0000',
+      fullName: customer.fullName || 'Customer',
+      email: customer.email || '',
+      phone: customer.phone || '',
       address: fullAddr
     },
-    paymentMethod: o.paymentMethod || 'Secure Card / EFT — Verified',
-    processingPartner: 'Velora Logistics Infrastructure (www.velora.co.za)',
+    paymentMethod: o.paymentMethod || 'Not available',
+    processingPartner: o.deliveryMethod || 'Not assigned',
     items,
     total: Number(o.total) || 0,
     milestones: [
       {
-        title: 'Order Verified & Payment Cleared',
-        location: 'Velora Digital Gateway',
-        time: `${dateStr}, 09:15`,
+        title: statusLabel,
+        location: 'Velora',
+        time: dateStr,
         completed: true,
-        description: 'Transaction authorized via Velora SSL gateway. Digital invoice generated.'
-      },
-      {
-        title: 'Velora Order Processing & Atelier Allocation',
-        location: 'Woodstock Studio, Cape Town',
-        time: `${dateStr}, 11:30`,
-        completed: true,
-        description: 'Handcrafted goods inspected by master artisan. Packed in biodegradable raw cotton dust bag.'
-      },
-      {
-        title: 'Dispatched to Velora Logistics Hub',
-        location: 'Airport Industria Dispatch Hub, Western Cape',
-        time: `${dateStr}, 16:45`,
-        completed: true,
-        description: 'Waybill scanned and audited by Velora logistics system (www.velora.co.za).'
-      },
-      {
-        title: 'Out for Express Delivery',
-        location: `${customer.city || 'Cape Town'} Hub Route`,
-        time: 'Today, 08:30',
-        completed: true,
-        description: 'Parcel loaded into express courier van. Courier Sipho K. is currently on route.'
-      },
-      {
-        title: 'Final Handover & Recipient Signature',
-        location: fullAddr,
-        time: 'Expected 14:00 – 17:00',
-        completed: isDelivered,
-        description: 'Signature required upon handover. Mobile PIN verification enabled.'
+        description: `Current order status: ${statusLabel}.`
       }
     ]
   };
-}
-
-// Find order by ID or Tracking
-function findLocalOrder(query) {
-  if (!query) return null;
-  const clean = query.trim().toUpperCase();
-  const orders = getAllOrders();
-
-  return orders.find(o => 
-    (o.id && o.id.toUpperCase() === clean) ||
-    (o.orderNumber && o.orderNumber.toUpperCase() === clean) ||
-    (o.trackingNumber && o.trackingNumber.toUpperCase() === clean) ||
-    (o.id && o.id.replace(/\D/g, '') === clean.replace(/\D/g, ''))
-  ) || null;
 }
 
 // Fetch order directly from backend
@@ -251,26 +209,64 @@ async function fetchOrderFromBackend(orderId) {
 export async function initOrdersPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const requestedId = urlParams.get('orderId') || urlParams.get('tracking');
+  const token = localStorage.getItem('velora_auth_token');
 
-  let activeOrder = null;
-  if (requestedId) {
-    const local = findLocalOrder(requestedId);
-    if (local) {
-      activeOrder = buildParcelFromOrder(local);
-    } else {
-      activeOrder = await fetchOrderFromBackend(requestedId);
+  if (!token) {
+    showTrackingNotice('Sign in to view your orders and parcel tracking.');
+    bindEvents();
+    updateGlobalHeaderUser();
+    return;
+  }
+
+  let activeOrder = requestedId
+    ? await fetchOrderFromBackend(requestedId)
+    : null;
+
+  if (!requestedId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json().catch(() => null);
+      if (response.ok && Array.isArray(data?.orders) && data.orders.length > 0) {
+        activeOrder = buildParcelFromOrder(data.orders[0]);
+      }
+    } catch (error) {
+      console.warn('Unable to fetch current user orders:', error);
     }
   }
 
-  // If not found or not specified, check most recent order
-  if (!activeOrder) {
-    const orders = getAllOrders();
-    activeOrder = orders[0] ? buildParcelFromOrder(orders[0]) : DEFAULT_PARCEL;
+  if (activeOrder) {
+    showTrackingInterface();
+    renderOrdersInterface(activeOrder);
+  } else {
+    showTrackingNotice(requestedId
+      ? 'That order was not found in your account.'
+      : 'No orders are available in your account yet.');
   }
-
-  renderOrdersInterface(activeOrder);
   bindEvents();
   updateGlobalHeaderUser();
+}
+
+function showTrackingNotice(message) {
+  const notice = document.getElementById('trackingNotice');
+  const overview = document.getElementById('orderOverviewCard');
+  const details = document.getElementById('trackingMainGrid');
+  if (notice) {
+    notice.textContent = message;
+    notice.hidden = false;
+  }
+  if (overview) overview.hidden = true;
+  if (details) details.hidden = true;
+}
+
+function showTrackingInterface() {
+  const notice = document.getElementById('trackingNotice');
+  const overview = document.getElementById('orderOverviewCard');
+  const details = document.getElementById('trackingMainGrid');
+  if (notice) notice.hidden = true;
+  if (overview) overview.hidden = false;
+  if (details) details.hidden = false;
 }
 
 // Render the main tracking interface using safe DOM manipulation
@@ -432,23 +428,12 @@ function bindEvents() {
         submitBtn.textContent = 'Searching...';
       }
 
-      let found = findLocalOrder(val);
-      if (found) {
-        renderOrdersInterface(buildParcelFromOrder(found));
+      const remote = await fetchOrderFromBackend(val);
+      if (remote) {
+        showTrackingInterface();
+        renderOrdersInterface(remote);
       } else {
-        const remote = await fetchOrderFromBackend(val);
-        if (remote) {
-          renderOrdersInterface(remote);
-        } else {
-          // Custom generated tracking for the entered identifier
-          const customOrder = buildParcelFromOrder({
-            id: val.toUpperCase().startsWith('VEL-') ? val.toUpperCase() : `VEL-${val}`,
-            trackingNumber: `TRK-ZA-${Math.floor(1000000 + Math.random() * 9000000)}`,
-            total: 999,
-            status: 'In Transit — Live Tracking Enabled'
-          });
-          renderOrdersInterface(customOrder);
-        }
+        showTrackingNotice('That order was not found in your account.');
       }
 
       if (submitBtn) {
@@ -465,14 +450,12 @@ function bindEvents() {
   chips.forEach(chip => {
     chip.addEventListener('click', async () => {
       const code = chip.dataset.code;
-      const found = findLocalOrder(code);
-      if (found) {
-        renderOrdersInterface(buildParcelFromOrder(found));
+      const remote = await fetchOrderFromBackend(code);
+      if (remote) {
+        showTrackingInterface();
+        renderOrdersInterface(remote);
       } else {
-        const remote = await fetchOrderFromBackend(code);
-        if (remote) {
-          renderOrdersInterface(remote);
-        }
+        showTrackingNotice('That order was not found in your account.');
       }
     });
   });

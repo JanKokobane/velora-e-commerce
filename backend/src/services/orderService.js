@@ -648,9 +648,69 @@ const getAllOrders = async () => {
   return orders;
 };
 
+const cancelOrderForUser = async (orderNumber, userId) => {
+  const orderResult = await db.query(
+    `
+    SELECT id, status, payment_status
+    FROM orders
+    WHERE order_number = $1 AND user_id = $2
+    LIMIT 1
+    `,
+    [orderNumber, userId]
+  );
+
+  const order = orderResult.rows[0];
+  if (!order) {
+    const error = new Error('Order not found.');
+    error.code = 'ORDER_NOT_FOUND';
+    throw error;
+  }
+
+  if (String(order.status).toLowerCase() !== 'pending' || String(order.payment_status).toLowerCase() === 'paid') {
+    const error = new Error('Only unpaid pending orders can be cancelled.');
+    error.code = 'ORDER_NOT_CANCELLABLE';
+    throw error;
+  }
+
+  const paymentResult = await db.query(
+    `
+    SELECT id
+    FROM payments
+    WHERE order_id = $1
+      AND payment_status IN ('pending', 'processing')
+    LIMIT 1
+    `,
+    [order.id]
+  );
+  if (paymentResult.rows.length > 0) {
+    const error = new Error('An order with an active payment cannot be cancelled.');
+    error.code = 'ORDER_NOT_CANCELLABLE';
+    throw error;
+  }
+
+  const result = await db.query(
+    `
+    UPDATE orders
+    SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+    WHERE id = $1 AND status = 'pending' AND payment_status <> 'paid'
+    RETURNING id, order_number, status
+    `,
+    [order.id]
+  );
+
+  if (!result.rows[0]) {
+    const error = new Error('This order can no longer be cancelled.');
+    error.code = 'ORDER_NOT_CANCELLABLE';
+    throw error;
+  }
+
+  return result.rows[0];
+};
+
 module.exports = {
   createOrder,
   getOrdersByUserId,
   getOrderByNumberForUser,
-  getAllOrders
+  getAllOrders,
+  cancelOrderForUser
 };

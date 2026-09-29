@@ -390,6 +390,10 @@ export function logoutUser() {
     'velora_last_order'
   );
 
+  Object.keys(sessionStorage)
+    .filter(key => key === 'velora_last_order' || key.startsWith('velora_last_order_'))
+    .forEach(key => sessionStorage.removeItem(key));
+
   localStorage.removeItem(
     'velora_shipping_details'
   );

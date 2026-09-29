@@ -109,8 +109,10 @@
       </div>
     </div>
 
+    <p id="trackingNotice" role="status" aria-live="polite">Loading your order...</p>
+
     <!-- Active Parcel Status Hero -->
-    <div class="order-overview-card" id="orderOverviewCard">
+    <div class="order-overview-card" id="orderOverviewCard" hidden>
       <div class="overview-header">
         <div class="overview-title-block">
           <div class="parcel-id-row">
@@ -162,7 +164,7 @@
     </div>
 
     <!-- 2-Column Details: Timeline & Manifest -->
-    <div class="tracking-grid" id="trackingMainGrid">
+    <div class="tracking-grid" id="trackingMainGrid" hidden>
       
       <!-- Left: Milestone Processing Timeline -->
       <div class="tracking-left-col">

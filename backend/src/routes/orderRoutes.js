@@ -5,8 +5,10 @@ const {
   createOrder,
   getMyOrders,
   getMyOrder,
-  getAllOrders
+  getAllOrders,
+  cancelMyOrder
 } = require('../controllers/orderController');
+const { createMyReturn } = require('../controllers/returnController');
 
 const router = express.Router();
 
@@ -58,6 +60,9 @@ router.post('/', createOrder);
 router.get('/', getMyOrders);
 
 router.get('/all', getAllOrders);
+
+router.patch('/:orderNumber/cancel', cancelMyOrder);
+router.post('/:orderNumber/returns', createMyReturn);
 
 router.get('/:orderNumber', getMyOrder);
 

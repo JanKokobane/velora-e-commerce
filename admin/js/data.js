@@ -26,10 +26,7 @@ const INITIAL_ORDERS = [];
 
 const INITIAL_INVENTORY = [];
 
-const INITIAL_RETURNS = [
-  { id: 'RET-0981', orderId: '#390557', customer: 'Lara Croft-Mthembu', reason: 'Size too small, requested return before shipment', refundAmount: 450.00, status: 'Authorised' },
-  { id: 'RET-0982', orderId: '#390560', customer: 'Pieter van der Merwe', reason: 'Duplicate purchase by family member', refundAmount: 1250.00, status: 'Under Review' }
-];
+const INITIAL_RETURNS = [];
 
 const INITIAL_CUSTOMERS = [];
 
@@ -106,7 +103,7 @@ if (Array.isArray(window.inventoryData)) {
     return !isMock;
   });
 }
-window.returnsData = loadStorage(window.STORAGE_KEYS.RETURNS, INITIAL_RETURNS);
+window.returnsData = INITIAL_RETURNS;
 window.customersData = loadStorage(window.STORAGE_KEYS.CUSTOMERS, INITIAL_CUSTOMERS);
 if (Array.isArray(window.customersData)) {
   window.customersData = window.customersData.filter(cust => {
