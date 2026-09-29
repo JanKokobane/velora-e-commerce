@@ -128,6 +128,14 @@ const createOrder = async ({
           String(productRow.id) === String(item.productId)
       );
 
+      if (!product) {
+        const error = new Error(
+          `Product ${item.productId} is no longer available.`
+        );
+        error.code = 'PRODUCT_NOT_FOUND';
+        throw error;
+      }
+
       const productName =
         product?.title ||
         product?.name ||
@@ -218,6 +226,38 @@ const createOrder = async ({
     }
 
     await client.query('BEGIN');
+
+    const depletedProducts = [];
+
+    for (const item of orderItems) {
+      const stockResult = await client.query(
+        `
+        UPDATE products
+        SET stock = stock - $1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id::text = $2
+          AND stock >= $1
+        RETURNING id, title, stock
+        `,
+        [item.quantity, String(item.productId)]
+      );
+
+      if (stockResult.rows.length === 0) {
+        const error = new Error(
+          `There is not enough stock for ${item.productName}. Refresh your cart and try again.`
+        );
+        error.code = 'INSUFFICIENT_STOCK';
+        throw error;
+      }
+
+      const updatedProduct = stockResult.rows[0];
+      if (Number(updatedProduct.stock) === 0) {
+        depletedProducts.push({
+          id: updatedProduct.id,
+          title: updatedProduct.title || item.productName
+        });
+      }
+    }
 
     const orderResult = await client.query(
       `
@@ -344,7 +384,8 @@ const createOrder = async ({
       trackingNumber: order.tracking_number,
       createdAt: order.created_at,
       updatedAt: order.updated_at,
-      items: orderItems
+      items: orderItems,
+      depletedProducts
     };
 
   } catch (error) {
@@ -649,62 +690,99 @@ const getAllOrders = async () => {
 };
 
 const cancelOrderForUser = async (orderNumber, userId) => {
-  const orderResult = await db.query(
-    `
-    SELECT id, status, payment_status
-    FROM orders
-    WHERE order_number = $1 AND user_id = $2
-    LIMIT 1
-    `,
-    [orderNumber, userId]
-  );
+  const client = await db.connect();
 
-  const order = orderResult.rows[0];
-  if (!order) {
-    const error = new Error('Order not found.');
-    error.code = 'ORDER_NOT_FOUND';
+  try {
+    await client.query('BEGIN');
+
+    const orderResult = await client.query(
+      `
+      SELECT id, status, payment_status
+      FROM orders
+      WHERE order_number = $1 AND user_id = $2
+      LIMIT 1
+      FOR UPDATE
+      `,
+      [orderNumber, userId]
+    );
+
+    const order = orderResult.rows[0];
+    if (!order) {
+      const error = new Error('Order not found.');
+      error.code = 'ORDER_NOT_FOUND';
+      throw error;
+    }
+
+    if (String(order.status).toLowerCase() !== 'pending' || String(order.payment_status).toLowerCase() === 'paid') {
+      const error = new Error('Only unpaid pending orders can be cancelled.');
+      error.code = 'ORDER_NOT_CANCELLABLE';
+      throw error;
+    }
+
+    const paymentResult = await client.query(
+      `
+      SELECT id
+      FROM payments
+      WHERE order_id = $1
+        AND payment_status IN ('pending', 'processing')
+      LIMIT 1
+      `,
+      [order.id]
+    );
+    if (paymentResult.rows.length > 0) {
+      const error = new Error('An order with an active payment cannot be cancelled.');
+      error.code = 'ORDER_NOT_CANCELLABLE';
+      throw error;
+    }
+
+    const result = await client.query(
+      `
+      UPDATE orders
+      SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 AND status = 'pending' AND payment_status <> 'paid'
+      RETURNING id, order_number, status
+      `,
+      [order.id]
+    );
+
+    if (!result.rows[0]) {
+      const error = new Error('This order can no longer be cancelled.');
+      error.code = 'ORDER_NOT_CANCELLABLE';
+      throw error;
+    }
+
+    const itemsResult = await client.query(
+      `
+      SELECT product_id, quantity
+      FROM order_items
+      WHERE order_id = $1
+      `,
+      [order.id]
+    );
+
+    for (const item of itemsResult.rows) {
+      await client.query(
+        `
+        UPDATE products
+        SET stock = stock + $1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id::text = $2
+        `,
+        [item.quantity, String(parseStoredProductId(item.product_id))]
+      );
+    }
+
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+    }
     throw error;
+  } finally {
+    client.release();
   }
-
-  if (String(order.status).toLowerCase() !== 'pending' || String(order.payment_status).toLowerCase() === 'paid') {
-    const error = new Error('Only unpaid pending orders can be cancelled.');
-    error.code = 'ORDER_NOT_CANCELLABLE';
-    throw error;
-  }
-
-  const paymentResult = await db.query(
-    `
-    SELECT id
-    FROM payments
-    WHERE order_id = $1
-      AND payment_status IN ('pending', 'processing')
-    LIMIT 1
-    `,
-    [order.id]
-  );
-  if (paymentResult.rows.length > 0) {
-    const error = new Error('An order with an active payment cannot be cancelled.');
-    error.code = 'ORDER_NOT_CANCELLABLE';
-    throw error;
-  }
-
-  const result = await db.query(
-    `
-    UPDATE orders
-    SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
-    WHERE id = $1 AND status = 'pending' AND payment_status <> 'paid'
-    RETURNING id, order_number, status
-    `,
-    [order.id]
-  );
-
-  if (!result.rows[0]) {
-    const error = new Error('This order can no longer be cancelled.');
-    error.code = 'ORDER_NOT_CANCELLABLE';
-    throw error;
-  }
-
-  return result.rows[0];
 };
 
 module.exports = {

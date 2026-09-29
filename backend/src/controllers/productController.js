@@ -464,6 +464,13 @@ const getProduct = async (req, res) => {
       });
     }
 
+    if (Number(product.stock) <= 0) {
+      return res.status(404).json({
+        message:
+          "This product is out of stock.",
+      });
+    }
+
     return res.status(200).json({
       product,
     });

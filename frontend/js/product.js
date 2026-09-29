@@ -35,7 +35,8 @@ async function loadProduct(productId) {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch product');
+      const data = await response.json().catch(() => null);
+      throw new Error(data?.message || 'Failed to fetch product');
     }
 
     const data = await response.json();
@@ -51,7 +52,23 @@ async function loadProduct(productId) {
     loadRelatedProducts(currentProduct);
   } catch (error) {
     console.error('Failed to load product:', error);
+    renderUnavailableProduct(error.message);
   }
+}
+
+function renderUnavailableProduct(message) {
+  const title = document.getElementById('productTitle');
+  const stockMessage = document.getElementById('productStockMessage');
+  const purchaseRow = document.querySelector('.purchase-row');
+  const buyNowButton = document.getElementById('buyNowBtn');
+
+  if (title) title.textContent = 'Product unavailable';
+  if (stockMessage) {
+    stockMessage.textContent = message || 'This product is no longer available.';
+    stockMessage.classList.add('is-out-of-stock');
+  }
+  if (purchaseRow) purchaseRow.hidden = true;
+  if (buyNowButton) buyNowButton.hidden = true;
 }
 
 function renderProduct(product) {
@@ -61,6 +78,7 @@ function renderProduct(product) {
   const price = Number(product.price || 0);
   const rating = Number(product.rating || 0);
   const reviews = Number(product.reviews || 0);
+  const stock = Math.max(0, Number(product.stock) || 0);
 
   const pageTitle = document.getElementById('pageTitle');
   const pageDescription = document.getElementById('pageDescription');
@@ -102,6 +120,8 @@ function renderProduct(product) {
 
   const productDesc =
     document.getElementById('productDesc');
+  const stockMessage =
+    document.getElementById('productStockMessage');
 
   const productRating =
     document.getElementById('productRating');
@@ -133,6 +153,16 @@ function renderProduct(product) {
   if (productDesc) {
     productDesc.textContent =
       product.description || '';
+  }
+
+  if (stockMessage) {
+    stockMessage.textContent = stock === 0
+      ? 'Out of stock'
+      : stock < 5
+        ? `Only ${stock} left`
+        : `${stock} in stock`;
+    stockMessage.classList.toggle('is-low-stock', stock > 0 && stock < 5);
+    stockMessage.classList.toggle('is-out-of-stock', stock === 0);
   }
 
   if (productRating) {
@@ -431,8 +461,23 @@ function initQuantityControls() {
     return;
   }
 
+  const availableStock = Math.max(0, Number(currentProduct?.stock) || 0);
+  currentQty = availableStock > 0 ? 1 : 0;
+
   quantityEl.textContent =
     currentQty;
+
+  const updateQuantityControls = () => {
+    quantityEl.textContent = String(currentQty);
+    if (decreaseBtn) decreaseBtn.disabled = currentQty <= 1;
+    if (increaseBtn) increaseBtn.disabled = currentQty >= availableStock;
+  };
+
+  const addToBagButton = document.getElementById('addToBag');
+  const buyNowButton = document.getElementById('buyNowBtn');
+  if (addToBagButton) addToBagButton.disabled = availableStock === 0;
+  if (buyNowButton) buyNowButton.disabled = availableStock === 0;
+  updateQuantityControls();
 
   if (decreaseBtn) {
     decreaseBtn.addEventListener(
@@ -440,8 +485,7 @@ function initQuantityControls() {
       () => {
         if (currentQty > 1) {
           currentQty--;
-          quantityEl.textContent =
-            currentQty;
+          updateQuantityControls();
         }
       }
     );
@@ -451,9 +495,10 @@ function initQuantityControls() {
     increaseBtn.addEventListener(
       'click',
       () => {
-        currentQty++;
-        quantityEl.textContent =
-          currentQty;
+        if (currentQty < availableStock) {
+          currentQty++;
+          updateQuantityControls();
+        }
       }
     );
   }
@@ -603,6 +648,7 @@ async function loadRelatedProducts(product) {
           (item) =>
             String(item.id) !==
               String(product.id) &&
+            Number(item.stock) > 0 &&
             String(item.category || '')
               .trim()
               .toLowerCase() ===

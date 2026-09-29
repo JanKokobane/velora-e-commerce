@@ -214,6 +214,32 @@
 }
 .quantity button:hover { color: var(--ink); }
 .quantity span { font-size: 12px; font-weight: 600; }
+.quantity button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.stock-availability-message {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stock-availability-message.is-low-stock {
+  color: #a16207;
+}
+
+.stock-availability-message.is-out-of-stock {
+  color: #b91c1c;
+}
+
+.add-to-bag:disabled,
+.buy-now-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
 .add-to-bag {
   flex: 1;

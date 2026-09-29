@@ -1,4 +1,5 @@
 window.currentNotifCategory = 'all';
+const handledInventoryRefreshNotificationIds = new Set();
 
 const NOTIFICATIONS_API = (() => {
   const baseUrl = window.VELORA_API_URL || window.VELORA_API_BASE_URL || 'https://velora-e-commerce-qby7.onrender.com';
@@ -103,6 +104,10 @@ const getNotificationType = (notification) => {
 };
 
 const getNotificationIcon = (notification) => {
+  if (notification.type === 'product_out_of_stock') {
+    return '⚠️';
+  }
+
   if (notification.type === 'product_created') {
     return '➕';
   }
@@ -270,6 +275,23 @@ window.fetchNotifications = async function() {
       notifications
         .map(normalizeNotification)
         .filter(notification => !notification.cleared);
+
+    const newInventoryNotifications =
+      window.notificationsData.filter(notification =>
+        ['order_created', 'order_cancelled', 'product_out_of_stock'].includes(notification.backendType) &&
+        !handledInventoryRefreshNotificationIds.has(String(notification.id))
+      );
+
+    newInventoryNotifications.forEach(notification => {
+      handledInventoryRefreshNotificationIds.add(String(notification.id));
+    });
+
+    if (
+      newInventoryNotifications.length > 0 &&
+      typeof window.fetchProductsFromDatabase === 'function'
+    ) {
+      window.fetchProductsFromDatabase();
+    }
 
     window.renderNotificationsView();
 

@@ -124,9 +124,9 @@ function renderCardsView(container, products) {
     let badgeClass = 'stock-in';
     let badgeText = `${prod.stock} in stock`;
 
-    if (prod.stock === 0) {
+    if (Number(prod.stock) <= 0) {
       badgeClass = 'stock-out';
-      badgeText = 'Sold Out';
+      badgeText = 'Out of stock';
     } else if (prod.stock <= 5) {
       badgeClass = 'stock-low';
       badgeText = `${prod.stock} low stock`;
@@ -297,9 +297,9 @@ function renderListView(container, products) {
     let badgeClass = 'stock-in';
     let badgeText = `${prod.stock} in stock`;
 
-    if (prod.stock === 0) {
+    if (Number(prod.stock) <= 0) {
       badgeClass = 'stock-out';
-      badgeText = 'Sold Out';
+      badgeText = 'Out of stock';
     } else if (prod.stock <= 5) {
       badgeClass = 'stock-low';
       badgeText = `${prod.stock} low stock`;
@@ -452,9 +452,9 @@ function renderDetailsView(container, products) {
 
     let badgeClass = 'stock-in';
     let badgeText = `${prod.stock} in stock`;
-    if (prod.stock === 0) {
+    if (Number(prod.stock) <= 0) {
       badgeClass = 'stock-out';
-      badgeText = 'Sold Out';
+      badgeText = 'Out of stock';
     } else if (prod.stock <= 5) {
       badgeClass = 'stock-low';
       badgeText = `${prod.stock} low stock`;
@@ -617,9 +617,9 @@ window.openProductDetailModal = function(prod) {
   if (stockBadge) {
     let badgeClass = 'stock-in';
     let badgeText = `${prod.stock} in stock`;
-    if (prod.stock === 0) {
+    if (Number(prod.stock) <= 0) {
       badgeClass = 'stock-out';
-      badgeText = 'Sold Out';
+      badgeText = 'Out of stock';
     } else if (prod.stock <= 5) {
       badgeClass = 'stock-low';
       badgeText = `${prod.stock} low stock`;
@@ -857,7 +857,11 @@ window.openProductDetailModal = function(prod) {
 
   // 9. Admin Quick Metrics Strip
   const metricStock = document.getElementById('pvMetricStock');
-  if (metricStock) metricStock.textContent = `${prod.stock} units`;
+  if (metricStock) {
+    metricStock.textContent = Number(prod.stock) > 0
+      ? `${prod.stock} units`
+      : 'Out of stock';
+  }
 
   const metricCost = document.getElementById('pvMetricCost');
   if (metricCost) {

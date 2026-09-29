@@ -65,6 +65,10 @@ const createOrder = async (req, res) => {
       shipping,
       deliveryMethod
     });
+    const {
+      depletedProducts = [],
+      ...orderResponse
+    } = order;
 
     try {
       const orderTotal = Number(
@@ -90,16 +94,50 @@ const createOrder = async (req, res) => {
       );
     }
 
+    for (const product of depletedProducts) {
+      try {
+        await createNotification({
+          type: 'product_out_of_stock',
+          category: 'inventory',
+          title: 'Product Out of Stock',
+          message: `${product.title} has sold out. Restock it to make it available in the storefront again.`,
+          entityType: 'product',
+          entityId: product.id,
+          actionUrl: '/admin#inventory',
+          isActionable: true
+        });
+      } catch (notificationError) {
+        console.warn(
+          'Out-of-stock notification warning:',
+          notificationError.message
+        );
+      }
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Order created successfully.',
-      order
+      order: orderResponse
     });
   } catch (error) {
     console.error(
       'Create order error:',
       error
     );
+
+    if (error.code === 'INSUFFICIENT_STOCK') {
+      return res.status(409).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    if (error.code === 'PRODUCT_NOT_FOUND') {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
 
     return res.status(500).json({
       success: false,
