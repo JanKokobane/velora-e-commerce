@@ -28,6 +28,9 @@
   // --- LOGOUT LOGIC ---
   window.adminSignOut = function() {
     try {
+      if (window.adminAuthApi && typeof window.adminAuthApi.logout === 'function') {
+        window.adminAuthApi.logout();
+      }
       localStorage.removeItem(getAuthKey());
       sessionStorage.removeItem(getSessionActiveKey());
       sessionStorage.setItem('velora_explicit_signout', 'true');
@@ -43,8 +46,8 @@
     const passInput = document.getElementById('kinderPassword');
     if (passInput) passInput.value = '';
 
-    if (typeof window.checkAdminAuthSession === 'function') {
-      window.checkAdminAuthSession();
+    if (typeof window.showAuthGate === 'function') {
+      window.showAuthGate();
     }
 
     if (typeof window.showToast === 'function') {
