@@ -6,9 +6,19 @@ const NOTIFICATIONS_API = (() => {
 })();
 
 const getNotificationToken = () => {
+  if (
+    window.adminAuthApi &&
+    typeof window.adminAuthApi.getToken === 'function'
+  ) {
+    const token = window.adminAuthApi.getToken();
+    if (token) return token;
+  }
+
   return (
     localStorage.getItem('velora_admin_token') ||
+    localStorage.getItem('admin_token') ||
     sessionStorage.getItem('velora_admin_token') ||
+    sessionStorage.getItem('admin_token') ||
     localStorage.getItem('token') ||
     sessionStorage.getItem('token') ||
     ''
@@ -237,6 +247,11 @@ const normalizeNotification = (notification) => {
 };
 
 window.fetchNotifications = async function() {
+  if (!getNotificationToken()) {
+    window.renderNotificationsView();
+    return [];
+  }
+
   try {
     const data = await notificationRequest(
       NOTIFICATIONS_API
@@ -1204,7 +1219,7 @@ document.addEventListener(
     window.renderNotificationsView();
     window.fetchNotifications();
     window.setInterval(() => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && getNotificationToken()) {
         window.fetchNotifications();
       }
     }, 30000);

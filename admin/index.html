@@ -322,7 +322,7 @@
 
     if (!window.openOrderDrawer) {
       window.openOrderDrawer = function (orderId) {
-        _queueOrRun('_realOpenOrderDrawer', null, orderId);
+        _queueOrRun('selectAndOpenOrder', null, orderId);
       };
     }
     if (!window.closeOrderDrawer) {
@@ -1369,41 +1369,7 @@
 
           <!-- 8. Payments View -->
           <div id="paymentsMainView" data-component="payments" style="display: none;">
-            <div class="kpi-grid" id="paymentsKPISection">
-              <div class="kpi-card" id="kpiPaymentsGross">
-                <div class="kpi-header">
-                  <span class="kpi-title">Gross Paid Volume</span>
-                  <div class="kpi-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="1" x2="12" y2="23"></line>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                  </div>
-                </div>
-                <div class="kpi-value" id="paymentsKpiGross">R0.00</div>
-                <div class="kpi-trend positive" id="paymentsKpiSettledNote">
-                  <span>0 paid transactions</span>
-                </div>
-              </div>
-
-              <div class="kpi-card" id="kpiPaymentsNet">
-                <div class="kpi-header">
-                  <span class="kpi-title">Net Amount</span>
-                  <div class="kpi-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                      <line x1="2" y1="10" x2="22" y2="10"></line>
-                    </svg>
-                  </div>
-                </div>
-                <div class="kpi-value" id="paymentsKpiNet">R0.00</div>
-                <div class="kpi-trend positive">
-                  <span>Fee-adjusted values when recorded</span>
-                </div>
-              </div>
-
-
-            </div>
+           
 
             <div class="orders-table-card">
               <div
@@ -2583,52 +2549,30 @@
 
 
   <div class="dash-modal-backdrop" id="paymentReceiptModal">
-    <div class="dash-modal" style="max-width: 480px;">
+    <div class="dash-modal payment-receipt-modal">
       <div class="dash-modal-header">
         <h3>Payment Settlement Receipt</h3>
         <button type="button" class="drawer-close-btn" onclick="window.closePaymentReceiptModal()">✕</button>
       </div>
       <div class="dash-modal-body" id="paymentReceiptContent">
-        <div class="receipt-card">
-          <div class="receipt-header">
+        <div class="receipt-card-box">
+          <div class="receipt-header-line">
             <div class="receipt-status-pill" id="receiptStatusPill">Settled</div>
             <div class="receipt-ref-code" id="receiptRefCode">PAY-ZA-000000</div>
           </div>
 
-          <div class="receipt-details-list">
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Order Reference:</span>
-              <span class="receipt-detail-value" id="receiptOrderId">#000000</span>
-            </div>
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Timestamp:</span>
-              <span class="receipt-detail-value" id="receiptTimestamp">--</span>
-            </div>
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Customer:</span>
-              <span class="receipt-detail-value" id="receiptCustomer">--</span>
-            </div>
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Payment Gateway:</span>
-              <span class="receipt-detail-value" id="receiptGateway">Ozow Instant EFT</span>
-            </div>
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Settlement Bank:</span>
-              <span class="receipt-detail-value" id="receiptBank">Standard Bank of SA</span>
-            </div>
-            <div class="receipt-detail-row receipt-total-row">
-              <span class="receipt-detail-label">Gross Amount:</span>
-              <span class="receipt-detail-value" id="receiptGrossAmount">R0.00</span>
-            </div>
-            <div class="receipt-detail-row">
-              <span class="receipt-detail-label">Gateway Fee (est.):</span>
-              <span class="receipt-detail-value" id="receiptFeeAmount">-R0.00</span>
-            </div>
-            <div class="receipt-detail-row receipt-net-row">
-              <span class="receipt-detail-label">Net Settlement:</span>
-              <span class="receipt-detail-value receipt-net-value" id="receiptNetAmount">R0.00</span>
-            </div>
-          </div>
+          <table class="receipt-details-table">
+            <tbody>
+              <tr><th scope="row">Order Reference</th><td id="receiptOrderId">#000000</td></tr>
+              <tr><th scope="row">Timestamp</th><td id="receiptTimestamp">--</td></tr>
+              <tr><th scope="row">Customer</th><td id="receiptCustomer">--</td></tr>
+              <tr><th scope="row">Payment Gateway</th><td id="receiptGateway">Ozow Instant EFT</td></tr>
+              <tr><th scope="row">Settlement Bank</th><td id="receiptBank">Standard Bank of SA</td></tr>
+              <tr class="receipt-total-row"><th scope="row">Gross Amount</th><td id="receiptGrossAmount">R0.00</td></tr>
+              <tr><th scope="row">Gateway Fee (est.)</th><td id="receiptFeeAmount">-R0.00</td></tr>
+              <tr class="receipt-net-row"><th scope="row">Net Settlement</th><td id="receiptNetAmount">R0.00</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="dash-modal-footer">

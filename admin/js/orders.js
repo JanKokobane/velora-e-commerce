@@ -368,6 +368,10 @@ window.fetchOrdersFromDb =
   async function(
     showToastFeedback = false
   ) {
+    if (!getAdminAuthToken()) {
+      return [];
+    }
+
     if (
       window._isFetchingOrders
     ) {
