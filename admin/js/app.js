@@ -91,6 +91,9 @@ window.refreshCurrentView = function() {
     }
   } else if (tab === 'payments' && typeof window.renderPaymentsView === 'function') {
     window.renderPaymentsView();
+    if (typeof window.fetchPaymentsFromDb === 'function') {
+      window.fetchPaymentsFromDb();
+    }
   } else if (tab === 'notifications' && typeof window.renderNotificationsView === 'function') {
     window.renderNotificationsView();
     if (typeof window.fetchNotifications === 'function') {

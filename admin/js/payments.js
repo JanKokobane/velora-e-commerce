@@ -6,13 +6,113 @@
 window.paymentGatewayFilter = 'all';
 window.paymentStatusFilter = 'all';
 window.paymentSearchQuery = '';
+window.paymentsLoadError = '';
+window._isFetchingPayments = false;
+
+function getPaymentsApiBaseUrl() {
+  return window.VELORA_API_URL ||
+    window.VELORA_API_BASE_URL ||
+    'https://velora-e-commerce-qby7.onrender.com';
+}
+
+function getAdminAuthToken() {
+  if (window.adminAuthApi && typeof window.adminAuthApi.getToken === 'function') {
+    return window.adminAuthApi.getToken() || '';
+  }
+
+  return localStorage.getItem('velora_admin_token') ||
+    localStorage.getItem('admin_token') ||
+    localStorage.getItem('token') || '';
+}
+
+function formatPaymentTimestamp(value) {
+  if (!value) return 'Not recorded';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not recorded';
+  return date.toLocaleString('en-ZA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function mapDbPayment(payment) {
+  const method = String(payment.paymentMethod || '').toLowerCase();
+  const methods = {
+    eft: 'EFT',
+    snapscan: 'SnapScan',
+    zapper: 'Zapper',
+    card: 'Card',
+    cod: 'Cash on Delivery'
+  };
+  const status = String(payment.paymentStatus || 'unknown');
+  const amount = Number(payment.amount) || 0;
+  const rawOrderNumber = payment.orderNumber || payment.orderId || '';
+  const orderId = String(rawOrderNumber).startsWith('#')
+    ? String(rawOrderNumber)
+    : `#${rawOrderNumber}`;
+  const customer = payment.customer || {};
+
+  return {
+    ref: payment.transactionReference || payment.gatewayReference || `PAY-${payment.id}`,
+    orderId,
+    customer: customer.fullName || customer.email || 'Customer not recorded',
+    gateway: methods[method] || (method ? method.toUpperCase() : 'Not recorded'),
+    grossAmount: amount,
+    fee: payment.fee == null ? null : Number(payment.fee),
+    netAmount: payment.netAmount == null ? null : Number(payment.netAmount),
+    timestamp: formatPaymentTimestamp(payment.createdAt || payment.updatedAt),
+    status: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
+    bank: payment.bank || 'Not recorded'
+  };
+}
+
+window.fetchPaymentsFromDb = async function() {
+  if (window._isFetchingPayments) return;
+  window._isFetchingPayments = true;
+  window.paymentsLoadError = '';
+  window.renderPaymentsView();
+
+  try {
+    const token = getAdminAuthToken();
+    if (!token) throw new Error('Administrator sign-in is required to view payments.');
+
+    const baseUrl = getPaymentsApiBaseUrl().replace(/\/+$/, '');
+    const response = await fetch(`${baseUrl}/api/payments/admin`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.message || `Payments API returned HTTP ${response.status}.`);
+    }
+
+    const payments = Array.isArray(data?.payments) ? data.payments : [];
+    window.paymentsData = payments.map(mapDbPayment);
+  } catch (error) {
+    console.error('[Velora Admin] Error fetching payments:', error);
+    window.paymentsData = [];
+    window.paymentsLoadError = error.message || 'Unable to load payments.';
+  } finally {
+    window._isFetchingPayments = false;
+    window.renderPaymentsView();
+  }
+};
 
 window.renderPaymentsView = function() {
-  const grossVolume = window.paymentsData.reduce((acc, p) => acc + (p.status === 'Settled' ? p.grossAmount : 0), 0);
-  const netVolume = window.paymentsData.reduce((acc, p) => acc + (p.status === 'Settled' ? p.netAmount : 0), 0);
-  const settledCount = window.paymentsData.filter(p => p.status === 'Settled').length;
-  const instantEftCount = window.paymentsData.filter(p => p.gateway.includes('EFT') || p.gateway.includes('SnapScan')).length;
-  const eftSharePercent = window.paymentsData.length ? Math.round((instantEftCount / window.paymentsData.length) * 100) : 0;
+  const payments = Array.isArray(window.paymentsData) ? window.paymentsData : [];
+  const paidPayments = payments.filter(p => p.status === 'Paid' || p.status === 'Settled');
+  const grossVolume = paidPayments.reduce((acc, p) => acc + p.grossAmount, 0);
+  const knownNetPayments = paidPayments.filter(p => Number.isFinite(p.netAmount));
+  const netVolume = knownNetPayments.reduce((acc, p) => acc + p.netAmount, 0);
+  const settledCount = paidPayments.length;
+  const instantEftCount = payments.filter(p => ['eft', 'snapscan'].includes(p.gateway.toLowerCase())).length;
+  const eftSharePercent = payments.length ? Math.round((instantEftCount / payments.length) * 100) : 0;
 
   const grossEl = document.getElementById('paymentsKpiGross');
   const netEl = document.getElementById('paymentsKpiNet');
@@ -20,21 +120,21 @@ window.renderPaymentsView = function() {
   const settledNote = document.getElementById('paymentsKpiSettledNote');
 
   if (grossEl) grossEl.textContent = window.fmtPrice(grossVolume);
-  if (netEl) netEl.textContent = window.fmtPrice(netVolume);
+  if (netEl) netEl.textContent = knownNetPayments.length ? window.fmtPrice(netVolume) : 'Not recorded';
   if (eftEl) eftEl.textContent = `${eftSharePercent}%`;
   if (settledNote) {
     const span = document.createElement('span');
-    span.textContent = `${settledCount} cleared transactions`;
+    span.textContent = `${settledCount} paid transactions`;
     settledNote.replaceChildren(span);
   }
 
   const sidebarBadge = document.getElementById('sidebarPaymentsBadge');
-  if (sidebarBadge) sidebarBadge.textContent = window.paymentsData.length.toString();
+  if (sidebarBadge) sidebarBadge.textContent = payments.length.toString();
 
   const tbody = document.getElementById('paymentsTableBody');
   if (!tbody) return;
 
-  const filtered = window.paymentsData.filter(pay => {
+  const filtered = payments.filter(pay => {
     if (window.paymentGatewayFilter !== 'all' && pay.gateway !== window.paymentGatewayFilter) return false;
     if (window.paymentStatusFilter !== 'all' && pay.status.toLowerCase() !== window.paymentStatusFilter.toLowerCase()) return false;
     if (window.paymentSearchQuery) {
@@ -54,7 +154,13 @@ window.renderPaymentsView = function() {
     td.style.textAlign = 'center';
     td.style.padding = '40px';
     td.style.color = 'var(--muted)';
-    td.textContent = 'No payment settlements found for the selected filter.';
+    td.textContent = window.paymentsLoadError
+      ? 'Could not load payments from the server.'
+      : window._isFetchingPayments
+        ? 'Loading payments...'
+        : payments.length
+          ? 'No payments found for the selected filter.'
+          : 'No payment records found.';
     tr.appendChild(td);
     tbody.replaceChildren(tr);
     return;
@@ -97,9 +203,9 @@ window.renderPaymentsView = function() {
     const tdGateway = document.createElement('td');
     const gwBadge = document.createElement('span');
     let gwClass = 'gateway-card';
-    if (pay.gateway.includes('Ozow')) gwClass = 'gateway-ozow';
+    if (pay.gateway.includes('EFT')) gwClass = 'gateway-ozow';
     else if (pay.gateway.includes('SnapScan')) gwClass = 'gateway-snapscan';
-    else if (pay.gateway.includes('Apple')) gwClass = 'gateway-applepay';
+    else if (pay.gateway.includes('Card')) gwClass = 'gateway-card';
 
     gwBadge.className = `badge-gateway ${gwClass}`;
     gwBadge.textContent = pay.gateway;
@@ -117,7 +223,7 @@ window.renderPaymentsView = function() {
     tdNet.style.fontSize = '13px';
     tdNet.style.color = '#047857';
     tdNet.style.fontWeight = '600';
-    tdNet.textContent = window.fmtPrice(pay.netAmount);
+    tdNet.textContent = Number.isFinite(pay.netAmount) ? window.fmtPrice(pay.netAmount) : 'Not recorded';
 
     // 7. Timestamp
     const tdTime = document.createElement('td');
@@ -129,10 +235,10 @@ window.renderPaymentsView = function() {
     const tdStatus = document.createElement('td');
     const statusPill = document.createElement('span');
     statusPill.className = 'status-pill';
-    if (pay.status === 'Refunded') {
+    if (pay.status === 'Refunded' || pay.status === 'Failed') {
       statusPill.style.background = '#fee2e2';
       statusPill.style.color = '#b91c1c';
-    } else if (pay.status === 'Processing') {
+    } else if (pay.status === 'Processing' || pay.status === 'Pending') {
       statusPill.style.background = '#fef9c3';
       statusPill.style.color = '#854d0e';
     } else {
@@ -197,10 +303,10 @@ window.openPaymentReceiptModal = function(payRef) {
   if (timeEl) timeEl.textContent = payment.timestamp;
   if (custEl) custEl.textContent = payment.customer;
   if (gwEl) gwEl.textContent = payment.gateway;
-  if (bankEl) bankEl.textContent = payment.bank || 'Standard Bank of SA';
+  if (bankEl) bankEl.textContent = payment.bank || 'Not recorded';
   if (grossEl) grossEl.textContent = window.fmtPrice(payment.grossAmount);
-  if (feeEl) feeEl.textContent = `-${window.fmtPrice(payment.fee)}`;
-  if (netEl) netEl.textContent = window.fmtPrice(payment.netAmount);
+  if (feeEl) feeEl.textContent = Number.isFinite(payment.fee) ? `-${window.fmtPrice(payment.fee)}` : 'Not recorded';
+  if (netEl) netEl.textContent = Number.isFinite(payment.netAmount) ? window.fmtPrice(payment.netAmount) : 'Not recorded';
 
   const modal = document.getElementById('paymentReceiptModal');
   if (modal) modal.classList.add('open');

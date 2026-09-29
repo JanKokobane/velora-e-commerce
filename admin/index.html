@@ -606,7 +606,7 @@
                 <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
               <span>Payments</span>
-              <span class="nav-badge" id="sidebarPaymentsBadge">14</span>
+              <span class="nav-badge" id="sidebarPaymentsBadge">0</span>
             </button>
 
             <button type="button" class="nav-item" data-tab="customers">
@@ -1378,7 +1378,7 @@
             <div class="kpi-grid" id="paymentsKPISection">
               <div class="kpi-card" id="kpiPaymentsGross">
                 <div class="kpi-header">
-                  <span class="kpi-title">Gross Cleared Settlements</span>
+                  <span class="kpi-title">Gross Paid Volume</span>
                   <div class="kpi-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -1388,13 +1388,13 @@
                 </div>
                 <div class="kpi-value" id="paymentsKpiGross">R0.00</div>
                 <div class="kpi-trend positive" id="paymentsKpiSettledNote">
-                  <span>0 cleared transactions</span>
+                  <span>0 paid transactions</span>
                 </div>
               </div>
 
               <div class="kpi-card" id="kpiPaymentsNet">
                 <div class="kpi-header">
-                  <span class="kpi-title">Net Operating Yield</span>
+                  <span class="kpi-title">Net Amount</span>
                   <div class="kpi-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="2" y="5" width="20" height="14" rx="2"></rect>
@@ -1404,13 +1404,13 @@
                 </div>
                 <div class="kpi-value" id="paymentsKpiNet">R0.00</div>
                 <div class="kpi-trend positive">
-                  <span>After gateway fees</span>
+                  <span>Fee-adjusted values when recorded</span>
                 </div>
               </div>
 
               <div class="kpi-card" id="kpiPaymentsEft">
                 <div class="kpi-header">
-                  <span class="kpi-title">Instant EFT & QR Share</span>
+                  <span class="kpi-title">EFT & SnapScan Share</span>
                   <div class="kpi-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -1420,7 +1420,7 @@
                 </div>
                 <div class="kpi-value" id="paymentsKpiEftShare">0%</div>
                 <div class="kpi-trend neutral">
-                  <span>Ozow & SnapScan</span>
+                  <span>By recorded payment method</span>
                 </div>
               </div>
             </div>
@@ -1429,9 +1429,8 @@
               <div
                 style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                  <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Financial Transactions & Payouts</h3>
-                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Real-time settlement status for Ozow
-                    Instant EFT, SnapScan, and card gateways in South African Rands (ZAR).</p>
+                  <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Payment Transactions</h3>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Payment method, status, and customer details recorded for each order.</p>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <div class="quick-search-input" style="width: 180px;">
@@ -1443,17 +1442,19 @@
                   </div>
                   <select class="filter-select" id="paymentGatewayFilter">
                     <option value="all">All Gateways</option>
-                    <option value="Ozow Instant EFT">Ozow Instant EFT</option>
+                    <option value="EFT">EFT</option>
                     <option value="SnapScan">SnapScan</option>
-                    <option value="Visa / Mastercard">Visa / Mastercard</option>
-                    <option value="Apple Pay">Apple Pay</option>
+                    <option value="Zapper">Zapper</option>
+                    <option value="Card">Card</option>
+                    <option value="Cash on Delivery">Cash on Delivery</option>
                   </select>
                   <select class="filter-select" id="paymentStatusFilter">
                     <option value="all">All Statuses</option>
-                    <option value="Settled">Settled</option>
-                    <option value="Authorized">Authorized</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
                     <option value="Processing">Processing</option>
                     <option value="Refunded">Refunded</option>
+                    <option value="Failed">Failed</option>
                   </select>
                 </div>
               </div>

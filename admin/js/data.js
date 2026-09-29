@@ -30,14 +30,6 @@ const INITIAL_RETURNS = [];
 
 const INITIAL_CUSTOMERS = [];
 
-const INITIAL_PAYMENTS = [
-  { ref: 'PAY-ZA-8902', orderId: '#390561', customer: 'Michelle Black', gateway: 'Ozow Instant EFT', grossAmount: 3450.00, fee: 51.75, netAmount: 3398.25, timestamp: '12 Apr, 14:32', status: 'Settled', bank: 'Standard Bank of SA' },
-  { ref: 'PAY-ZA-8901', orderId: '#390560', customer: 'Pieter van der Merwe', gateway: 'SnapScan', grossAmount: 1250.00, fee: 35.00, netAmount: 1215.00, timestamp: '12 Apr, 11:15', status: 'Settled', bank: 'First National Bank' },
-  { ref: 'PAY-ZA-8900', orderId: '#390559', customer: 'Nomvula Sithole', gateway: 'Visa / Mastercard', grossAmount: 890.00, fee: 26.70, netAmount: 863.30, timestamp: '11 Apr, 16:45', status: 'Settled', bank: 'Nedbank' },
-  { ref: 'PAY-ZA-8899', orderId: '#390558', customer: 'Keagan Pillay', gateway: 'Apple Pay', grossAmount: 2150.00, fee: 58.05, netAmount: 2091.95, timestamp: '11 Apr, 09:20', status: 'Settled', bank: 'Investec Private Bank' },
-  { ref: 'PAY-ZA-8898', orderId: '#390557', customer: 'Lara Croft-Mthembu', gateway: 'Ozow Instant EFT', grossAmount: 450.00, fee: 6.75, netAmount: 443.25, timestamp: '10 Apr, 18:02', status: 'Refunded', bank: 'ABSA Bank' }
-];
-
 function loadStorage(key, defaultVal) {
   try {
     const raw = localStorage.getItem(key);
@@ -119,7 +111,7 @@ if (Array.isArray(window.customersData)) {
     return !isMock && !isMockEmail;
   });
 }
-window.paymentsData = loadStorage(window.STORAGE_KEYS.PAYMENTS, INITIAL_PAYMENTS);
+window.paymentsData = [];
 window.settingsData = loadStorage(window.STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS);
 
 window.saveOrders = () => saveStorage(window.STORAGE_KEYS.ORDERS, window.ordersData);
