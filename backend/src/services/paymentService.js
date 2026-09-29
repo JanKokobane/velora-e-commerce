@@ -334,6 +334,15 @@ const getAllPayments = async () => {
       p.payment_status,
       p.transaction_reference,
       p.gateway_reference,
+      COALESCE(
+        to_jsonb(p)->>'net_amount',
+        to_jsonb(p)->>'netAmount'
+      ) AS net_amount,
+      COALESCE(
+        to_jsonb(p)->>'fee',
+        to_jsonb(p)->>'gateway_fee',
+        to_jsonb(p)->>'fee_amount'
+      ) AS fee,
       p.created_at,
       p.updated_at,
 
@@ -402,6 +411,16 @@ const getAllPayments = async () => {
 
       gatewayReference:
         payment.gateway_reference,
+
+      netAmount:
+        payment.net_amount == null
+          ? null
+          : Number(payment.net_amount),
+
+      fee:
+        payment.fee == null
+          ? null
+          : Number(payment.fee),
 
       createdAt:
         payment.created_at,

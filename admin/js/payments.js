@@ -47,8 +47,19 @@ function mapDbPayment(payment) {
     card: 'Card',
     cod: 'Cash on Delivery'
   };
-  const status = String(payment.paymentStatus || 'unknown');
+  const paymentStatus = String(payment.paymentStatus || '').toLowerCase();
+  const orderPaymentStatus = String(payment.orderPaymentStatus || '').toLowerCase();
+  const paidStatuses = ['paid', 'settled', 'completed'];
+  const status = ['refunded', 'failed'].includes(paymentStatus)
+    ? paymentStatus
+    : paidStatuses.includes(paymentStatus) || paidStatuses.includes(orderPaymentStatus)
+      ? 'paid'
+      : paymentStatus || orderPaymentStatus || 'unknown';
   const amount = Number(payment.amount) || 0;
+  const fee = payment.fee == null ? null : Number(payment.fee);
+  const netAmount = payment.netAmount == null
+    ? Number.isFinite(fee) ? amount - fee : null
+    : Number(payment.netAmount);
   const rawOrderNumber = payment.orderNumber || payment.orderId || '';
   const orderId = String(rawOrderNumber).startsWith('#')
     ? String(rawOrderNumber)
@@ -61,10 +72,10 @@ function mapDbPayment(payment) {
     customer: customer.fullName || customer.email || 'Customer not recorded',
     gateway: methods[method] || (method ? method.toUpperCase() : 'Not recorded'),
     grossAmount: amount,
-    fee: payment.fee == null ? null : Number(payment.fee),
-    netAmount: payment.netAmount == null ? null : Number(payment.netAmount),
+    fee,
+    netAmount,
     timestamp: formatPaymentTimestamp(payment.createdAt || payment.updatedAt),
-    status: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
+    status: status.charAt(0).toUpperCase() + status.slice(1),
     bank: payment.bank || 'Not recorded'
   };
 }
@@ -140,9 +151,8 @@ window.renderPaymentsView = function() {
     if (window.paymentSearchQuery) {
       const q = window.paymentSearchQuery.toLowerCase();
       const matchRef = pay.ref.toLowerCase().includes(q);
-      const matchOrd = pay.orderId.toLowerCase().includes(q);
       const matchCust = pay.customer.toLowerCase().includes(q);
-      if (!matchRef && !matchOrd && !matchCust) return false;
+      if (!matchRef && !matchCust) return false;
     }
     return true;
   });
@@ -150,7 +160,7 @@ window.renderPaymentsView = function() {
   if (filtered.length === 0) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 9;
+    td.colSpan = 8;
     td.style.textAlign = 'center';
     td.style.padding = '40px';
     td.style.color = 'var(--muted)';
@@ -177,29 +187,13 @@ window.renderPaymentsView = function() {
     tdRef.style.fontSize = '13px';
     tdRef.textContent = pay.ref;
 
-    // 2. Order ID button
-    const tdOrder = document.createElement('td');
-    const orderBtn = document.createElement('button');
-    orderBtn.type = 'button';
-    orderBtn.className = 'drawer-btn drawer-btn-dark';
-    orderBtn.style.flex = 'initial';
-    orderBtn.style.padding = '4px 9px';
-    orderBtn.style.fontSize = '11.5px';
-    orderBtn.textContent = `${pay.orderId} ↗`;
-    orderBtn.addEventListener('click', () => {
-      if (typeof window.selectAndOpenOrder === 'function') {
-        window.selectAndOpenOrder(pay.orderId);
-      }
-    });
-    tdOrder.appendChild(orderBtn);
-
-    // 3. Customer
+    // 2. Customer
     const tdCust = document.createElement('td');
     tdCust.style.fontWeight = '600';
     tdCust.style.fontSize = '13.5px';
     tdCust.textContent = pay.customer;
 
-    // 4. Gateway badge
+    // 3. Gateway badge
     const tdGateway = document.createElement('td');
     const gwBadge = document.createElement('span');
     let gwClass = 'gateway-card';
@@ -211,27 +205,27 @@ window.renderPaymentsView = function() {
     gwBadge.textContent = pay.gateway;
     tdGateway.appendChild(gwBadge);
 
-    // 5. Gross
+    // 4. Gross
     const tdGross = document.createElement('td');
     tdGross.style.fontWeight = '700';
     tdGross.style.color = 'var(--ink)';
     tdGross.style.fontSize = '13.5px';
     tdGross.textContent = window.fmtPrice(pay.grossAmount);
 
-    // 6. Net
+    // 5. Net
     const tdNet = document.createElement('td');
     tdNet.style.fontSize = '13px';
     tdNet.style.color = '#047857';
     tdNet.style.fontWeight = '600';
     tdNet.textContent = Number.isFinite(pay.netAmount) ? window.fmtPrice(pay.netAmount) : 'Not recorded';
 
-    // 7. Timestamp
+    // 6. Timestamp
     const tdTime = document.createElement('td');
     tdTime.style.fontSize = '12.5px';
     tdTime.style.color = 'var(--muted)';
     tdTime.textContent = pay.timestamp;
 
-    // 8. Status pill
+    // 7. Status pill
     const tdStatus = document.createElement('td');
     const statusPill = document.createElement('span');
     statusPill.className = 'status-pill';
@@ -248,7 +242,7 @@ window.renderPaymentsView = function() {
     statusPill.textContent = pay.status;
     tdStatus.appendChild(statusPill);
 
-    // 9. Receipt action button
+    // 8. Receipt action button
     const tdAction = document.createElement('td');
     const receiptBtn = document.createElement('button');
     receiptBtn.type = 'button';
@@ -275,7 +269,7 @@ window.renderPaymentsView = function() {
     receiptBtn.appendChild(docSvg);
     tdAction.appendChild(receiptBtn);
 
-    tr.append(tdRef, tdOrder, tdCust, tdGateway, tdGross, tdNet, tdTime, tdStatus, tdAction);
+    tr.append(tdRef, tdCust, tdGateway, tdGross, tdNet, tdTime, tdStatus, tdAction);
     return tr;
   });
 

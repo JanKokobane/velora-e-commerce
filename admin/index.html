@@ -1345,12 +1345,6 @@
                     <option value="Gold Member">Gold Member</option>
                     <option value="Standard">Standard</option>
                   </select>
-                  <button type="button" class="drawer-btn" id="refreshCustomersBtn"
-                    style="flex: initial; padding: 7px 12px; font-size: 12.5px;"
-                    onclick="window.fetchCustomersFromDb(true)">↻ Refresh DB</button>
-                  <button type="button" class="drawer-btn drawer-btn-dark"
-                    style="flex: initial; padding: 7px 14px; font-size: 12.5px;"
-                    onclick="window.openNewCustomerModal()">+ Add Client</button>
                 </div>
               </div>
               <div class="table-responsive">
@@ -1408,21 +1402,7 @@
                 </div>
               </div>
 
-              <div class="kpi-card" id="kpiPaymentsEft">
-                <div class="kpi-header">
-                  <span class="kpi-title">EFT & SnapScan Share</span>
-                  <div class="kpi-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                  </div>
-                </div>
-                <div class="kpi-value" id="paymentsKpiEftShare">0%</div>
-                <div class="kpi-trend neutral">
-                  <span>By recorded payment method</span>
-                </div>
-              </div>
+
             </div>
 
             <div class="orders-table-card">
@@ -1438,7 +1418,7 @@
                       <circle cx="11" cy="11" r="8"></circle>
                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" id="paymentSearchInput" placeholder="Search ref, order...">
+                    <input type="text" id="paymentSearchInput" placeholder="Search ref, customer...">
                   </div>
                   <select class="filter-select" id="paymentGatewayFilter">
                     <option value="all">All Gateways</option>
@@ -1463,11 +1443,10 @@
                   <thead>
                     <tr>
                       <th>Payment Ref</th>
-                      <th>Order ID</th>
                       <th>Customer</th>
                       <th>Gateway</th>
                       <th>Gross Amount</th>
-                      <th>Net Settlement</th>
+                      <th>Net Amount</th>
                       <th>Timestamp</th>
                       <th>Status</th>
                       <th style="width: 70px;">Receipt</th>
