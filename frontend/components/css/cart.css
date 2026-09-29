@@ -274,6 +274,7 @@
 
 .cart-item-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin: 8px 0 12px;
@@ -291,6 +292,36 @@
 
 .item-unit-price {
   font-size: 12px;
+}
+
+.cart-stock-note {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cart-stock-note.is-low-stock {
+  color: #a16207;
+}
+
+.cart-stock-note.is-out-of-stock,
+.cart-stock-message.is-error {
+  color: #b91c1c;
+}
+
+.cart-stock-message {
+  min-height: 16px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cart-stock-message.is-success {
+  color: #047857;
+}
+
+.proceed-checkout-btn[aria-disabled="true"] {
+  opacity: 0.65;
 }
 
 .cart-item-footer {
@@ -322,6 +353,11 @@
   justify-content: center;
   color: var(--ink);
   transition: background .15s;
+}
+
+.cart-qty-stepper .qty-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .cart-qty-stepper .qty-btn:hover {

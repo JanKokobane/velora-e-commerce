@@ -338,6 +338,9 @@ export function initShopCartButtons() {
                 /[^a-z0-9]+/g,
                 '-'
               );
+          const product = shopProducts.find(
+            (item) => String(item.id) === String(id)
+          );
 
           addToCart({
             id,
@@ -345,6 +348,7 @@ export function initShopCartButtons() {
             price,
             category,
             image,
+            stock: product?.stock,
             size: 'Standard',
             quantity: 1
           });

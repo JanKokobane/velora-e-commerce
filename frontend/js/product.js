@@ -514,6 +514,7 @@ function getCurrentProductData() {
     title: currentProduct.title || 'Velora Product',
     price: Number(currentProduct.price || 0),
     category: currentProduct.category || 'Velora Goods',
+    stock: Number(currentProduct.stock) || 0,
     size: selectedSize,
     quantity: currentQty,
     image: currentProduct.image_url || ''

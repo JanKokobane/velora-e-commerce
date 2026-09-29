@@ -1,6 +1,8 @@
 import {
   getCart,
   saveCart,
+  getCartStockError,
+  refreshCartStock,
   clearCart,
   getCartSubtotal,
   formatCurrency,
@@ -452,6 +454,15 @@ export function initPaymentPage() {
       return;
     }
 
+    try {
+      cart = await refreshCartStock();
+      const stockError = getCartStockError(cart);
+      if (stockError) throw new Error(stockError);
+    } catch (error) {
+      alert(error.message || 'Stock could not be verified. Please try again.');
+      return;
+    }
+
     const token = getAuthToken();
     if (!token) {
       alert('Please sign in to place and verify your order.');
@@ -620,6 +631,11 @@ export function initPaymentPage() {
 
     } catch (err) {
       console.error('Payment/Order processing error:', err);
+      if (/stock|available/i.test(err.message || '')) {
+        try {
+          await refreshCartStock();
+        } catch (_) {}
+      }
       alert(err.message || 'An error occurred while processing your order. Please try again.');
 
       if (submitBtn) {
