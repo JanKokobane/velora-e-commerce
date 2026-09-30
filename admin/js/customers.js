@@ -151,7 +151,7 @@
             )
         );
 
-        const locationParts = [u.city, u.province].filter(Boolean);
+        const locationParts = [u.street, u.city, u.province].filter(Boolean);
         const location =
           locationParts.length > 0 ? locationParts.join(', ') : 'South Africa';
 

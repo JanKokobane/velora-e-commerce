@@ -9,6 +9,19 @@ const { createNotification } = require("../services/notificationService");
 // ============================================================
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+let userAddressSchemaReady;
+
+const ensureUserAddressSchema = async () => {
+  if (!userAddressSchemaReady) {
+    userAddressSchemaReady = pool.query(
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS street TEXT'
+    ).catch((error) => {
+      userAddressSchemaReady = null;
+      throw error;
+    });
+  }
+  await userAddressSchemaReady;
+};
 
 
 // ============================================================
@@ -432,6 +445,7 @@ const loginUser = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
+    await ensureUserAddressSchema();
     const userId = req.user?.user_id;
 
     if (!userId) {
@@ -449,6 +463,7 @@ const getCurrentUser = async (req, res) => {
         full_name,
         email,
         phone,
+        street,
         city,
         province,
         sms_email_consent,
@@ -495,6 +510,7 @@ const getCurrentUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
+    await ensureUserAddressSchema();
     const result = await pool.query(
       `
       SELECT
@@ -502,6 +518,7 @@ const getUsers = async (req, res) => {
         full_name,
         email,
         phone,
+        street,
         city,
         province,
         sms_email_consent,
@@ -540,6 +557,7 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
+    await ensureUserAddressSchema();
     const { id } = req.params;
 
     const result = await pool.query(
@@ -549,6 +567,7 @@ const getUser = async (req, res) => {
         full_name,
         email,
         phone,
+        street,
         city,
         province,
         sms_email_consent,
@@ -595,6 +614,7 @@ const getUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   try {
+    await ensureUserAddressSchema();
     const { id } = req.params;
 
     const authenticatedUserId =
@@ -623,6 +643,7 @@ const editUser = async (req, res) => {
       fullName,
       email,
       phone,
+      street,
       city,
       province,
       consent
@@ -666,6 +687,11 @@ const editUser = async (req, res) => {
         ? String(phone).trim()
         : existingUser.phone;
 
+    const normalizedStreet =
+      street !== undefined
+        ? String(street).trim()
+        : existingUser.street || '';
+
     const normalizedCity =
       city !== undefined
         ? String(city).trim()
@@ -685,6 +711,13 @@ const editUser = async (req, res) => {
         success: false,
         message:
           "Full name must be at least 2 characters."
+      });
+    }
+
+    if (normalizedStreet.length > 300) {
+      return res.status(400).json({
+        success: false,
+        message: 'Street address cannot exceed 300 characters.'
       });
     }
 
@@ -768,16 +801,18 @@ const editUser = async (req, res) => {
         full_name = $1,
         email = $2,
         phone = $3,
-        city = $4,
-        province = $5,
-        sms_email_consent = $6,
+        street = $4,
+        city = $5,
+        province = $6,
+        sms_email_consent = $7,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $7
+      WHERE id = $8
       RETURNING
         id,
         full_name,
         email,
         phone,
+        street,
         city,
         province,
         sms_email_consent,
@@ -789,6 +824,7 @@ const editUser = async (req, res) => {
         normalizedName,
         normalizedEmail,
         normalizedPhone,
+        normalizedStreet,
         normalizedCity,
         normalizedProvince,
         consentValue,

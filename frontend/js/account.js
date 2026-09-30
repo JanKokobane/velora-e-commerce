@@ -1,5 +1,6 @@
 import {
   getCurrentUser,
+  fetchCurrentUser,
   logoutUser,
   updateGlobalHeaderUser
 } from './auth.js';
@@ -41,7 +42,7 @@ function getEstimatedDeliveryRange(orderDate) {
 // ============================================================
 // INITIALIZE ACCOUNT PAGE
 // ============================================================
-export function initAccountPage() {
+export async function initAccountPage() {
   const guestView = document.getElementById('accountGuestView');
   const dashboardView = document.getElementById('accountDashboardView');
 
@@ -49,7 +50,10 @@ export function initAccountPage() {
     return;
   }
 
-  const currentUser = getCurrentUser();
+  let currentUser = getCurrentUser();
+  if (currentUser) {
+    currentUser = await fetchCurrentUser() || getCurrentUser();
+  }
 
   // ==========================================================
   // GUEST VIEW
@@ -182,7 +186,7 @@ function populateProfileForm(user) {
   if (profFullName) profFullName.value = user.fullName || savedShipping?.fullName || '';
   if (profEmail) {
     profEmail.value = user.email || '';
-    profEmail.readOnly = true;
+    profEmail.readOnly = false;
   }
   if (profPhone) profPhone.value = user.phone || savedShipping?.phone || '';
   if (profStreet) profStreet.value = user.street || savedShipping?.street || '';
@@ -229,6 +233,7 @@ function setupProfileForm(currentUser) {
   if (!form) return;
 
   const profFullName = document.getElementById('profFullName');
+  const profEmail = document.getElementById('profEmail');
   const profPhone = document.getElementById('profPhone');
   const profStreet = document.getElementById('profStreet');
   const profCity = document.getElementById('profCity');
@@ -262,6 +267,7 @@ function setupProfileForm(currentUser) {
 
     const updatedData = {
       fullName: profFullName ? profFullName.value.trim() : currentUser.fullName,
+      email: profEmail ? profEmail.value.trim() : currentUser.email,
       phone: profPhone ? profPhone.value.trim() : currentUser.phone,
       street: profStreet ? profStreet.value.trim() : currentUser.street,
       city: profCity ? profCity.value.trim() : currentUser.city,
@@ -288,12 +294,14 @@ function setupProfileForm(currentUser) {
       const serverUser = data?.user || data?.data?.user || data?.data;
       if (serverUser) {
         currentUser.fullName = serverUser.fullName || serverUser.full_name || updatedData.fullName;
+        currentUser.email = serverUser.email || updatedData.email;
         currentUser.phone = serverUser.phone || updatedData.phone;
         currentUser.street = serverUser.street || updatedData.street;
         currentUser.city = serverUser.city || updatedData.city;
         currentUser.province = serverUser.province || updatedData.province;
       } else {
         currentUser.fullName = updatedData.fullName;
+        currentUser.email = updatedData.email;
         currentUser.phone = updatedData.phone;
         currentUser.street = updatedData.street;
         currentUser.city = updatedData.city;

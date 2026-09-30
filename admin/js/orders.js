@@ -1226,6 +1226,10 @@ window.renderOrdersTable =
             document.createElement(
               'td'
             );
+          actionsCell.style.display = 'flex';
+          actionsCell.style.alignItems = 'center';
+          actionsCell.style.gap = '6px';
+          actionsCell.style.whiteSpace = 'nowrap';
 
           const viewButton =
             document.createElement(
