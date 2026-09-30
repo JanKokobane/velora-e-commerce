@@ -622,6 +622,9 @@ const editUser = async (req, res) => {
 
     const authenticatedRole =
       req.user?.role;
+    const isAdmin =
+      authenticatedRole === "admin" ||
+      Boolean(req.user?.admin_id || req.admin?.admin_id);
 
     // --------------------------------------------------------
     // USER CAN ONLY EDIT THEIR OWN ACCOUNT
@@ -629,7 +632,7 @@ const editUser = async (req, res) => {
     // --------------------------------------------------------
 
     if (
-      authenticatedRole !== "admin" &&
+      !isAdmin &&
       String(authenticatedUserId) !== String(id)
     ) {
       return res.status(403).json({
@@ -881,7 +884,7 @@ const removeUser = async (req, res) => {
 
     if (
       authenticatedRole !== "admin" &&
-      authenticatedUserId !== id
+      String(authenticatedUserId) !== String(id)
     ) {
       return res.status(403).json({
         success: false,

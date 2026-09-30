@@ -74,7 +74,7 @@
     if (tbody && (!window.customersData || window.customersData.length === 0)) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 6;
       td.style.textAlign = 'center';
       td.style.padding = '40px';
       td.style.color = 'var(--muted)';
@@ -286,7 +286,7 @@
     if (filtered.length === 0) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 6;
       td.style.textAlign = 'center';
       td.style.padding = '40px';
       td.style.color = 'var(--muted)';
@@ -379,20 +379,7 @@
       tdCity.style.fontSize = '13px';
       tdCity.textContent = cust.city;
 
-      // 4. Tier
-      const tdTier = document.createElement('td');
-      const tierTag = document.createElement('span');
-      let tierClass = 'tier-member';
-      if (cust.tier === 'VIP Privilege') tierClass = 'tier-vip';
-      else if (cust.tier === 'Gold Member') tierClass = 'tier-gold';
-
-      tierTag.className = `tier-tag ${tierClass}`;
-      tierTag.textContent = `${
-        cust.tier === 'VIP Privilege' ? '★ ' : ''
-      }${cust.tier}`;
-      tdTier.appendChild(tierTag);
-
-      // 5. Total Orders
+      // 4. Total Orders
       const tdOrders = document.createElement('td');
       tdOrders.style.fontWeight = '600';
       tdOrders.style.fontSize = '13.5px';
@@ -400,7 +387,7 @@
         cust.totalOrders === 1 ? '' : 's'
       }`;
 
-      // 6. Lifetime spend
+      // 5. Lifetime spend
       const tdSpend = document.createElement('td');
       tdSpend.style.fontWeight = '700';
       tdSpend.style.color = 'var(--ink)';
@@ -410,14 +397,12 @@
           ? window.fmtPrice(cust.lifetimeSpend)
           : `R${(cust.lifetimeSpend || 0).toFixed(2)}`;
 
-      // 7. Last Active
-      const tdActive = document.createElement('td');
-      tdActive.style.fontSize = '12.5px';
-      tdActive.style.color = 'var(--muted)';
-      tdActive.textContent = cust.lastActive;
-
-      // 8. Action button
+      // 6. Actions
       const tdAction = document.createElement('td');
+      tdAction.style.display = 'flex';
+      tdAction.style.alignItems = 'center';
+      tdAction.style.gap = '6px';
+      tdAction.style.whiteSpace = 'nowrap';
       const viewBtn = document.createElement('button');
       viewBtn.type = 'button';
       viewBtn.className = 'drawer-btn drawer-btn-dark';
@@ -430,14 +415,65 @@
       });
       tdAction.appendChild(viewBtn);
 
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'drawer-btn drawer-btn-outline';
+      deleteBtn.style.flex = 'initial';
+      deleteBtn.style.padding = '5px 10px';
+      deleteBtn.style.fontSize = '11.5px';
+      deleteBtn.style.color = '#b91c1c';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', async () => {
+        const confirmed = typeof window.showConfirmModal === 'function'
+          ? await window.showConfirmModal({
+              title: 'Delete Customer',
+              subtitle: 'This permanently removes the customer profile.',
+              message: `Delete ${cust.name} (${cust.email})? This action cannot be undone.`,
+              confirmText: 'Delete Customer',
+              cancelText: 'Keep Customer',
+              danger: true
+            })
+          : window.confirm(`Delete ${cust.name} (${cust.email})? This action cannot be undone.`);
+
+        if (!confirmed) return;
+
+        deleteBtn.disabled = true;
+        try {
+          const response = await fetch(
+            `${getCustomersApiBaseUrl().replace(/\/+$/, '')}/api/users/${encodeURIComponent(cust.fullId)}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${getAdminAuthToken()}`
+              }
+            }
+          );
+          const data = await response.json().catch(() => null);
+          if (!response.ok) {
+            throw new Error(data?.message || `Customer deletion failed (${response.status}).`);
+          }
+
+          await window.fetchCustomersFromDb();
+          if (typeof window.showToast === 'function') {
+            window.showToast(`${cust.name} deleted.`);
+          }
+        } catch (error) {
+          console.error('[Velora Admin] Error deleting customer:', error);
+          if (typeof window.showToast === 'function') {
+            window.showToast(error.message || 'Unable to delete customer.');
+          }
+        } finally {
+          deleteBtn.disabled = false;
+        }
+      });
+      tdAction.appendChild(deleteBtn);
+
       tr.append(
         tdClient,
         tdContact,
         tdCity,
-        tdTier,
         tdOrders,
         tdSpend,
-        tdActive,
         tdAction
       );
       return tr;

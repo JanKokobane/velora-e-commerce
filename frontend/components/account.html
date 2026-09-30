@@ -110,7 +110,7 @@
                 <div class="account-nav-list">
                     <button type="button" class="account-nav-item active" id="navOrdersTab">
                         <span>Orders & Deliveries</span>
-                        <span class="badge" id="navOrdersBadge">1</span>
+                        <span class="badge" id="navOrdersBadge"></span>
                     </button>
                     <button type="button" class="account-nav-item" id="navProfileTab">
                         <span>Delivery Address</span>
@@ -195,9 +195,21 @@
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <button type="submit" class="primary-button" style="padding: 12px 24px;">Save Delivery Details</button>
+                            <button type="button" id="deleteProfileBtn" class="profile-delete-button">Delete Profile</button>
                             <span id="saveProfileMsg" style="margin-left: 14px; font-size: 12px; color: #1e6b37; display: none;">Saved successfully!</span>
                         </div>
                     </form>
+                    <dialog id="deleteProfileDialog" class="account-confirm-dialog" aria-labelledby="deleteProfileTitle">
+                        <div class="account-confirm-content">
+                            <h3 id="deleteProfileTitle">Delete your profile?</h3>
+                            <p>This permanently deletes your account. You will be signed out, and this action cannot be undone.</p>
+                            <p id="deleteProfileError" class="account-confirm-error" aria-live="polite"></p>
+                            <div class="account-confirm-actions">
+                                <button type="button" id="cancelDeleteProfileBtn" class="account-confirm-cancel">Keep Profile</button>
+                                <button type="button" id="confirmDeleteProfileBtn" class="account-confirm-delete">Delete Profile</button>
+                            </div>
+                        </div>
+                    </dialog>
                 </div>
             </section>
         </div>

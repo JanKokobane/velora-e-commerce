@@ -101,6 +101,7 @@ export async function initAccountPage() {
 
   // Profile Form Submission (PUT /api/users/:id)
   setupProfileForm(currentUser);
+  setupDeleteProfile(currentUser);
 
   // Sign Out Handler
   const signOutBtn = document.getElementById('dashboardSignOutBtn');
@@ -356,6 +357,56 @@ function setupProfileForm(currentUser) {
       }
     }
   };
+}
+
+function setupDeleteProfile(currentUser) {
+  const deleteBtn = document.getElementById('deleteProfileBtn');
+  const dialog = document.getElementById('deleteProfileDialog');
+  const cancelBtn = document.getElementById('cancelDeleteProfileBtn');
+  const confirmBtn = document.getElementById('confirmDeleteProfileBtn');
+  const errorEl = document.getElementById('deleteProfileError');
+
+  if (!deleteBtn || !dialog || !confirmBtn) return;
+
+  deleteBtn.addEventListener('click', () => {
+    if (errorEl) errorEl.textContent = '';
+    dialog.showModal();
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => dialog.close());
+  }
+
+  confirmBtn.addEventListener('click', async () => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token || !currentUser.id) {
+      if (errorEl) errorEl.textContent = 'Your session expired. Sign in again and retry.';
+      return;
+    }
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting...';
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(currentUser.id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.message || `Profile deletion failed (${response.status}).`);
+      }
+
+      localStorage.removeItem(SHIPPING_STORAGE_KEY);
+      logoutUser();
+      window.location.href = 'auth.html';
+    } catch (error) {
+      if (errorEl) errorEl.textContent = error.message || 'Unable to delete your profile.';
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Delete Profile';
+    }
+  });
 }
 
 // ============================================================
