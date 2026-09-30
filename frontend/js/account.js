@@ -447,6 +447,7 @@ async function loadAndRenderOrders(currentUser) {
     const orderIdEl = cardClone.querySelector('.card-order-id');
     const orderDateEl = cardClone.querySelector('.card-order-date');
     const trackingEl = cardClone.querySelector('.card-order-tracking');
+    const paymentStatusEl = cardClone.querySelector('.card-payment-status');
     const statusTextEl = cardClone.querySelector('.card-status-text');
     const statusBadgeEl = cardClone.querySelector('.order-status-badge');
     const courierEl = cardClone.querySelector('.card-courier-name');
@@ -461,6 +462,10 @@ async function loadAndRenderOrders(currentUser) {
     if (orderIdEl) orderIdEl.textContent = orderId;
     if (orderDateEl) orderDateEl.textContent = orderDateFormatted;
     if (trackingEl) trackingEl.textContent = trackingNumber;
+    if (paymentStatusEl) {
+      const paymentStatus = String(order.paymentStatus || 'pending').toLowerCase();
+      paymentStatusEl.textContent = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
+    }
 
     // Status formatting
     let statusText = 'In Express Transit — Out for Delivery';
