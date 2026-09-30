@@ -4,12 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Velora Client Account & Parcel Tracking — Sign in or register to track your parcels live via Velora Logistics.">
+  <meta name="description"
+    content="Velora Client Account & Parcel Tracking — Sign in or register to track your parcels live via Velora Logistics.">
   <title>Client Account & Parcel Tracking — Velora</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="./css/common.css">
   <link rel="stylesheet" href="./css/auth.css">
@@ -48,64 +51,33 @@
     <div class="header-actions">
 
       <!-- Search -->
-      <button
-        class="icon-button search-button"
-        type="button"
-        aria-label="Search collection"
-      >
+      <button class="icon-button search-button" type="button" aria-label="Search collection">
         <span></span>
       </button>
 
 
       <!-- Account -->
-      <a
-        class="header-account-link active"
-        href="auth.html"
-        id="headerAccountBtn"
-        aria-label="Account"
-      >
-        <svg
-          class="account-icon"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
+      <a class="header-account-link active" href="auth.html" id="headerAccountBtn" aria-label="Account">
+        <svg class="account-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
 
-        <span
-          class="account-btn-label"
-          id="headerAccountText"
-        >
+        <span class="account-btn-label" id="headerAccountText">
           Account
         </span>
       </a>
 
 
       <!-- Shopping Bag -->
-      <a
-        class="icon-button bag-button"
-        href="cart.html"
-        aria-label="Shopping bag"
-      >
+      <a class="icon-button bag-button" href="cart.html" aria-label="Shopping bag">
         <span id="cartCount">0</span>
       </a>
 
 
       <!-- Mobile Menu -->
-      <button
-        class="menu-button"
-        type="button"
-        aria-label="Open menu"
-        aria-expanded="false"
-      >
+      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
         <i></i>
         <i></i>
       </button>
@@ -114,10 +86,7 @@
 
 
     <!-- Mobile Navigation -->
-    <nav
-      class="mobile-nav"
-      aria-label="Mobile navigation"
-    >
+    <nav class="mobile-nav" aria-label="Mobile navigation">
       <a href="../index.html">Home</a>
       <a href="./blog.html">Blog</a>
       <a href="./shop.html">Shop</a>
@@ -161,16 +130,9 @@
     <!-- ==========================================================
          ALREADY SIGNED IN STATE
          ========================================================== -->
-    <div
-      class="already-signed-in-card"
-      id="alreadySignedInCard"
-      style="display: none;"
-    >
+    <div class="already-signed-in-card" id="alreadySignedInCard" style="display: none;">
 
-      <div
-        class="signed-in-avatar"
-        id="signedInAvatar"
-      >
+      <div class="signed-in-avatar" id="signedInAvatar">
         V
       </div>
 
@@ -178,33 +140,19 @@
         You are signed in
       </h3>
 
-      <p
-        class="signed-in-email"
-        id="signedInEmail"
-      ></p>
+      <p class="signed-in-email" id="signedInEmail"></p>
 
-      <span
-        class="signed-in-tier"
-        id="signedInTier"
-      >
+      <span class="signed-in-tier" id="signedInTier">
         Velora Privilege Client
       </span>
 
       <div class="signed-in-actions">
 
-        <a
-          href="account.html"
-          class="signed-in-primary-btn"
-          id="goToAccountBtn"
-        >
+        <a href="account.html" class="signed-in-primary-btn" id="goToAccountBtn">
           Go to My Account & Orders &#8599;
         </a>
 
-        <button
-          type="button"
-          class="signed-in-secondary-btn"
-          id="authSignOutBtn"
-        >
+        <button type="button" class="signed-in-secondary-btn" id="authSignOutBtn">
           Sign Out of Account
         </button>
 
@@ -216,39 +164,21 @@
     <!-- ==========================================================
          AUTH CARD
          ========================================================== -->
-    <div
-      class="auth-card"
-      id="authCard"
-    >
+    <div class="auth-card" id="authCard">
 
 
       <!-- ========================================================
            TAB NAVIGATION
            ======================================================== -->
-      <div
-        class="auth-tabs"
-        role="tablist"
-      >
+      <div class="auth-tabs" role="tablist">
 
-        <button
-          type="button"
-          class="auth-tab active"
-          id="tabSignInBtn"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panelSignIn"
-        >
+        <button type="button" class="auth-tab active" id="tabSignInBtn" role="tab" aria-selected="true"
+          aria-controls="panelSignIn">
           Sign In
         </button>
 
-        <button
-          type="button"
-          class="auth-tab"
-          id="tabRegisterBtn"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panelRegister"
-        >
+        <button type="button" class="auth-tab" id="tabRegisterBtn" role="tab" aria-selected="false"
+          aria-controls="panelRegister">
           Create Account
         </button>
 
@@ -264,11 +194,7 @@
         <!-- ======================================================
              SIGN IN FORM
              ====================================================== -->
-        <div
-          class="auth-panel active"
-          id="panelSignIn"
-          role="tabpanel"
-        >
+        <div class="auth-panel active" id="panelSignIn" role="tabpanel">
 
           <div class="auth-intro">
 
@@ -284,18 +210,10 @@
           </div>
 
 
-          <form
-            id="signInForm"
-            class="auth-form"
-            novalidate
-          >
+          <form id="signInForm" class="auth-form" novalidate>
 
             <!-- Login Alert -->
-            <div
-              id="signInAlert"
-              class="auth-alert"
-              style="display: none;"
-            ></div>
+            <div id="signInAlert" class="auth-alert" style="display: none;"></div>
 
 
             <!-- Email -->
@@ -305,13 +223,7 @@
                 Email Address
               </label>
 
-              <input
-                type="email"
-                id="loginEmail"
-                placeholder="e.g. user@example.com"
-                required
-                autocomplete="email"
-              >
+              <input type="email" id="loginEmail" placeholder="e.g. user@example.com" required autocomplete="email">
 
             </div>
 
@@ -325,11 +237,7 @@
                   Password
                 </label>
 
-                <a
-                  href="#forgot"
-                  class="forgot-link"
-                  id="forgotPasswordBtn"
-                >
+                <a href="#forgot" class="forgot-link" id="forgotPasswordBtn">
                   Forgot password?
                 </a>
 
@@ -339,21 +247,11 @@
               <!-- Password Input + View Button -->
               <div class="password-input-wrapper">
 
-                <input
-                  type="password"
-                  id="loginPassword"
-                  placeholder="••••••••"
-                  required
-                  autocomplete="current-password"
-                >
+                <input type="password" id="loginPassword" placeholder="••••••••" required
+                  autocomplete="current-password">
 
-                <button
-                  type="button"
-                  class="password-toggle"
-                  data-password-target="loginPassword"
-                  aria-label="Show password"
-                  title="Show password"
-                >
+                <button type="button" class="password-toggle" data-password-target="loginPassword"
+                  aria-label="Show password" title="Show password">
                   👁
                 </button>
 
@@ -367,11 +265,7 @@
 
               <label class="checkbox-label">
 
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  checked
-                >
+                <input type="checkbox" id="rememberMe" checked>
 
                 <span>
                   Remember this device
@@ -383,11 +277,7 @@
 
 
             <!-- Sign In Button -->
-            <button
-              type="submit"
-              class="auth-submit-btn"
-              id="signInSubmitBtn"
-            >
+            <button type="submit" class="auth-submit-btn" id="signInSubmitBtn">
               Sign In to Account &#8599;
             </button>
 
@@ -399,11 +289,7 @@
         <!-- ======================================================
              REGISTER FORM
              ====================================================== -->
-        <div
-          class="auth-panel"
-          id="panelRegister"
-          role="tabpanel"
-        >
+        <div class="auth-panel" id="panelRegister" role="tabpanel">
 
           <div class="auth-intro">
 
@@ -420,18 +306,10 @@
           </div>
 
 
-          <form
-            id="registerForm"
-            class="auth-form"
-            novalidate
-          >
+          <form id="registerForm" class="auth-form" novalidate>
 
             <!-- Register Alert -->
-            <div
-              id="registerAlert"
-              class="auth-alert"
-              style="display: none;"
-            ></div>
+            <div id="registerAlert" class="auth-alert" style="display: none;"></div>
 
 
             <!-- Full Name -->
@@ -441,12 +319,7 @@
                 Full Name *
               </label>
 
-              <input
-                type="text"
-                id="regFullName"
-                placeholder="e.g. Marcus Dlamini"
-                required
-              >
+              <input type="text" id="regFullName" placeholder="e.g. Marcus Dlamini" required>
 
             </div>
 
@@ -458,12 +331,7 @@
                 Email Address *
               </label>
 
-              <input
-                type="email"
-                id="regEmail"
-                placeholder="e.g. marcus@example.co.za"
-                required
-              >
+              <input type="email" id="regEmail" placeholder="e.g. marcus@example.co.za" required>
 
             </div>
 
@@ -475,12 +343,7 @@
                 Mobile Phone (For Courier Parcel SMS) *
               </label>
 
-              <input
-                type="tel"
-                id="regPhone"
-                placeholder="+27 82 123 4567"
-                required
-              >
+              <input type="tel" id="regPhone" placeholder="+27 82 123 4567" required>
 
             </div>
 
@@ -494,12 +357,7 @@
                   City
                 </label>
 
-                <input
-                  type="text"
-                  id="regCity"
-                  placeholder="Cape Town"
-                  value="Cape Town"
-                >
+                <input type="text" id="regCity" placeholder="Cape Town" value="Cape Town">
 
               </div>
 
@@ -510,15 +368,9 @@
                   Province
                 </label>
 
-                <select
-                  id="regProvince"
-                  class="auth-select"
-                >
+                <select id="regProvince" class="auth-select">
 
-                  <option
-                    value="Western Cape"
-                    selected
-                  >
+                  <option value="Western Cape" selected>
                     Western Cape
                   </option>
 
@@ -564,21 +416,11 @@
 
                 <div class="password-input-wrapper">
 
-                  <input
-                    type="password"
-                    id="regPassword"
-                    placeholder="Minimum 6 characters"
-                    required
-                    autocomplete="new-password"
-                  >
+                  <input type="password" id="regPassword" placeholder="Minimum 6 characters" required
+                    autocomplete="new-password">
 
-                  <button
-                    type="button"
-                    class="password-toggle"
-                    data-password-target="regPassword"
-                    aria-label="Show password"
-                    title="Show password"
-                  >
+                  <button type="button" class="password-toggle" data-password-target="regPassword"
+                    aria-label="Show password" title="Show password">
                     👁
                   </button>
 
@@ -596,21 +438,11 @@
 
                 <div class="password-input-wrapper">
 
-                  <input
-                    type="password"
-                    id="regConfirmPassword"
-                    placeholder="Repeat password"
-                    required
-                    autocomplete="new-password"
-                  >
+                  <input type="password" id="regConfirmPassword" placeholder="Repeat password" required
+                    autocomplete="new-password">
 
-                  <button
-                    type="button"
-                    class="password-toggle"
-                    data-password-target="regConfirmPassword"
-                    aria-label="Show password"
-                    title="Show password"
-                  >
+                  <button type="button" class="password-toggle" data-password-target="regConfirmPassword"
+                    aria-label="Show password" title="Show password">
                     👁
                   </button>
 
@@ -626,12 +458,7 @@
 
               <label class="checkbox-label">
 
-                <input
-                  type="checkbox"
-                  id="regConsent"
-                  checked
-                  required
-                >
+                <input type="checkbox" id="regConsent" checked required>
 
                 <span>
                   I agree to receive SMS and email parcel dispatch
@@ -644,11 +471,7 @@
 
 
             <!-- Register Button -->
-            <button
-              type="submit"
-              class="auth-submit-btn"
-              id="registerSubmitBtn"
-            >
+            <button type="submit" class="auth-submit-btn" id="registerSubmitBtn">
               Create Client Account &#8599;
             </button>
 
@@ -672,10 +495,7 @@
 
       <div class="footer-brand">
 
-        <a
-          class="brand"
-          href="../index.html"
-        >
+        <a class="brand" href="../index.html">
           VELORA<span>.</span>
         </a>
 
@@ -765,10 +585,7 @@
       <p>
         &copy; 2026 Velora Goods (Pty) Ltd.
         In partnership with
-        <a
-          href="./orders.html"
-          style="color: inherit; text-decoration: underline;"
-        >
+        <a href="./orders.html" style="color: inherit; text-decoration: underline;">
           Velora Logistics
         </a>.
         All rights reserved.
@@ -791,15 +608,9 @@
        JAVASCRIPT
        ============================================================ -->
 
-  <script
-    type="module"
-    src="../js/cart.js"
-  ></script>
+  <script type="module" src="../js/cart.js"></script>
 
-  <script
-    type="module"
-    src="../js/auth.js"
-  ></script>
+  <script type="module" src="../js/auth.js"></script>
 
 
   <!-- ============================================================

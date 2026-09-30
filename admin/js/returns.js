@@ -34,9 +34,12 @@ window.fetchReturnsFromDb = async function() {
       apiStatus: item.status
     }));
     window.renderReturnsView();
+    if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
     return window.returnsData;
   } catch (error) {
     console.error('[Velora Admin] Error fetching returns:', error);
+    window.returnsData = [];
+    if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
     if (typeof window.showToast === 'function') {
       window.showToast(`Could not load returns: ${error.message}`);
     }

@@ -841,6 +841,21 @@ const editUser = async (req, res) => {
       street: req.body.street !== undefined ? String(req.body.street).trim() : (existingUser.street || "")
     };
 
+    try {
+      await createNotification({
+        type: "customer_profile_updated",
+        category: "customers",
+        title: "Customer Profile Updated",
+        message: `${isAdmin ? "An administrator updated" : updatedRow.full_name + " updated"} the contact and delivery details for ${updatedRow.full_name}.`,
+        entityType: "user",
+        entityId: updatedRow.id,
+        actionUrl: "/admin#customers",
+        isActionable: true
+      });
+    } catch (notificationError) {
+      console.warn("Customer profile update notification warning:", notificationError.message);
+    }
+
     return res.status(200).json({
       success: true,
       message:
@@ -928,6 +943,21 @@ const removeUser = async (req, res) => {
       `,
       [id]
     );
+
+    try {
+      await createNotification({
+        type: "customer_profile_deleted",
+        category: "customers",
+        title: "Customer Profile Deleted",
+        message: `${existingUser.rows[0].full_name} (${existingUser.rows[0].email}) was deleted ${authenticatedRole === "admin" || req.user?.admin_id ? "by an administrator" : "by the account owner"}.`,
+        entityType: "user",
+        entityId: existingUser.rows[0].id,
+        actionUrl: "/admin#customers",
+        isActionable: false
+      });
+    } catch (notificationError) {
+      console.warn("Customer profile deletion notification warning:", notificationError.message);
+    }
 
     return res.status(200).json({
       success: true,

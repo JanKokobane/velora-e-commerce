@@ -3,11 +3,138 @@
  * Pure DOM implementation with NO innerHTML.
  */
 
+function isPaidOverviewOrder(order) {
+  const paymentStatus = String(order.paymentStatus || order.payment_status || '').toLowerCase();
+  const orderStatus = String(order.status || '').toLowerCase().replace(/_/g, '-');
+  if (['cancelled', 'canceled', 'refunded'].includes(orderStatus)) return false;
+  if (paymentStatus) return ['paid', 'settled', 'completed'].includes(paymentStatus);
+  return ['paid', 'processing', 'confirmed', 'in-transit', 'transit', 'shipped', 'delivered'].includes(orderStatus);
+}
+
+function renderOverviewOperations(orders, returns) {
+  const pendingFulfillment = orders.filter(order => {
+    const status = String(order.status || '').toLowerCase().replace(/_/g, '-');
+    return isPaidOverviewOrder(order) && ['paid', 'processing', 'confirmed'].includes(status);
+  }).length;
+  const inTransit = orders.filter(order =>
+    ['in-transit', 'transit', 'shipped'].includes(String(order.status || '').toLowerCase().replace(/_/g, '-'))
+  ).length;
+  const pendingReturns = returns.filter(item => {
+    const status = String(item.apiStatus || item.status || '').toLowerCase().replace(/ /g, '_');
+    return ['pending', 'under_review'].includes(status);
+  }).length;
+
+  const pendingCount = document.getElementById('overviewPendingFulfillmentCount');
+  const transitCount = document.getElementById('overviewInTransitCount');
+  const returnsCount = document.getElementById('overviewPendingReturnsCount');
+  if (pendingCount) pendingCount.textContent = String(pendingFulfillment);
+  if (transitCount) transitCount.textContent = String(inTransit);
+  if (returnsCount) returnsCount.textContent = String(pendingReturns);
+}
+
+function renderOverviewTrendingGoods(orders) {
+  const list = document.getElementById('overviewTrendingGoodsList');
+  if (!list) return;
+
+  const inventory = Array.isArray(window.inventoryData) ? window.inventoryData : [];
+  const soldProducts = new Map();
+  const inventoryId = product => String(product.dbId || product.id || '').replace(/^db-/, '').toLowerCase();
+
+  orders.filter(isPaidOverviewOrder).forEach(order => {
+    (Array.isArray(order.items) ? order.items : []).forEach(item => {
+      const quantity = Number(item.qty ?? item.quantity) || 0;
+      if (quantity <= 0) return;
+
+      const productId = String(item.productId || item.product_id || item.id || '').replace(/^db-/, '').toLowerCase();
+      const title = String(item.title || item.productName || item.product_name || item.name || 'Product');
+      const key = productId || title.toLowerCase();
+      const inventoryProduct = inventory.find(product =>
+        (productId && inventoryId(product) === productId) ||
+        String(product.title || product.name || '').toLowerCase() === title.toLowerCase()
+      );
+      const current = soldProducts.get(key);
+
+      if (current) {
+        current.unitsSold += quantity;
+      } else {
+        soldProducts.set(key, {
+          title: inventoryProduct?.title || title,
+          category: inventoryProduct?.category || item.category || 'Product',
+          image: inventoryProduct?.img || inventoryProduct?.image_url || item.img || item.image || '',
+          price: Number(inventoryProduct?.price ?? item.price ?? item.unitPrice ?? item.unit_price) || 0,
+          unitsSold: quantity
+        });
+      }
+    });
+  });
+
+  const trending = Array.from(soldProducts.values())
+    .sort((first, second) => second.unitsSold - first.unitsSold)
+    .slice(0, 3);
+
+  if (trending.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.padding = '16px 0';
+    empty.style.color = 'var(--muted)';
+    empty.style.fontSize = '13px';
+    empty.textContent = 'No paid product sales recorded yet.';
+    list.replaceChildren(empty);
+    return;
+  }
+
+  const rows = trending.map(product => {
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.gap = '12px';
+
+    const image = document.createElement('img');
+    image.src = product.image || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"%3E%3Crect width="44" height="44" fill="%23e8e8e8"/%3E%3C/svg%3E';
+    image.alt = product.title;
+    image.style.width = '44px';
+    image.style.height = '44px';
+    image.style.flex = '0 0 44px';
+    image.style.borderRadius = '6px';
+    image.style.objectFit = 'cover';
+    image.onerror = function() {
+      this.onerror = null;
+      this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"%3E%3Crect width="44" height="44" fill="%23e8e8e8"/%3E%3C/svg%3E';
+    };
+
+    const details = document.createElement('div');
+    details.style.flex = '1';
+    details.style.minWidth = '0';
+    const title = document.createElement('div');
+    title.style.fontSize = '13px';
+    title.style.fontWeight = '600';
+    title.textContent = product.title;
+    const meta = document.createElement('div');
+    meta.style.fontSize = '11.5px';
+    meta.style.color = 'var(--muted)';
+    meta.textContent = `${product.category} · ${product.unitsSold} unit${product.unitsSold === 1 ? '' : 's'} sold`;
+    details.append(title, meta);
+
+    const price = document.createElement('div');
+    price.style.fontWeight = '700';
+    price.style.fontSize = '13.5px';
+    price.textContent = window.fmtPrice(product.price);
+
+    row.append(image, details, price);
+    return row;
+  });
+  list.replaceChildren(...rows);
+}
+
 window.renderOverviewView = function() {
-  const totalRev = window.ordersData.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.total : 0), 0);
-  const totalOrders = window.ordersData.length;
+  const orders = Array.isArray(window.ordersData) ? window.ordersData : [];
+  const returns = Array.isArray(window.returnsData) ? window.returnsData : [];
+  const totalRev = orders.reduce((acc, order) => acc + (order.status !== 'Cancelled' ? Number(order.total) || 0 : 0), 0);
+  const totalOrders = orders.length;
   const avgOrderVal = totalOrders ? totalRev / totalOrders : 0;
-  const activeReturns = window.returnsData.length;
+  const activeReturns = returns.filter(item => ['pending', 'approved'].includes(String(item.apiStatus || item.status || '').toLowerCase())).length;
+
+  renderOverviewOperations(orders, returns);
+  renderOverviewTrendingGoods(orders);
 
   // Update KPI Metric Cards
   const kpiRev = document.getElementById('overviewKpiTotalRev');
@@ -24,7 +151,7 @@ window.renderOverviewView = function() {
   const tbody = document.getElementById('overviewRecentOrdersBody');
   if (!tbody) return;
 
-  const recents = window.ordersData.slice(0, 5);
+  const recents = orders.slice(0, 5);
 
   if (recents.length === 0) {
     const tr = document.createElement('tr');

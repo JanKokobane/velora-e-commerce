@@ -62,6 +62,10 @@ const notificationRequest = async (url, options = {}) => {
 };
 
 const getNotificationType = (notification) => {
+  if (String(notification.type || '').startsWith('return_')) {
+    return 'order';
+  }
+
   if (
     notification.category === 'inventory' ||
     notification.type === 'product_created' ||
@@ -104,6 +108,10 @@ const getNotificationType = (notification) => {
 };
 
 const getNotificationIcon = (notification) => {
+  if (String(notification.type || '').startsWith('return_')) {
+    return '↶';
+  }
+
   if (notification.type === 'product_out_of_stock') {
     return '⚠️';
   }
@@ -229,7 +237,7 @@ const normalizeNotification = (notification) => {
       notification.actionUrl ||
       null,
     actionTab:
-      notification.type === 'return_requested'
+      String(notification.type || '').startsWith('return_')
         ? 'returns'
         : type === 'order'
         ? 'orders'

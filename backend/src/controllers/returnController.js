@@ -85,6 +85,22 @@ const updateReturn = async (req, res) => {
     if (!returnRequest) {
       return res.status(404).json({ success: false, message: 'Pending return request not found.' });
     }
+
+    try {
+      await createNotification({
+        type: status === 'approved' ? 'return_approved' : 'return_rejected',
+        category: 'orders',
+        title: status === 'approved' ? 'Return Request Approved' : 'Return Request Rejected',
+        message: `Return request for order #${returnRequest.order_number} was ${status} by an administrator.`,
+        entityType: 'return',
+        entityId: returnRequest.id,
+        actionUrl: '/admin#returns',
+        isActionable: false
+      });
+    } catch (notificationError) {
+      console.warn('Return decision notification warning:', notificationError.message);
+    }
+
     return res.status(200).json({ success: true, returnRequest });
   } catch (error) {
     console.error('Update return error:', error);

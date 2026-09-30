@@ -280,6 +280,21 @@ const deleteOrder = async (req, res) => {
 
   try {
     const order = await orderService.deleteOrder(req.params.orderNumber);
+    try {
+      await createNotification({
+        type: 'order_deleted',
+        category: 'orders',
+        title: 'Order Deleted',
+        message: `Order #${order.order_number} and its associated payment were deleted by an administrator.`,
+        entityType: 'order',
+        entityId: order.id,
+        actionUrl: '/admin#orders',
+        isActionable: false
+      });
+    } catch (notificationError) {
+      console.warn('Order deletion notification warning:', notificationError.message);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Order and associated payment records deleted successfully.',

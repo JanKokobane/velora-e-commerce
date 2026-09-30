@@ -1750,10 +1750,10 @@
         }
 
         if (
-          typeof window.renderOverview ===
+          typeof window.renderOverviewView ===
           'function'
         ) {
-          window.renderOverview();
+          window.renderOverviewView();
         }
       }
     } catch (err) {

@@ -69,6 +69,9 @@ window.refreshCurrentView = function() {
     if (typeof window.fetchOrdersFromDb === 'function') {
       window.fetchOrdersFromDb();
     }
+    if (typeof window.fetchReturnsFromDb === 'function') {
+      window.fetchReturnsFromDb();
+    }
   } else if (tab === 'orders') {
     if (typeof window.renderKPICards === 'function') window.renderKPICards();
     if (typeof window.renderOrdersTable === 'function') window.renderOrdersTable();
