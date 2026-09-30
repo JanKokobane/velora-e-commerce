@@ -190,4 +190,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof window.renderReturnsView === 'function') window.renderReturnsView();
     });
   }
+
+  const btnDelete = document.getElementById('btnDeleteOrder');
+  if (btnDelete) {
+    btnDelete.addEventListener('click', async () => {
+      if (!window.currentActiveOrderId) return;
+      const order = window.ordersData.find(item => item.id === window.currentActiveOrderId);
+      if (!order) return;
+
+      btnDelete.disabled = true;
+      await window.deleteOrderFromDb(order);
+      btnDelete.disabled = false;
+    });
+  }
 });

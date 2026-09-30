@@ -97,6 +97,7 @@ const updateReturnStatus = async (returnId, status) => {
 };
 
 module.exports = {
+  ensureReturnsTable,
   createReturnRequest,
   getReturns,
   getReturnsForUser,

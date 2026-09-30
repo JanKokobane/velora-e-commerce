@@ -6,7 +6,8 @@ const {
   getMyOrders,
   getMyOrder,
   getAllOrders,
-  cancelMyOrder
+  cancelMyOrder,
+  deleteOrder
 } = require('../controllers/orderController');
 const { createMyReturn } = require('../controllers/returnController');
 
@@ -61,6 +62,7 @@ router.get('/', getMyOrders);
 
 router.get('/all', getAllOrders);
 
+router.delete('/:orderNumber', deleteOrder);
 router.patch('/:orderNumber/cancel', cancelMyOrder);
 router.post('/:orderNumber/returns', createMyReturn);
 

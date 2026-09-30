@@ -635,6 +635,55 @@ window.fetchOrderByNumberFromDb =
     );
   };
 
+window.deleteOrderFromDb = async function(order) {
+  if (!order) return false;
+
+  const confirmed = typeof window.showConfirmModal === 'function'
+    ? await window.showConfirmModal({
+        title: 'Delete Order',
+        subtitle: 'This also permanently removes its payment record.',
+        message: `Delete order ${order.orderNumber || order.id} for ${order.customer?.fullName || 'this customer'}? This action cannot be undone.`,
+        confirmText: 'Delete Order',
+        cancelText: 'Keep Order',
+        danger: true
+      })
+    : window.confirm(`Delete order ${order.orderNumber || order.id} and its payment record? This cannot be undone.`);
+
+  if (!confirmed) return false;
+
+  try {
+    const baseUrl = getOrdersApiBaseUrl().replace(/\/+$/, '');
+    const response = await fetch(
+      `${baseUrl}/api/orders/${encodeURIComponent(order.orderNumber)}`,
+      {
+        method: 'DELETE',
+        headers: getOrdersHeaders()
+      }
+    );
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(data?.message || `Order deletion failed (${response.status}).`);
+    }
+
+    window.selectedOrderIds.delete(order.id);
+    if (window.currentActiveOrderId === order.id && typeof window.closeOrderDrawer === 'function') {
+      window.closeOrderDrawer();
+    }
+    await window.fetchOrdersFromDb();
+    if (typeof window.showToast === 'function') {
+      window.showToast(`Order ${order.orderNumber || order.id} deleted.`);
+    }
+    return true;
+  } catch (error) {
+    console.error('[Velora Admin] Error deleting order:', error);
+    if (typeof window.showToast === 'function') {
+      window.showToast(error.message || 'Unable to delete order.');
+    }
+    return false;
+  }
+};
+
 window.getStatusClass =
   function(status) {
     const value =
@@ -1220,6 +1269,22 @@ window.renderOrdersTable =
           actionsCell.appendChild(
             viewButton
           );
+
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'drawer-btn drawer-btn-outline';
+          deleteButton.style.flex = 'initial';
+          deleteButton.style.padding = '4px 8px';
+          deleteButton.style.fontSize = '12px';
+          deleteButton.style.color = '#b91c1c';
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', async event => {
+            event.stopPropagation();
+            deleteButton.disabled = true;
+            await window.deleteOrderFromDb(order);
+            deleteButton.disabled = false;
+          });
+          actionsCell.appendChild(deleteButton);
 
           row.append(
             selectCell,

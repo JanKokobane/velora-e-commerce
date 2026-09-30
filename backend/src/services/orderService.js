@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { ensureReturnsTable } = require('./returnService');
 const { randomUUID } = require('crypto');
 
 const UUID_REGEX =
@@ -785,10 +786,97 @@ const cancelOrderForUser = async (orderNumber, userId) => {
   }
 };
 
+const deleteOrder = async (orderNumber) => {
+  await ensureReturnsTable();
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const orderResult = await client.query(
+      `
+      SELECT id, order_number, status
+      FROM orders
+      WHERE order_number = $1
+      LIMIT 1
+      FOR UPDATE
+      `,
+      [orderNumber]
+    );
+
+    const order = orderResult.rows[0];
+    if (!order) {
+      const error = new Error('Order not found.');
+      error.code = 'ORDER_NOT_FOUND';
+      throw error;
+    }
+
+    const itemsResult = await client.query(
+      `
+      SELECT product_id, quantity
+      FROM order_items
+      WHERE order_id = $1
+      `,
+      [order.id]
+    );
+
+    const orderStatus = String(order.status || '').toLowerCase();
+    const restockStatuses = ['cancelled', 'refunded', 'delivered', 'shipped', 'in-transit', 'transit'];
+    if (!restockStatuses.includes(orderStatus)) {
+      for (const item of itemsResult.rows) {
+        await client.query(
+          `
+          UPDATE products
+          SET stock = stock + $1,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id::text = $2
+          `,
+          [item.quantity, String(parseStoredProductId(item.product_id))]
+        );
+      }
+    }
+
+    await client.query(
+      'DELETE FROM order_returns WHERE order_id = $1',
+      [String(order.id)]
+    );
+    await client.query(
+      'DELETE FROM payments WHERE order_id = $1',
+      [order.id]
+    );
+    await client.query(
+      'DELETE FROM order_items WHERE order_id = $1',
+      [order.id]
+    );
+
+    const deletedOrderResult = await client.query(
+      `
+      DELETE FROM orders
+      WHERE id = $1
+      RETURNING id, order_number
+      `,
+      [order.id]
+    );
+
+    await client.query('COMMIT');
+    return deletedOrderResult.rows[0];
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+      // Ignore rollback errors when the transaction cannot be rolled back.
+    }
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   createOrder,
   getOrdersByUserId,
   getOrderByNumberForUser,
   getAllOrders,
-  cancelOrderForUser
+  cancelOrderForUser,
+  deleteOrder
 };

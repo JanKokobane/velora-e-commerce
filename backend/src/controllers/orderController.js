@@ -270,6 +270,30 @@ const cancelMyOrder = async (req, res) => {
   }
 };
 
+const deleteOrder = async (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Administrator access is required to delete orders.'
+    });
+  }
+
+  try {
+    const order = await orderService.deleteOrder(req.params.orderNumber);
+    return res.status(200).json({
+      success: true,
+      message: 'Order and associated payment records deleted successfully.',
+      order
+    });
+  } catch (error) {
+    const status = error.code === 'ORDER_NOT_FOUND' ? 404 : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Unable to delete order.'
+    });
+  }
+};
+
 const getMyOrder = async (req, res) => {
   try {
     const { orderNumber } =
@@ -354,5 +378,6 @@ module.exports = {
   getMyOrders,
   getMyOrder,
   getAllOrders,
-  cancelMyOrder
+  cancelMyOrder,
+  deleteOrder
 };
