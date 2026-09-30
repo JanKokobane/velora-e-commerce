@@ -580,6 +580,18 @@
               <span>Orders</span>
             </button>
 
+            <button type="button" class="nav-item" data-tab="drivers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 13V6a2 2 0 0 1 2-2h9v9H3z"></path>
+                <path d="M14 8h4l3 4v6h-3"></path>
+                <circle cx="7.5" cy="18" r="2.5"></circle>
+                <circle cx="17.5" cy="18" r="2.5"></circle>
+                <path d="M10 18h5"></path>
+              </svg>
+              <span>Drivers</span>
+              <span class="nav-badge" id="sidebarDriversBadge">0</span>
+            </button>
+
             <button type="button" class="nav-item" data-tab="returns">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <polyline points="1 4 1 10 7 10"></polyline>
@@ -1096,7 +1108,61 @@
             </div>
           </div>
 
-          <!-- 5. Returns View -->
+          <!-- 5. Drivers View -->
+          <div id="driversMainView" data-component="drivers" style="display: none;">
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-header"><span class="kpi-title">Registered Drivers</span></div>
+                <div class="kpi-value" id="driversCount">0</div>
+              </div>
+            </div>
+            <div class="orders-table-card" style="padding: 24px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 16px; font-size: 16px;">Add Driver</h3>
+              <form id="driverCreateForm" class="studio-grid-2">
+                <div class="studio-input-group">
+                  <label class="studio-label" for="driverFullName">Full Name</label>
+                  <input class="studio-input" id="driverFullName" name="fullName" type="text" required maxlength="150">
+                </div>
+                <div class="studio-input-group">
+                  <label class="studio-label" for="driverEmail">Email Address</label>
+                  <input class="studio-input" id="driverEmail" name="email" type="email" required maxlength="254">
+                </div>
+                <div class="studio-input-group">
+                  <label class="studio-label" for="driverPhone">Phone Number</label>
+                  <input class="studio-input" id="driverPhone" name="phone" type="tel" required maxlength="30">
+                </div>
+                <div class="studio-input-group">
+                  <label class="studio-label" for="driverProvince">Service Province</label>
+                  <select class="studio-select" id="driverProvince" name="province" required>
+                    <option value="">Select province</option>
+                    <option>Eastern Cape</option>
+                    <option>Free State</option>
+                    <option>Gauteng</option>
+                    <option>KwaZulu-Natal</option>
+                    <option>Limpopo</option>
+                    <option>Mpumalanga</option>
+                    <option>Northern Cape</option>
+                    <option>North West</option>
+                    <option>Western Cape</option>
+                  </select>
+                </div>
+                <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <button class="drawer-btn drawer-btn-dark" type="submit">Add Driver</button>
+                  <span id="driverFormMessage" role="status" aria-live="polite"></span>
+                </div>
+              </form>
+            </div>
+            <div class="orders-table-card">
+              <div class="table-responsive">
+                <table class="dash-table">
+                  <thead><tr><th>Driver</th><th>Email</th><th>Phone</th><th>Province</th></tr></thead>
+                  <tbody id="driversTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Returns View -->
           <div id="returnsMainView" data-component="returns" style="display: none;">
             <div class="kpi-grid" id="returnsKPISection">
               <div class="kpi-card" id="kpiReturnsPending">
@@ -1848,6 +1914,17 @@
             </div>
           </div>
 
+          <div class="drawer-items-section" style="border-top: 1px solid var(--dash-border);">
+            <h3 class="drawer-section-heading">Dispatch</h3>
+            <p id="drawerTrackingLocation" style="font-size: 13px; color: var(--muted); margin: 0 0 12px;">Velora Fulfillment Centre</p>
+            <label for="drawerDriverSelect" style="display: block; font-size: 12px; margin-bottom: 8px;">Driver for delivery province</label>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <select id="drawerDriverSelect" class="studio-select" style="flex: 1; min-width: 170px;"></select>
+              <button type="button" class="drawer-btn drawer-btn-outline" id="btnAssignDriver">Assign Driver</button>
+            </div>
+            <div id="drawerAssignedDriver" style="font-size: 12px; color: var(--muted); margin-top: 8px;"></div>
+          </div>
+
           <div class="drawer-footer">
             <div class="drawer-total-row">
               <span class="drawer-total-label">Total Amount</span>
@@ -1855,6 +1932,7 @@
             </div>
             <div class="drawer-actions-row">
               <button type="button" class="drawer-btn drawer-btn-dark" id="btnTrackOrder">Fulfill / Advance</button>
+              <button type="button" class="drawer-btn drawer-btn-outline" id="btnDeliverOrder" hidden>Mark Delivered</button>
               <button type="button" class="drawer-btn drawer-btn-outline" id="btnRefundOrder">Cancel & Refund</button>
               <button type="button" class="drawer-btn drawer-btn-outline" id="btnDeleteOrder" style="color: #b91c1c;">Delete Order</button>
             </div>
@@ -2539,6 +2617,7 @@
   <script src="./js/notifications.js"></script>
   <script src="./js/overview.js"></script>
   <script src="./js/orders.js"></script>
+  <script src="./js/drivers.js"></script>
   <script src="./js/order-drawer.js"></script>
   <script src="./js/returns.js"></script>
   <script src="./js/inventory.js"></script>

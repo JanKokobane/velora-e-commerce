@@ -18,6 +18,12 @@ window.renderOrderDrawer = function(order) {
   const phoneLink = document.getElementById('drawerPhoneLink');
   const trkEl = document.getElementById('drawerTrackingNumber');
   const totalEl = document.getElementById('drawerTotalAmount');
+  const trackingLocationEl = document.getElementById('drawerTrackingLocation');
+  const assignedDriverEl = document.getElementById('drawerAssignedDriver');
+  const driverSelect = document.getElementById('drawerDriverSelect');
+  const acceptBtn = document.getElementById('btnTrackOrder');
+  const assignBtn = document.getElementById('btnAssignDriver');
+  const deliveredBtn = document.getElementById('btnDeliverOrder');
 
   if (orderIdEl) orderIdEl.textContent = `Order ${order.id}`;
   if (statusPill) {
@@ -40,6 +46,49 @@ window.renderOrderDrawer = function(order) {
   if (phoneLink) phoneLink.href = `tel:${order.customer.phone}`;
   if (trkEl) trkEl.textContent = order.waybill || 'TRK-ZA-PENDING';
   if (totalEl) totalEl.textContent = window.fmtPrice(order.total);
+
+  const normalizedStatus = String(order.status || '').toLowerCase();
+  const province = String(order.shipping?.province || '').trim().toLowerCase();
+  const eligibleDrivers = (Array.isArray(window.driversData) ? window.driversData : [])
+    .filter(driver => String(driver.province || '').trim().toLowerCase() === province);
+  if (trackingLocationEl) {
+    trackingLocationEl.textContent = order.trackingLocation ||
+      (normalizedStatus === 'accepted at hub'
+        ? 'Velora Logistics Hub, Airport Industria'
+        : 'Velora Fulfillment Centre');
+  }
+  if (assignedDriverEl) {
+    assignedDriverEl.textContent = order.driver
+      ? `Assigned driver: ${order.driver.fullName || order.driver.full_name} · ${order.driver.phone || ''}`
+      : 'No driver assigned';
+  }
+  if (driverSelect) {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = province
+      ? `Select driver (${order.shipping.province})`
+      : 'Customer province unavailable';
+    const options = eligibleDrivers.map(driver => {
+      const option = document.createElement('option');
+      option.value = String(driver.id);
+      option.textContent = `${driver.full_name} · ${driver.province}`;
+      if (String(order.driver?.id || '') === String(driver.id)) option.selected = true;
+      return option;
+    });
+    driverSelect.replaceChildren(placeholder, ...options);
+    driverSelect.disabled = normalizedStatus !== 'accepted at hub' || eligibleDrivers.length === 0;
+  }
+  if (acceptBtn) {
+    acceptBtn.hidden = normalizedStatus !== 'paid';
+    acceptBtn.textContent = 'Accept Paid Order';
+  }
+  if (assignBtn) {
+    assignBtn.hidden = normalizedStatus !== 'accepted at hub';
+    assignBtn.disabled = eligibleDrivers.length === 0;
+  }
+  if (deliveredBtn) {
+    deliveredBtn.hidden = normalizedStatus !== 'in-transit' || !order.driver;
+  }
 
   // Render Line Items
   const itemsContainer = document.getElementById('drawerItemsList');
@@ -121,6 +170,33 @@ window.closeOrderDrawer = function() {
   if (backdrop) backdrop.classList.remove('open');
 };
 
+async function submitDispatchAction(order, action, body = {}) {
+  const token = window.adminAuthApi?.getToken?.() ||
+    localStorage.getItem('velora_admin_token') ||
+    localStorage.getItem('admin_token') ||
+    localStorage.getItem('token') || '';
+  const baseUrl = (window.VELORA_API_URL || window.VELORA_API_BASE_URL || 'https://velora-e-commerce-qby7.onrender.com').replace(/\/+$/, '');
+  const response = await fetch(`${baseUrl}/api/orders/${encodeURIComponent(order.orderNumber)}/${action}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    ...(Object.keys(body).length ? { body: JSON.stringify(body) } : {})
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(data?.message || `Order update failed (${response.status}).`);
+
+  const refreshedOrders = await window.fetchOrdersFromDb();
+  const updatedOrder = (Array.isArray(refreshedOrders) ? refreshedOrders : window.ordersData || [])
+    .find(item => String(item.orderNumber) === String(order.orderNumber));
+  if (updatedOrder) {
+    window.renderOrderDrawer(updatedOrder);
+    if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
+  }
+  return data.order;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const closeBtn = document.getElementById('closeDrawerBtn');
   const backdrop = document.getElementById('drawerBackdrop');
@@ -130,26 +206,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnTrack = document.getElementById('btnTrackOrder');
   if (btnTrack) {
-    btnTrack.addEventListener('click', () => {
+    btnTrack.addEventListener('click', async () => {
       if (!window.currentActiveOrderId) return;
       const order = window.ordersData.find(o => o.id === window.currentActiveOrderId);
       if (!order) return;
 
-      if (order.status === 'Paid') {
-        order.status = 'In-Transit';
-        window.showToast(`Order ${order.id} marked as In-Transit via Velora Fleet`);
-      } else if (order.status === 'In-Transit') {
-        order.status = 'Delivered';
-        window.showToast(`Order ${order.id} marked as Delivered to recipient`);
-      } else {
-        window.showToast(`Order ${order.id} tracking status: ${order.status}`);
+      btnTrack.disabled = true;
+      try {
+        await submitDispatchAction(order, 'accept');
+        window.showToast(`Order ${order.orderNumber} accepted at Velora Logistics Hub, Airport Industria.`);
+      } catch (error) {
+        window.showToast(error.message || 'Unable to accept order.');
+      } finally {
+        btnTrack.disabled = false;
       }
+    });
+  }
 
-      window.saveOrders();
-      window.renderOrderDrawer(order);
-      if (typeof window.renderOrdersTable === 'function') window.renderOrdersTable();
-      if (typeof window.renderKPICards === 'function') window.renderKPICards();
-      if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
+  const btnAssignDriver = document.getElementById('btnAssignDriver');
+  if (btnAssignDriver) {
+    btnAssignDriver.addEventListener('click', async () => {
+      const order = window.ordersData.find(item => item.id === window.currentActiveOrderId);
+      const driverSelect = document.getElementById('drawerDriverSelect');
+      const driverId = Number(driverSelect?.value);
+      if (!order || !driverId) return;
+
+      btnAssignDriver.disabled = true;
+      try {
+        await submitDispatchAction(order, 'assign-driver', { driverId });
+        window.showToast(`Driver assigned to order ${order.orderNumber}.`);
+      } catch (error) {
+        window.showToast(error.message || 'Unable to assign driver.');
+      } finally {
+        btnAssignDriver.disabled = false;
+      }
+    });
+  }
+
+  const btnDelivered = document.getElementById('btnDeliverOrder');
+  if (btnDelivered) {
+    btnDelivered.addEventListener('click', async () => {
+      const order = window.ordersData.find(item => item.id === window.currentActiveOrderId);
+      if (!order) return;
+      btnDelivered.disabled = true;
+      try {
+        await submitDispatchAction(order, 'delivered');
+        window.showToast(`Order ${order.orderNumber} marked delivered.`);
+      } catch (error) {
+        window.showToast(error.message || 'Unable to update delivery status.');
+      } finally {
+        btnDelivered.disabled = false;
+      }
     });
   }
 

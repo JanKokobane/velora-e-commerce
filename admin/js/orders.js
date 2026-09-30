@@ -124,6 +124,10 @@ function normalizeOrderStatus(order) {
     return 'Delivered';
   }
 
+  if (orderStatus === 'accepted') {
+    return 'Accepted at Hub';
+  }
+
   if (
     orderStatus ===
       'cancelled' ||
@@ -360,7 +364,21 @@ function mapDbOrder(order) {
       order.trackingNumber ||
       order.tracking_number ||
       order.waybill ||
-      ''
+      '',
+
+    trackingLocation:
+      order.trackingLocation ||
+      order.tracking_location ||
+      '',
+
+    acceptedAt:
+      order.acceptedAt ||
+      order.accepted_at ||
+      null,
+
+    driver:
+      order.driver ||
+      null
   };
 }
 

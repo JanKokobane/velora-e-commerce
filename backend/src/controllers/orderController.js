@@ -309,6 +309,95 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+const acceptPaidOrder = async (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ success: false, message: 'Administrator access is required.' });
+  }
+  try {
+    const order = await orderService.acceptPaidOrder(req.params.orderNumber);
+    try {
+      await createNotification({
+        type: 'order_accepted',
+        category: 'orders',
+        title: 'Paid Order Accepted',
+        message: `Order #${order.order_number} accepted for fulfillment at Velora Logistics Hub, Airport Industria.`,
+        entityType: 'order',
+        entityId: order.id,
+        actionUrl: '/admin#orders',
+        isActionable: true
+      });
+    } catch (notificationError) {
+      console.warn('Order acceptance notification warning:', notificationError.message);
+    }
+    return res.status(200).json({ success: true, order });
+  } catch (error) {
+    const status = error.code === 'ORDER_NOT_FOUND' ? 404 : ['ORDER_NOT_PAID', 'ORDER_NOT_ACCEPTABLE'].includes(error.code) ? 409 : 500;
+    return res.status(status).json({ success: false, message: error.message || 'Unable to accept order.' });
+  }
+};
+
+const assignDriverToOrder = async (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ success: false, message: 'Administrator access is required.' });
+  }
+  const driverId = Number(req.body?.driverId);
+  if (!Number.isInteger(driverId) || driverId < 1) {
+    return res.status(400).json({ success: false, message: 'A valid driver is required.' });
+  }
+  try {
+    const order = await orderService.assignDriverToOrder(req.params.orderNumber, driverId);
+    try {
+      await createNotification({
+        type: 'driver_assigned',
+        category: 'orders',
+        title: 'Driver Assigned',
+        message: `${order.driver.full_name} assigned to order #${order.order_number} for delivery in ${order.driver.province}.`,
+        entityType: 'order',
+        entityId: order.id,
+        actionUrl: '/admin#orders',
+        isActionable: true
+      });
+    } catch (notificationError) {
+      console.warn('Driver assignment notification warning:', notificationError.message);
+    }
+    return res.status(200).json({ success: true, order });
+  } catch (error) {
+    const status = ['ORDER_NOT_FOUND', 'DRIVER_NOT_FOUND'].includes(error.code)
+      ? 404
+      : ['ORDER_NOT_ACCEPTED', 'DRIVER_PROVINCE_MISMATCH'].includes(error.code)
+        ? 409
+        : 500;
+    return res.status(status).json({ success: false, message: error.message || 'Unable to assign driver.' });
+  }
+};
+
+const markOrderDelivered = async (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ success: false, message: 'Administrator access is required.' });
+  }
+  try {
+    const order = await orderService.markOrderDelivered(req.params.orderNumber);
+    try {
+      await createNotification({
+        type: 'order_delivered',
+        category: 'orders',
+        title: 'Order Delivered',
+        message: `Order #${order.order_number} was marked delivered.`,
+        entityType: 'order',
+        entityId: order.id,
+        actionUrl: '/admin#orders',
+        isActionable: false
+      });
+    } catch (notificationError) {
+      console.warn('Order delivery notification warning:', notificationError.message);
+    }
+    return res.status(200).json({ success: true, order });
+  } catch (error) {
+    const status = error.code === 'ORDER_NOT_DELIVERABLE' ? 409 : 500;
+    return res.status(status).json({ success: false, message: error.message || 'Unable to update delivery status.' });
+  }
+};
+
 const getMyOrder = async (req, res) => {
   try {
     const { orderNumber } =
@@ -394,5 +483,8 @@ module.exports = {
   getMyOrder,
   getAllOrders,
   cancelMyOrder,
-  deleteOrder
+  deleteOrder,
+  acceptPaidOrder,
+  assignDriverToOrder,
+  markOrderDelivered
 };

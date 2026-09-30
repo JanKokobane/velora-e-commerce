@@ -108,11 +108,11 @@ function buildParcelFromOrder(o) {
     : (customer.address || '');
 
   const orderStatus = String(o.status || 'pending').toLowerCase();
-  const isDelivered = orderStatus === 'delivered';
   const statusLabels = {
     pending: 'Order Pending',
     processing: 'Processing',
     confirmed: 'Confirmed',
+    accepted: 'Accepted at Velora Logistics Hub',
     shipped: 'Shipped',
     transit: 'In Transit',
     'in-transit': 'In Transit',
@@ -121,6 +121,47 @@ function buildParcelFromOrder(o) {
     refunded: 'Refunded'
   };
   const statusLabel = statusLabels[orderStatus] || String(o.status || 'Order Pending');
+  const stageIndex = orderStatus === 'delivered'
+    ? 3
+    : ['in-transit', 'transit', 'shipped'].includes(orderStatus)
+      ? 2
+      : orderStatus === 'accepted'
+        ? 1
+        : 0;
+  const trackingLocation = o.trackingLocation || (stageIndex === 1
+    ? 'Velora Logistics Hub, Airport Industria'
+    : stageIndex === 2
+      ? 'En route from Velora Logistics Hub, Airport Industria'
+      : stageIndex === 3
+        ? fullAddr
+        : 'Velora Fulfillment Centre');
+  const assignedDriver = o.driver || null;
+  const milestones = [
+    {
+      title: 'Order Placed & Payment Confirmed',
+      location: 'Velora Order System',
+      completed: stageIndex >= 0,
+      description: `Order ${orderId} and payment status: ${o.paymentStatus || 'pending'}.`
+    },
+    {
+      title: 'Accepted at Velora Logistics Hub',
+      location: 'Velora Logistics Hub, Airport Industria',
+      completed: stageIndex >= 1,
+      description: 'The paid order has been accepted for dispatch at the Velora logistics hub.'
+    },
+    {
+      title: 'In Transit with Assigned Driver',
+      location: trackingLocation,
+      completed: stageIndex >= 2,
+      description: assignedDriver ? `Parcel assigned to ${assignedDriver.fullName || assignedDriver.full_name}.` : 'Awaiting driver assignment.'
+    },
+    {
+      title: 'Delivered to Customer',
+      location: fullAddr || 'Delivery address',
+      completed: stageIndex >= 3,
+      description: stageIndex >= 3 ? 'Order marked delivered.' : 'Delivery confirmation will appear here once completed.'
+    }
+  ];
 
   return {
     id: orderId,
@@ -128,12 +169,13 @@ function buildParcelFromOrder(o) {
     date: dateStr,
     estimatedDelivery: o.estimatedDelivery || 'Not available',
     status: statusLabel,
-    currentStageIndex: isDelivered ? 4 : 3,
+    currentStageIndex: stageIndex,
+    trackingLocation,
     carrier: 'Velora Express Courier (www.velora.co.za)',
     driver: {
-      name: 'Not assigned',
+      name: assignedDriver?.fullName || assignedDriver?.full_name || 'Not assigned',
       vehicle: 'Not assigned',
-      phone: '',
+      phone: assignedDriver?.phone || '',
       rating: ''
     },
     customer: {
@@ -146,15 +188,11 @@ function buildParcelFromOrder(o) {
     processingPartner: o.deliveryMethod || 'Not assigned',
     items,
     total: Number(o.total) || 0,
-    milestones: [
-      {
-        title: statusLabel,
-        location: 'Velora',
-        time: dateStr,
-        completed: true,
-        description: `Current order status: ${statusLabel}.`
-      }
-    ]
+    milestones: milestones.map((milestone, index) => ({
+      ...milestone,
+      time: milestone.completed ? dateStr : 'Awaiting update',
+      current: index === stageIndex
+    }))
   };
 }
 
@@ -274,7 +312,7 @@ function renderOrdersInterface(order) {
   const customerName = order.customer?.fullName || 'Elena Vance';
   const deliveryAddress = order.customer?.address || '14 Kloof Street, Gardens, Cape Town';
   const items = order.items || [];
-  const milestones = order.milestones || DEFAULT_PARCEL.milestones;
+  const milestones = Array.isArray(order.milestones) ? order.milestones : [];
   const totalDisplay = typeof order.total === 'number' && order.total > 0
     ? `R ${order.total.toLocaleString('en-ZA')}` 
     : 'R 999';
@@ -304,6 +342,8 @@ function renderOrdersInterface(order) {
 
   const routeDestCity = document.getElementById('routeCustomerCity');
   if (routeDestCity) routeDestCity.textContent = customerName;
+  const currentLocationEl = document.getElementById('trackingCurrentLocation');
+  if (currentLocationEl) currentLocationEl.textContent = order.trackingLocation || 'Velora Fulfillment Centre';
 
   // Render Milestones using <template id="timelineItemTemplate">
   const timelineContainer = document.getElementById('timelineListContainer');
@@ -327,7 +367,7 @@ function renderOrdersInterface(order) {
         } else {
           itemEl.classList.add('pending');
         }
-        if (idx === 3) {
+        if (idx === order.currentStageIndex) {
           itemEl.classList.add('current');
         }
       }
@@ -346,16 +386,16 @@ function renderOrdersInterface(order) {
 
   // Courier Info
   const driverNameEl = document.getElementById('driverName');
-  if (driverNameEl) driverNameEl.textContent = order.driver?.name || 'Sipho Khumalo';
+  if (driverNameEl) driverNameEl.textContent = order.driver?.name || 'Not assigned';
 
   const driverVehicleEl = document.getElementById('driverVehicle');
-  if (driverVehicleEl) driverVehicleEl.textContent = order.driver?.vehicle || 'Toyota Hilux Van (CA 892 411)';
+  if (driverVehicleEl) driverVehicleEl.textContent = order.driver?.vehicle || 'Vehicle details not recorded';
 
   const driverPhoneEl = document.getElementById('driverPhone');
-  if (driverPhoneEl) driverPhoneEl.textContent = order.driver?.phone || '+27 82 555 0192';
+  if (driverPhoneEl) driverPhoneEl.textContent = order.driver?.phone || 'Not available';
 
   const driverRatingEl = document.getElementById('driverRating');
-  if (driverRatingEl) driverRatingEl.textContent = order.driver?.rating || '4.9 ★';
+  if (driverRatingEl) driverRatingEl.textContent = order.driver?.name ? 'Assigned Velora courier' : 'Driver will appear after dispatch assignment';
 
   // Delivery Address Card
   const shipCustomerEl = document.getElementById('shipCustomerName');
@@ -460,11 +500,16 @@ function bindEvents() {
     });
   });
 
-  // Courier call simulation
+  // Contact the assigned courier when a phone number is available.
   const callBtn = document.getElementById('callCourierBtn');
   if (callBtn) {
     callBtn.addEventListener('click', () => {
-      alert('Connecting to Courier Driver Sipho Khumalo (+27 82 555 0192)... Your parcel is currently on schedule.');
+      const phone = document.getElementById('driverPhone')?.textContent || '';
+      if (phone && phone !== 'Not available') {
+        window.location.href = `tel:${phone}`;
+      } else {
+        alert('Courier contact will be available after a driver is assigned.');
+      }
     });
   }
 

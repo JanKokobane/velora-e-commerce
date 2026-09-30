@@ -495,7 +495,7 @@ async function loadAndRenderOrders(currentUser) {
     const cardClone = cardTemplate.content.cloneNode(true);
 
     const orderId = order.orderNumber || order.id || 'VEL-84920';
-    const trackingNumber = order.trackingNumber || `TRK-ZA-${String(orderId).replace(/\D/g, '').slice(-7) || '8492019'}`;
+    const trackingNumber = order.trackingNumber || 'Assigned after acceptance';
     const orderDateFormatted = order.createdAt
       ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
       : (order.date || 'Recent');
@@ -510,6 +510,7 @@ async function loadAndRenderOrders(currentUser) {
     const statusTextEl = cardClone.querySelector('.card-status-text');
     const statusBadgeEl = cardClone.querySelector('.order-status-badge');
     const courierEl = cardClone.querySelector('.card-courier-name');
+    const trackingLocationEl = cardClone.querySelector('.card-tracking-location');
     const estDeliveryEl = cardClone.querySelector('.card-est-delivery');
     const totalEl = cardClone.querySelector('.card-order-total');
     const trackBtnEl = cardClone.querySelector('.card-track-btn');
@@ -526,22 +527,39 @@ async function loadAndRenderOrders(currentUser) {
       paymentStatusEl.textContent = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
     }
 
-    // Status formatting
-    let statusText = 'In Express Transit — Out for Delivery';
-    if (order.status === 'delivered') {
-      statusText = 'Delivered & Signed';
-      if (statusBadgeEl) {
-        statusBadgeEl.classList.remove('in-transit');
-        statusBadgeEl.classList.add('delivered');
-      }
-    } else if (order.paymentStatus === 'paid' || order.status === 'confirmed' || order.status === 'processing') {
-      statusText = 'In Express Transit — Courier Assigned';
-    } else if (order.status) {
-      statusText = String(order.status).charAt(0).toUpperCase() + String(order.status).slice(1);
-    }
+    const normalizedStatus = String(order.status || 'pending').toLowerCase().replace(/_/g, '-');
+    const stage = normalizedStatus === 'delivered'
+      ? 3
+      : ['in-transit', 'transit', 'shipped'].includes(normalizedStatus)
+        ? 2
+        : normalizedStatus === 'accepted'
+          ? 1
+          : 0;
+    const statusText = normalizedStatus === 'delivered'
+      ? 'Delivered & Signed'
+      : stage === 2
+        ? 'In transit with Velora Courier'
+        : stage === 1
+          ? 'Accepted at Velora Logistics Hub'
+          : order.paymentStatus === 'paid'
+            ? 'Paid — awaiting dispatch acceptance'
+            : 'Order received';
     if (statusTextEl) statusTextEl.textContent = statusText;
+    if (statusBadgeEl) {
+      statusBadgeEl.classList.toggle('delivered', normalizedStatus === 'delivered');
+      statusBadgeEl.classList.toggle('in-transit', stage === 2);
+    }
 
-    if (courierEl) courierEl.textContent = order.processingPartner || order.courier || 'Velora Express Courier (www.velora.co.za)';
+    if (courierEl) courierEl.textContent = order.driver?.fullName || order.driver?.full_name || 'Velora Courier';
+    if (trackingLocationEl) {
+      trackingLocationEl.textContent = order.trackingLocation || (stage === 1
+        ? 'Velora Logistics Hub, Airport Industria'
+        : stage === 2
+          ? 'En route from Velora Logistics Hub, Airport Industria'
+          : stage === 3
+            ? `${order.shipping?.city || ''}, ${order.shipping?.province || ''}`.replace(/^, |, $/g, '')
+            : 'Velora Fulfillment Centre');
+    }
     if (estDeliveryEl) estDeliveryEl.textContent = estDelivery;
     if (totalEl) totalEl.textContent = formatCurrency(totalAmount);
 
@@ -550,7 +568,6 @@ async function loadAndRenderOrders(currentUser) {
       trackBtnEl.title = `Track parcel ${orderId} in Velora Logistics`;
     }
 
-    const normalizedStatus = String(order.status || '').toLowerCase();
     if (cancelBtnEl) {
       cancelBtnEl.hidden = normalizedStatus !== 'pending';
       cancelBtnEl.addEventListener('click', async () => {
@@ -565,6 +582,27 @@ async function loadAndRenderOrders(currentUser) {
         }
       });
     }
+
+    const trackingSteps = Array.from(cardClone.querySelectorAll('.tracking-step'));
+    const stepTitles = ['Order placed', 'Accepted at logistics hub', 'In transit', 'Delivered'];
+    const stepLocations = [
+      'Order confirmed',
+      'Velora Logistics Hub, Airport Industria',
+      'With assigned Velora driver',
+      'Customer delivery address'
+    ];
+    trackingSteps.forEach((step, index) => {
+      step.classList.remove('completed', 'current', 'pending');
+      step.classList.add(index < stage || normalizedStatus === 'delivered' ? 'completed' : index === stage ? 'current' : 'pending');
+      const title = step.querySelector('.step-title');
+      const time = step.querySelector('.step-time');
+      if (title) title.textContent = stepTitles[index];
+      if (time) time.textContent = index < stage || normalizedStatus === 'delivered'
+        ? stepLocations[index]
+        : index === stage
+          ? (order.trackingLocation || stepLocations[index])
+          : 'Awaiting update';
+    });
     if (returnBtnEl) {
       const existingReturn = userReturns.find(item => item.order_number === orderId);
       const returnIsActive = existingReturn && ['pending', 'approved'].includes(existingReturn.status);

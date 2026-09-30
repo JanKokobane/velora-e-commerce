@@ -18,6 +18,7 @@ window.switchTab = function(tabId) {
   const views = {
     dashboard: document.getElementById('overviewMainView'),
     orders: document.getElementById('ordersMainView'),
+    drivers: document.getElementById('driversMainView'),
     returns: document.getElementById('returnsMainView'),
     inventory: document.getElementById('inventoryMainView'),
     customers: document.getElementById('customersMainView'),
@@ -36,6 +37,7 @@ window.switchTab = function(tabId) {
     const titles = {
       dashboard: 'Store Overview',
       orders: 'Orders',
+      drivers: 'Drivers',
       returns: 'Returns',
       inventory: 'Catalog & Stock',
       customers: 'Client Registry',
@@ -78,6 +80,12 @@ window.refreshCurrentView = function() {
     if (typeof window.fetchOrdersFromDb === 'function') {
       window.fetchOrdersFromDb();
     }
+    if (typeof window.fetchDriversFromDb === 'function') {
+      window.fetchDriversFromDb();
+    }
+  } else if (tab === 'drivers') {
+    if (typeof window.renderDriversView === 'function') window.renderDriversView();
+    if (typeof window.fetchDriversFromDb === 'function') window.fetchDriversFromDb();
   } else if (tab === 'returns' && typeof window.renderReturnsView === 'function') {
     window.renderReturnsView();
     if (typeof window.fetchReturnsFromDb === 'function') {

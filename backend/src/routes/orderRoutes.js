@@ -7,7 +7,10 @@ const {
   getMyOrder,
   getAllOrders,
   cancelMyOrder,
-  deleteOrder
+  deleteOrder,
+  acceptPaidOrder,
+  assignDriverToOrder,
+  markOrderDelivered
 } = require('../controllers/orderController');
 const { createMyReturn } = require('../controllers/returnController');
 
@@ -62,6 +65,9 @@ router.get('/', getMyOrders);
 
 router.get('/all', getAllOrders);
 
+router.patch('/:orderNumber/accept', acceptPaidOrder);
+router.patch('/:orderNumber/assign-driver', assignDriverToOrder);
+router.patch('/:orderNumber/delivered', markOrderDelivered);
 router.delete('/:orderNumber', deleteOrder);
 router.patch('/:orderNumber/cancel', cancelMyOrder);
 router.post('/:orderNumber/returns', createMyReturn);

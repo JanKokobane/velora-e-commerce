@@ -14,7 +14,7 @@ function isPaidOverviewOrder(order) {
 function renderOverviewOperations(orders, returns) {
   const pendingFulfillment = orders.filter(order => {
     const status = String(order.status || '').toLowerCase().replace(/_/g, '-');
-    return isPaidOverviewOrder(order) && ['paid', 'processing', 'confirmed'].includes(status);
+    return isPaidOverviewOrder(order) && ['paid', 'processing', 'confirmed', 'accepted', 'accepted at hub'].includes(status);
   }).length;
   const inTransit = orders.filter(order =>
     ['in-transit', 'transit', 'shipped'].includes(String(order.status || '').toLowerCase().replace(/_/g, '-'))

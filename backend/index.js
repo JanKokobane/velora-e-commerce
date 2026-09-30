@@ -9,6 +9,8 @@ const notificationRoutes = require("./src/routes/notificationRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const returnRoutes = require("./src/routes/returnRoutes");
+const driverRoutes = require("./src/routes/driverRoutes");
+const { ensureDriverSchema } = require("./src/services/driverService");
 
 const { connectDB } = require("./src/config/db");
 
@@ -21,10 +23,12 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/returns", returnRoutes);
+app.use("/api/drivers", driverRoutes);
 
 const startServer = async () => {
   try {
     await connectDB();
+    await ensureDriverSchema();
 
     console.log(
       "JWT_SECRET configured:",
@@ -70,6 +74,10 @@ const startServer = async () => {
 
       console.log(
         "Returns API: /api/returns"
+      );
+
+      console.log(
+        "Drivers API: /api/drivers"
       );
     });
   } catch (error) {

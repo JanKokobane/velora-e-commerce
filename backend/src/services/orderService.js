@@ -1,6 +1,27 @@
 const db = require('../config/db');
 const { ensureReturnsTable } = require('./returnService');
+const { ensureDriverSchema } = require('./driverService');
 const { randomUUID } = require('crypto');
+
+const getTrackingLocation = (status, shipping = {}) => {
+  const normalizedStatus = String(status || '').toLowerCase();
+  if (normalizedStatus === 'accepted') return 'Velora Logistics Hub, Airport Industria';
+  if (['in-transit', 'transit', 'shipped'].includes(normalizedStatus)) return 'En route from Velora Logistics Hub, Airport Industria';
+  if (normalizedStatus === 'delivered') {
+    return [shipping.street, shipping.city, shipping.province].filter(Boolean).join(', ') || 'Delivered';
+  }
+  return 'Velora Fulfillment Centre';
+};
+
+const getOrderDriver = (order) => order.driver_id
+  ? {
+      id: order.driver_id,
+      fullName: order.driver_name,
+      email: order.driver_email,
+      phone: order.driver_phone,
+      province: order.driver_province
+    }
+  : null;
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -409,6 +430,7 @@ const createOrder = async ({
 };
 
 const getOrdersByUserId = async (userId) => {
+  await ensureDriverSchema();
   const ordersResult = await db.query(
     `
     SELECT
@@ -430,6 +452,12 @@ const getOrdersByUserId = async (userId) => {
       province,
       delivery_method,
       tracking_number,
+      accepted_at,
+      driver_id,
+      (SELECT full_name FROM drivers WHERE id = orders.driver_id) AS driver_name,
+      (SELECT email FROM drivers WHERE id = orders.driver_id) AS driver_email,
+      (SELECT phone FROM drivers WHERE id = orders.driver_id) AS driver_phone,
+      (SELECT province FROM drivers WHERE id = orders.driver_id) AS driver_province,
       created_at,
       updated_at
     FROM orders
@@ -481,6 +509,13 @@ const getOrdersByUserId = async (userId) => {
       },
       deliveryMethod: order.delivery_method,
       trackingNumber: order.tracking_number,
+      acceptedAt: order.accepted_at,
+      trackingLocation: getTrackingLocation(order.status, {
+        street: order.street,
+        city: order.city,
+        province: order.province
+      }),
+      driver: getOrderDriver(order),
       createdAt: order.created_at,
       updatedAt: order.updated_at,
       items: itemsResult.rows.map((item) => ({
@@ -503,6 +538,7 @@ const getOrderByNumberForUser = async (
   orderNumber,
   userId
 ) => {
+  await ensureDriverSchema();
   const orderResult = await db.query(
     `
     SELECT
@@ -525,6 +561,12 @@ const getOrderByNumberForUser = async (
       province,
       delivery_method,
       tracking_number,
+      accepted_at,
+      driver_id,
+      (SELECT full_name FROM drivers WHERE id = orders.driver_id) AS driver_name,
+      (SELECT email FROM drivers WHERE id = orders.driver_id) AS driver_email,
+      (SELECT phone FROM drivers WHERE id = orders.driver_id) AS driver_phone,
+      (SELECT province FROM drivers WHERE id = orders.driver_id) AS driver_province,
       created_at,
       updated_at
     FROM orders
@@ -584,6 +626,13 @@ const getOrderByNumberForUser = async (
     },
     deliveryMethod: order.delivery_method,
     trackingNumber: order.tracking_number,
+    acceptedAt: order.accepted_at,
+    trackingLocation: getTrackingLocation(order.status, {
+      street: order.street,
+      city: order.city,
+      province: order.province
+    }),
+    driver: getOrderDriver(order),
     createdAt: order.created_at,
     updatedAt: order.updated_at,
     items: itemsResult.rows.map((item) => ({
@@ -600,6 +649,7 @@ const getOrderByNumberForUser = async (
 };
 
 const getAllOrders = async () => {
+  await ensureDriverSchema();
   const ordersResult = await db.query(
     `
     SELECT
@@ -622,6 +672,12 @@ const getAllOrders = async () => {
       province,
       delivery_method,
       tracking_number,
+      accepted_at,
+      driver_id,
+      (SELECT full_name FROM drivers WHERE id = orders.driver_id) AS driver_name,
+      (SELECT email FROM drivers WHERE id = orders.driver_id) AS driver_email,
+      (SELECT phone FROM drivers WHERE id = orders.driver_id) AS driver_phone,
+      (SELECT province FROM drivers WHERE id = orders.driver_id) AS driver_province,
       created_at,
       updated_at
     FROM orders
@@ -672,6 +728,13 @@ const getAllOrders = async () => {
       },
       deliveryMethod: order.delivery_method,
       trackingNumber: order.tracking_number,
+      acceptedAt: order.accepted_at,
+      trackingLocation: getTrackingLocation(order.status, {
+        street: order.street,
+        city: order.city,
+        province: order.province
+      }),
+      driver: getOrderDriver(order),
       createdAt: order.created_at,
       updatedAt: order.updated_at,
       items: itemsResult.rows.map((item) => ({
@@ -872,11 +935,142 @@ const deleteOrder = async (orderNumber) => {
   }
 };
 
+const acceptPaidOrder = async (orderNumber) => {
+  await ensureDriverSchema();
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+    const orderResult = await client.query(`
+      SELECT id, order_number, status, payment_status, tracking_number, accepted_at
+      FROM orders
+      WHERE order_number = $1
+      LIMIT 1
+      FOR UPDATE
+    `, [orderNumber]);
+    const order = orderResult.rows[0];
+    if (!order) {
+      const error = new Error('Order not found.');
+      error.code = 'ORDER_NOT_FOUND';
+      throw error;
+    }
+    if (String(order.payment_status).toLowerCase() !== 'paid') {
+      const error = new Error('Only paid orders can be accepted for fulfillment.');
+      error.code = 'ORDER_NOT_PAID';
+      throw error;
+    }
+    if (['cancelled', 'refunded', 'delivered'].includes(String(order.status).toLowerCase())) {
+      const error = new Error('This order cannot be accepted.');
+      error.code = 'ORDER_NOT_ACCEPTABLE';
+      throw error;
+    }
+
+    const result = await client.query(`
+      UPDATE orders
+      SET status = 'accepted',
+          accepted_at = COALESCE(accepted_at, CURRENT_TIMESTAMP),
+          tracking_number = COALESCE(NULLIF(tracking_number, ''), $2),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, order_number, status, payment_status, tracking_number, accepted_at
+    `, [order.id, `VEL-TRK-${randomUUID().slice(0, 8).toUpperCase()}`]);
+
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const assignDriverToOrder = async (orderNumber, driverId) => {
+  await ensureDriverSchema();
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+    const orderResult = await client.query(`
+      SELECT id, order_number, status, payment_status, province, driver_id
+      FROM orders
+      WHERE order_number = $1
+      LIMIT 1
+      FOR UPDATE
+    `, [orderNumber]);
+    const order = orderResult.rows[0];
+    if (!order) {
+      const error = new Error('Order not found.');
+      error.code = 'ORDER_NOT_FOUND';
+      throw error;
+    }
+    if (String(order.payment_status).toLowerCase() !== 'paid' || String(order.status).toLowerCase() !== 'accepted') {
+      const error = new Error('Accept this paid order before assigning a driver.');
+      error.code = 'ORDER_NOT_ACCEPTED';
+      throw error;
+    }
+
+    const driverResult = await client.query(`
+      SELECT id, full_name, email, phone, province
+      FROM drivers
+      WHERE id = $1
+      LIMIT 1
+    `, [driverId]);
+    const driver = driverResult.rows[0];
+    if (!driver) {
+      const error = new Error('Driver not found.');
+      error.code = 'DRIVER_NOT_FOUND';
+      throw error;
+    }
+    if (String(driver.province).trim().toLowerCase() !== String(order.province).trim().toLowerCase()) {
+      const error = new Error('Choose a driver who serves the customer province.');
+      error.code = 'DRIVER_PROVINCE_MISMATCH';
+      throw error;
+    }
+
+    const result = await client.query(`
+      UPDATE orders
+      SET driver_id = $1,
+          status = 'in-transit',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, order_number, status, payment_status, tracking_number, accepted_at, driver_id
+    `, [driver.id, order.id]);
+    await client.query('COMMIT');
+    return { ...result.rows[0], driver };
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const markOrderDelivered = async (orderNumber) => {
+  const result = await db.query(`
+    UPDATE orders
+    SET status = 'delivered', updated_at = CURRENT_TIMESTAMP
+    WHERE order_number = $1
+      AND status = 'in-transit'
+      AND driver_id IS NOT NULL
+    RETURNING id, order_number, status, payment_status, tracking_number, driver_id
+  `, [orderNumber]);
+  if (!result.rows[0]) {
+    const error = new Error('Only in-transit orders assigned to a driver can be marked delivered.');
+    error.code = 'ORDER_NOT_DELIVERABLE';
+    throw error;
+  }
+  return result.rows[0];
+};
+
 module.exports = {
   createOrder,
   getOrdersByUserId,
   getOrderByNumberForUser,
   getAllOrders,
   cancelOrderForUser,
-  deleteOrder
+  deleteOrder,
+  acceptPaidOrder,
+  assignDriverToOrder,
+  markOrderDelivered
 };
