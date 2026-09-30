@@ -9,6 +9,7 @@
   window.customerTierFilter = 'all';
   window._isFetchingCustomers = false;
   window._customersFetchedOnce = false;
+  window._customersRefreshQueued = false;
 
   if (typeof window.FALLBACK_ADMIN_TOKEN === 'undefined') {
     window.FALLBACK_ADMIN_TOKEN =
@@ -61,7 +62,10 @@
    * Fetch registered users directly from the database
    */
   window.fetchCustomersFromDb = async function(showToastFeedback = false) {
-    if (window._isFetchingCustomers) return;
+    if (window._isFetchingCustomers) {
+      window._customersRefreshQueued = true;
+      return;
+    }
     window._isFetchingCustomers = true;
 
     const refreshBtn = document.getElementById('refreshCustomersBtn');
@@ -199,6 +203,10 @@
       if (refreshBtn) {
         refreshBtn.disabled = false;
         refreshBtn.textContent = '↻ Refresh DB';
+      }
+      if (window._customersRefreshQueued) {
+        window._customersRefreshQueued = false;
+        window.fetchCustomersFromDb(showToastFeedback);
       }
     }
   };
@@ -453,6 +461,9 @@
             throw new Error(data?.message || `Customer deletion failed (${response.status}).`);
           }
 
+          window.customersData = (Array.isArray(window.customersData) ? window.customersData : [])
+            .filter(customer => String(customer.fullId) !== String(cust.fullId));
+          window.renderCustomersView();
           await window.fetchCustomersFromDb();
           if (typeof window.showToast === 'function') {
             window.showToast(`${cust.name} deleted.`);
