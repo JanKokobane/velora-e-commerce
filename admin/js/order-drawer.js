@@ -63,6 +63,7 @@ window.renderOrderDrawer = function(order) {
   }
 
   const normalizedStatus = String(order.status || '').toLowerCase();
+  const canAssignDriver = ['paid', 'accepted at hub'].includes(normalizedStatus);
   const province = String(order.shipping?.province || '').trim().toLowerCase();
   const eligibleDrivers = (Array.isArray(window.driversData) ? window.driversData : [])
     .filter(driver => String(driver.province || '').trim().toLowerCase() === province);
@@ -102,15 +103,16 @@ window.renderOrderDrawer = function(order) {
       return option;
     });
     driverSelect.replaceChildren(placeholder, ...options);
-    driverSelect.disabled = normalizedStatus !== 'accepted at hub' || eligibleDrivers.length === 0;
+    driverSelect.disabled = !canAssignDriver || eligibleDrivers.length === 0;
   }
   if (acceptBtn) {
-    acceptBtn.hidden = normalizedStatus !== 'paid';
+    acceptBtn.hidden = normalizedStatus !== 'paid' || eligibleDrivers.length > 0;
     acceptBtn.textContent = 'Accept Paid Order';
   }
   if (assignBtn) {
-    assignBtn.hidden = normalizedStatus !== 'accepted at hub';
+    assignBtn.hidden = !canAssignDriver || eligibleDrivers.length === 0;
     assignBtn.disabled = eligibleDrivers.length === 0;
+    assignBtn.textContent = 'Assign Driver';
   }
   if (deliveredBtn) {
     const assignedAt = order.driverAssignedAt ? new Date(order.driverAssignedAt).getTime() : 0;
@@ -285,7 +287,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       btnAssignDriver.disabled = true;
       try {
-        await submitDispatchAction(order, 'assign-driver', { driverId });
+        let assignableOrder = order;
+        if (String(order.status).toLowerCase() === 'paid') {
+          await submitDispatchAction(order, 'accept');
+          assignableOrder = (window.ordersData || []).find(item =>
+            String(item.orderNumber) === String(order.orderNumber)
+          ) || { ...order, status: 'Accepted at Hub' };
+        }
+        await submitDispatchAction(assignableOrder, 'assign-driver', { driverId });
         window.showToast(`Driver assigned to order ${order.orderNumber}.`);
       } catch (error) {
         window.showToast(error.message || 'Unable to assign driver.');
