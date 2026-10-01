@@ -27,6 +27,29 @@ const ensureDriverSchema = async () => {
       ALTER TABLE orders
       ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ
     `)).then(() => db.query(`
+      DO $migration$
+      DECLARE
+        status_check TEXT;
+      BEGIN
+        PERFORM pg_advisory_xact_lock(hashtext('orders_status_check_migration'));
+
+        SELECT pg_get_expr(conbin, conrelid)
+        INTO status_check
+        FROM pg_constraint
+        WHERE conrelid = 'orders'::regclass
+          AND conname = 'orders_status_check'
+          AND contype = 'c';
+
+        IF status_check IS NOT NULL AND POSITION('accepted' IN LOWER(status_check)) = 0 THEN
+          ALTER TABLE orders DROP CONSTRAINT orders_status_check;
+          EXECUTE FORMAT(
+            'ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK ((status = ''accepted'') OR (%s))',
+            status_check
+          );
+        END IF;
+      END;
+      $migration$
+    `)).then(() => db.query(`
       UPDATE orders
       SET driver_assigned_at = COALESCE(updated_at, CURRENT_TIMESTAMP)
       WHERE status = 'in-transit'
