@@ -311,24 +311,8 @@ function renderOrdersInterface(order) {
   const etaRegionEl = document.getElementById('etaSubRegion');
   if (etaRegionEl) etaRegionEl.textContent = order.customer?.region || order.customer?.address || 'Destination province not recorded';
 
-  const routeDestCity = document.getElementById('routeCustomerCity');
-  if (routeDestCity) routeDestCity.textContent = customerName;
   const currentLocationEl = document.getElementById('trackingCurrentLocation');
   if (currentLocationEl) currentLocationEl.textContent = order.trackingLocation || 'Velora Fulfillment Centre';
-
-  const routePoints = Array.from(document.querySelectorAll('.logistics-route-map .route-point'));
-  const routeLines = Array.from(document.querySelectorAll('.logistics-route-map .route-line'));
-  const hubDot = routePoints[1]?.querySelector('.point-dot');
-  const destinationDot = routePoints[2]?.querySelector('.point-dot');
-  const van = routeLines[0]?.querySelector('.van-indicator');
-  const reachedHub = order.currentStageIndex >= 1;
-  const inTransit = order.currentStageIndex === 2;
-  const delivered = order.currentStageIndex >= 3;
-  if (hubDot) hubDot.classList.toggle('pulse', reachedHub && !delivered);
-  if (destinationDot) destinationDot.classList.toggle('pulse', delivered);
-  if (routeLines[0]) routeLines[0].classList.toggle('active', reachedHub);
-  if (routeLines[1]) routeLines[1].classList.toggle('active', inTransit || delivered);
-  if (van) van.style.display = inTransit ? 'flex' : 'none';
 
   // Render Milestones using <template id="timelineItemTemplate">
   const timelineContainer = document.getElementById('timelineListContainer');
