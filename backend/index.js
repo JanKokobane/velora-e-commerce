@@ -30,7 +30,7 @@ const deliverExpiredOrders = async () => {
           type: "order_delivered",
           category: "orders",
           title: "Order Delivered",
-          message: `Order #${order.order_number} was marked delivered after 12 hours in transit.`,
+          message: `Order #${order.order_number} was marked delivered after 2 minutes in transit.`,
           entityType: "order",
           entityId: order.id,
           actionUrl: "/admin#orders",
@@ -61,7 +61,7 @@ const startServer = async () => {
     await connectDB();
     await ensureDriverSchema();
     await deliverExpiredOrders();
-    const deliverySweep = setInterval(deliverExpiredOrders, 60 * 1000);
+    const deliverySweep = setInterval(deliverExpiredOrders, 15 * 1000);
     deliverySweep.unref?.();
 
     console.log(

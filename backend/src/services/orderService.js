@@ -1066,11 +1066,11 @@ const markOrderDelivered = async (orderNumber) => {
     WHERE order_number = $1
       AND status = 'in-transit'
       AND driver_id IS NOT NULL
-      AND driver_assigned_at <= CURRENT_TIMESTAMP - INTERVAL '12 hours'
+      AND driver_assigned_at <= CURRENT_TIMESTAMP - INTERVAL '2 minutes'
     RETURNING id, order_number, status, payment_status, tracking_number, driver_id, driver_assigned_at, updated_at
   `, [orderNumber]);
   if (!result.rows[0]) {
-    const error = new Error('A parcel can be marked delivered only after 12 hours in transit with an assigned driver.');
+    const error = new Error('A parcel can be marked delivered only after 2 minutes in transit with an assigned driver.');
     error.code = 'ORDER_NOT_DELIVERABLE';
     throw error;
   }
@@ -1085,7 +1085,7 @@ const deliverOrdersAfterDispatchWindow = async () => {
         updated_at = CURRENT_TIMESTAMP
     WHERE status = 'in-transit'
       AND driver_id IS NOT NULL
-      AND driver_assigned_at <= CURRENT_TIMESTAMP - INTERVAL '12 hours'
+      AND driver_assigned_at <= CURRENT_TIMESTAMP - INTERVAL '2 minutes'
     RETURNING id, order_number, user_id, driver_id, updated_at
   `);
   return result.rows;

@@ -117,9 +117,19 @@ window.renderOrderDrawer = function(order) {
     assignBtn.textContent = 'Assign Driver';
   }
   if (deliveredBtn) {
-    const assignedAt = order.driverAssignedAt ? new Date(order.driverAssignedAt).getTime() : 0;
-    const dispatchWindowPassed = assignedAt > 0 && Date.now() - assignedAt >= 12 * 60 * 60 * 1000;
+    if (window.orderDeliveryTimerId) clearTimeout(window.orderDeliveryTimerId);
+    window.orderDeliveryTimerId = null;
+    const assignedAt = new Date(order.driverAssignedAt || order.driver_assigned_at || 0).getTime();
+    const dispatchWindowPassed = assignedAt > 0 && Date.now() - assignedAt >= 2 * 60 * 1000;
     deliveredBtn.hidden = normalizedStatus !== 'in-transit' || !order.driver || !dispatchWindowPassed;
+    if (normalizedStatus === 'in-transit' && order.driver && assignedAt > 0 && !dispatchWindowPassed) {
+      window.orderDeliveryTimerId = setTimeout(() => {
+        const drawer = document.getElementById('orderDrawer');
+        if (String(window.currentActiveOrderId) === String(order.id) && drawer?.classList.contains('open')) {
+          window.renderOrderDrawer(order);
+        }
+      }, assignedAt + 2 * 60 * 1000 - Date.now());
+    }
   }
 
   // Render Line Items
