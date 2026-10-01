@@ -103,7 +103,9 @@ window.renderOrderDrawer = function(order) {
     assignBtn.disabled = eligibleDrivers.length === 0;
   }
   if (deliveredBtn) {
-    deliveredBtn.hidden = normalizedStatus !== 'in-transit' || !order.driver;
+    const assignedAt = order.driverAssignedAt ? new Date(order.driverAssignedAt).getTime() : 0;
+    const dispatchWindowPassed = assignedAt > 0 && Date.now() - assignedAt >= 12 * 60 * 60 * 1000;
+    deliveredBtn.hidden = normalizedStatus !== 'in-transit' || !order.driver || !dispatchWindowPassed;
   }
 
   // Render Line Items

@@ -21,8 +21,17 @@ const ensureDriverSchema = async () => {
       ALTER TABLE orders
       ADD COLUMN IF NOT EXISTS driver_id BIGINT REFERENCES drivers(id) ON DELETE SET NULL
     `)).then(() => db.query(`
+      UPDATE orders
+      SET driver_assigned_at = COALESCE(updated_at, CURRENT_TIMESTAMP)
+      WHERE status = 'in-transit'
+        AND driver_id IS NOT NULL
+        AND driver_assigned_at IS NULL
+    `)).then(() => db.query(`
       ALTER TABLE orders
       ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ
+    `)).then(() => db.query(`
+      ALTER TABLE orders
+      ADD COLUMN IF NOT EXISTS driver_assigned_at TIMESTAMPTZ
     `)).catch((error) => {
       schemaReady = null;
       throw error;

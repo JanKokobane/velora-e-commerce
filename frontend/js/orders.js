@@ -8,81 +8,13 @@ function resolveBackendBaseUrl() {
 }
 
 const API_BASE_URL = resolveBackendBaseUrl();
-
-// Default parcel benchmark for demonstration if no orders exist yet
-const DEFAULT_PARCEL = {
-  id: 'VEL-84920',
-  trackingNumber: 'TRK-ZA-8492019',
-  date: '18 Sep 2026',
-  estimatedDelivery: 'Tomorrow (14:00 – 17:00)',
-  status: 'In Transit — Out for Express Delivery',
-  currentStageIndex: 3,
-  carrier: 'Velora Express Courier (www.velora.co.za)',
-  driver: {
-    name: 'Sipho Khumalo',
-    vehicle: 'Toyota Hilux Van (CA 892 411)',
-    phone: '+27 82 555 0192',
-    rating: '4.9 ★'
-  },
-  customer: {
-    fullName: 'Elena Vance',
-    email: 'elena@example.com',
-    phone: '+27 82 492 8102',
-    address: '14 Kloof Street, Gardens, Cape Town, 8001'
-  },
-  paymentMethod: 'Instant EFT (Capitec Bank) — Verified',
-  processingPartner: 'Velora Logistics Infrastructure (www.velora.co.za)',
-  items: [
-    {
-      title: 'Adizero Running Gel Pocket Crop Top',
-      size: 'M',
-      quantity: 1,
-      price: 999,
-      image: 'https://assets.adidas.com/images/w_1880,f_auto,q_auto/963f264df7f749b8905416d3a2e43307_9366/KT4859_21_model.jpg'
-    }
-  ],
-  milestones: [
-    {
-      title: 'Order Verified & Payment Cleared',
-      location: 'Velora Digital Gateway',
-      time: '18 Sep 2026, 09:15',
-      completed: true,
-      description: 'Transaction authorized via Velora SSL gateway. Digital invoice generated.'
-    },
-    {
-      title: 'Velora Order Processing & Atelier Allocation',
-      location: 'Woodstock Studio, Cape Town',
-      time: '18 Sep 2026, 11:30',
-      completed: true,
-      description: 'Handcrafted goods inspected by master artisan. Packed in biodegradable raw cotton dust bag.'
-    },
-    {
-      title: 'Dispatched to Velora Logistics Hub',
-      location: 'Airport Industria Dispatch Hub, Western Cape',
-      time: '18 Sep 2026, 16:45',
-      completed: true,
-      description: 'Waybill scanned and audited by Velora logistics system (www.velora.co.za).'
-    },
-    {
-      title: 'Out for Express Delivery',
-      location: 'City Bowl & Atlantic Seaboard Route',
-      time: 'Today, 08:30',
-      completed: true,
-      description: 'Parcel loaded into express courier van. Courier Sipho K. is currently on route.'
-    },
-    {
-      title: 'Final Handover & Recipient Signature',
-      location: '14 Kloof Street, Gardens, Cape Town',
-      time: 'Expected Today, 14:00 – 17:00',
-      completed: false,
-      description: 'Signature required upon handover. Mobile PIN verification enabled.'
-    }
-  ]
-};
+let activeTrackingOrderId = null;
+let trackingRefreshTimer = null;
+let trackingRefreshInProgress = false;
 
 // Convert a backend order into a parcel tracking model
 function buildParcelFromOrder(o) {
-  const orderId = o.orderNumber || o.id || 'VEL-84920';
+  const orderId = o.orderNumber || o.id || 'Order';
   const customer = o.shipping || o.customer || {
     fullName: o.fullName || '',
     email: o.email || '',
@@ -121,6 +53,14 @@ function buildParcelFromOrder(o) {
     refunded: 'Refunded'
   };
   const statusLabel = statusLabels[orderStatus] || String(o.status || 'Order Pending');
+  const acceptedAt = o.acceptedAt || o.accepted_at;
+  const driverAssignedAt = o.driverAssignedAt || o.driver_assigned_at;
+  const deliveredAt = orderStatus === 'delivered' ? (o.updatedAt || o.updated_at) : null;
+  const etaStart = new Date(driverAssignedAt || acceptedAt || o.createdAt || Date.now());
+  etaStart.setDate(etaStart.getDate() + 3);
+  const estimatedDelivery = acceptedAt
+    ? `Within 3 days · by ${etaStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+    : 'Within 3 days after hub acceptance';
   const stageIndex = orderStatus === 'delivered'
     ? 3
     : ['in-transit', 'transit', 'shipped'].includes(orderStatus)
@@ -131,7 +71,7 @@ function buildParcelFromOrder(o) {
   const trackingLocation = o.trackingLocation || (stageIndex === 1
     ? 'Velora Logistics Hub, Airport Industria'
     : stageIndex === 2
-      ? 'En route from Velora Logistics Hub, Airport Industria'
+      ? 'Velora Logistics Hub, Airport Industria'
       : stageIndex === 3
         ? fullAddr
         : 'Velora Fulfillment Centre');
@@ -140,24 +80,28 @@ function buildParcelFromOrder(o) {
     {
       title: 'Order Placed & Payment Confirmed',
       location: 'Velora Order System',
+      time: o.createdAt ? new Date(o.createdAt).toLocaleString('en-GB') : dateStr,
       completed: stageIndex >= 0,
       description: `Order ${orderId} and payment status: ${o.paymentStatus || 'pending'}.`
     },
     {
       title: 'Accepted at Velora Logistics Hub',
       location: 'Velora Logistics Hub, Airport Industria',
+      time: acceptedAt ? new Date(acceptedAt).toLocaleString('en-GB') : 'Awaiting update',
       completed: stageIndex >= 1,
       description: 'The paid order has been accepted for dispatch at the Velora logistics hub.'
     },
     {
       title: 'In Transit with Assigned Driver',
       location: trackingLocation,
+      time: driverAssignedAt ? new Date(driverAssignedAt).toLocaleString('en-GB') : 'Awaiting update',
       completed: stageIndex >= 2,
       description: assignedDriver ? `Parcel assigned to ${assignedDriver.fullName || assignedDriver.full_name}.` : 'Awaiting driver assignment.'
     },
     {
       title: 'Delivered to Customer',
       location: fullAddr || 'Delivery address',
+      time: deliveredAt ? new Date(deliveredAt).toLocaleString('en-GB') : 'Awaiting update',
       completed: stageIndex >= 3,
       description: stageIndex >= 3 ? 'Order marked delivered.' : 'Delivery confirmation will appear here once completed.'
     }
@@ -165,32 +109,33 @@ function buildParcelFromOrder(o) {
 
   return {
     id: orderId,
-    trackingNumber: o.trackingNumber || 'Not assigned',
+    trackingNumber: o.trackingNumber || 'Assigned after acceptance',
     date: dateStr,
-    estimatedDelivery: o.estimatedDelivery || 'Not available',
+    estimatedDelivery: orderStatus === 'delivered' ? 'Delivered' : estimatedDelivery,
     status: statusLabel,
     currentStageIndex: stageIndex,
     trackingLocation,
     carrier: 'Velora Express Courier (www.velora.co.za)',
     driver: {
       name: assignedDriver?.fullName || assignedDriver?.full_name || 'Not assigned',
-      vehicle: 'Not assigned',
+      vehicle: 'Vehicle details not recorded',
       phone: assignedDriver?.phone || '',
-      rating: ''
+      rating: assignedDriver ? 'Assigned Velora courier' : 'Driver will appear after dispatch assignment'
     },
     customer: {
       fullName: customer.fullName || 'Customer',
       email: customer.email || '',
       phone: customer.phone || '',
-      address: fullAddr
+      address: fullAddr,
+      region: [customer.city, customer.province].filter(Boolean).join(', ')
     },
-    paymentMethod: o.paymentMethod || 'Not available',
+    paymentMethod: o.paymentMethod || 'Not recorded',
     processingPartner: o.deliveryMethod || 'Not assigned',
     items,
     total: Number(o.total) || 0,
     milestones: milestones.map((milestone, index) => ({
       ...milestone,
-      time: milestone.completed ? dateStr : 'Awaiting update',
+      time: milestone.time || (milestone.completed ? dateStr : 'Awaiting update'),
       current: index === stageIndex
     }))
   };
@@ -277,6 +222,7 @@ export async function initOrdersPage() {
   if (activeOrder) {
     showTrackingInterface();
     renderOrdersInterface(activeOrder);
+    startTrackingRefresh(activeOrder.id);
   } else {
     showTrackingNotice(requestedId
       ? 'That order was not found in your account.'
@@ -284,6 +230,28 @@ export async function initOrdersPage() {
   }
   bindEvents();
   updateGlobalHeaderUser();
+}
+
+function startTrackingRefresh(orderNumber) {
+  activeTrackingOrderId = orderNumber;
+  if (trackingRefreshTimer) window.clearInterval(trackingRefreshTimer);
+  trackingRefreshTimer = window.setInterval(async () => {
+    if (document.visibilityState !== 'visible' || trackingRefreshInProgress || !activeTrackingOrderId) return;
+    trackingRefreshInProgress = true;
+    try {
+      const order = await fetchOrderFromBackend(activeTrackingOrderId);
+      if (order) {
+        showTrackingInterface();
+        renderOrdersInterface(order);
+        if (order.status === 'Delivered') {
+          window.clearInterval(trackingRefreshTimer);
+          trackingRefreshTimer = null;
+        }
+      }
+    } finally {
+      trackingRefreshInProgress = false;
+    }
+  }, 5 * 60 * 1000);
 }
 
 function showTrackingNotice(message) {
@@ -309,13 +277,14 @@ function showTrackingInterface() {
 
 // Render the main tracking interface using safe DOM manipulation
 function renderOrdersInterface(order) {
-  const customerName = order.customer?.fullName || 'Elena Vance';
-  const deliveryAddress = order.customer?.address || '14 Kloof Street, Gardens, Cape Town';
+  activeTrackingOrderId = order.id;
+  const customerName = order.customer?.fullName || 'Customer';
+  const deliveryAddress = order.customer?.address || 'Delivery address not recorded';
   const items = order.items || [];
   const milestones = Array.isArray(order.milestones) ? order.milestones : [];
-  const totalDisplay = typeof order.total === 'number' && order.total > 0
+  const totalDisplay = typeof order.total === 'number' && Number.isFinite(order.total)
     ? `R ${order.total.toLocaleString('en-ZA')}` 
-    : 'R 999';
+    : 'Total not recorded';
 
   // Search input and chips
   const searchInput = document.getElementById('orderSearchInput');
@@ -323,27 +292,43 @@ function renderOrdersInterface(order) {
 
   const chipCurrent = document.getElementById('chipCurrentOrder');
   if (chipCurrent) {
-    chipCurrent.textContent = `${order.id || 'VEL-84920'} (Current)`;
-    chipCurrent.dataset.code = order.id || 'VEL-84920';
+    chipCurrent.textContent = `${order.id || 'Order'} (Current)`;
+    chipCurrent.dataset.code = order.id || '';
   }
 
   // Hero Status
   const trackingCodeEl = document.getElementById('trackingNumberCode');
-  if (trackingCodeEl) trackingCodeEl.textContent = order.trackingNumber || 'TRK-ZA-8492019';
+  if (trackingCodeEl) trackingCodeEl.textContent = order.trackingNumber || 'Assigned after acceptance';
 
   const orderStatusEl = document.getElementById('orderStatusHeading');
-  if (orderStatusEl) orderStatusEl.textContent = order.status || 'In Transit — Out for Express Delivery';
+  if (orderStatusEl) orderStatusEl.textContent = order.status || 'Order status unavailable';
 
   const orderRefEl = document.getElementById('orderReferenceDisplay');
-  if (orderRefEl) orderRefEl.textContent = order.id || 'VEL-84920';
+  if (orderRefEl) orderRefEl.textContent = order.id || 'Order';
 
   const etaTimeEl = document.getElementById('etaTimeDisplay');
-  if (etaTimeEl) etaTimeEl.textContent = order.estimatedDelivery || 'In 2-3 Business Days (14:00 – 17:00)';
+  if (etaTimeEl) etaTimeEl.textContent = order.estimatedDelivery || 'Within 3 days after hub acceptance';
+  const etaRegionEl = document.getElementById('etaSubRegion');
+  if (etaRegionEl) etaRegionEl.textContent = order.customer?.region || order.customer?.address || 'Destination province not recorded';
 
   const routeDestCity = document.getElementById('routeCustomerCity');
   if (routeDestCity) routeDestCity.textContent = customerName;
   const currentLocationEl = document.getElementById('trackingCurrentLocation');
   if (currentLocationEl) currentLocationEl.textContent = order.trackingLocation || 'Velora Fulfillment Centre';
+
+  const routePoints = Array.from(document.querySelectorAll('.logistics-route-map .route-point'));
+  const routeLines = Array.from(document.querySelectorAll('.logistics-route-map .route-line'));
+  const hubDot = routePoints[1]?.querySelector('.point-dot');
+  const destinationDot = routePoints[2]?.querySelector('.point-dot');
+  const van = routeLines[0]?.querySelector('.van-indicator');
+  const reachedHub = order.currentStageIndex >= 1;
+  const inTransit = order.currentStageIndex === 2;
+  const delivered = order.currentStageIndex >= 3;
+  if (hubDot) hubDot.classList.toggle('pulse', reachedHub && !delivered);
+  if (destinationDot) destinationDot.classList.toggle('pulse', delivered);
+  if (routeLines[0]) routeLines[0].classList.toggle('active', reachedHub);
+  if (routeLines[1]) routeLines[1].classList.toggle('active', inTransit || delivered);
+  if (van) van.style.display = inTransit ? 'flex' : 'none';
 
   // Render Milestones using <template id="timelineItemTemplate">
   const timelineContainer = document.getElementById('timelineListContainer');
@@ -388,6 +373,17 @@ function renderOrdersInterface(order) {
   const driverNameEl = document.getElementById('driverName');
   if (driverNameEl) driverNameEl.textContent = order.driver?.name || 'Not assigned';
 
+  const driverAvatarEl = document.getElementById('driverAvatar');
+  if (driverAvatarEl) {
+    const initials = String(order.driver?.name || '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part.charAt(0).toUpperCase())
+      .join('');
+    driverAvatarEl.textContent = initials || '--';
+  }
+
   const driverVehicleEl = document.getElementById('driverVehicle');
   if (driverVehicleEl) driverVehicleEl.textContent = order.driver?.vehicle || 'Vehicle details not recorded';
 
@@ -412,7 +408,7 @@ function renderOrdersInterface(order) {
 
   // Payment Breakdown
   const paymentMethodBadge = document.getElementById('orderPaymentMethodBadge');
-  if (paymentMethodBadge) paymentMethodBadge.textContent = order.paymentMethod || 'Instant EFT (Capitec Bank) — Verified';
+  if (paymentMethodBadge) paymentMethodBadge.textContent = order.paymentMethod || 'Payment method not recorded';
 
   // Manifest items using <template id="manifestItemTemplate">
   const manifestContainer = document.getElementById('manifestItemsContainer');
@@ -435,8 +431,8 @@ function renderOrdersInterface(order) {
       if (title) title.textContent = item.title;
       if (meta) meta.textContent = `Size: ${item.size} • Qty: ${item.quantity}`;
       if (price) {
-        const itemP = typeof item.price === 'number' ? item.price : 999;
-        price.textContent = `R ${(itemP * item.quantity).toLocaleString('en-ZA')}`;
+        const itemP = Number(item.price);
+        price.textContent = Number.isFinite(itemP) ? `R ${(itemP * item.quantity).toLocaleString('en-ZA')}` : 'Price not recorded';
       }
 
       manifestContainer.appendChild(clone);

@@ -376,6 +376,11 @@ function mapDbOrder(order) {
       order.accepted_at ||
       null,
 
+    driverAssignedAt:
+      order.driverAssignedAt ||
+      order.driver_assigned_at ||
+      null,
+
     driver:
       order.driver ||
       null

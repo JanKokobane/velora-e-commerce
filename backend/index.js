@@ -11,10 +11,41 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 const returnRoutes = require("./src/routes/returnRoutes");
 const driverRoutes = require("./src/routes/driverRoutes");
 const { ensureDriverSchema } = require("./src/services/driverService");
+const { deliverOrdersAfterDispatchWindow } = require("./src/services/orderService");
+const { createNotification } = require("./src/services/notificationService");
 
 const { connectDB } = require("./src/config/db");
 
 const PORT = process.env.PORT || 5000;
+let deliverySweepRunning = false;
+
+const deliverExpiredOrders = async () => {
+  if (deliverySweepRunning) return;
+  deliverySweepRunning = true;
+  try {
+    const orders = await deliverOrdersAfterDispatchWindow();
+    for (const order of orders) {
+      try {
+        await createNotification({
+          type: "order_delivered",
+          category: "orders",
+          title: "Order Delivered",
+          message: `Order #${order.order_number} was marked delivered after 12 hours in transit.`,
+          entityType: "order",
+          entityId: order.id,
+          actionUrl: "/admin#orders",
+          isActionable: false
+        });
+      } catch (notificationError) {
+        console.warn("Automatic delivery notification warning:", notificationError.message);
+      }
+    }
+  } catch (error) {
+    console.error("Automatic delivery sweep failed:", error.message);
+  } finally {
+    deliverySweepRunning = false;
+  }
+};
 
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/users", userRoutes);
@@ -29,6 +60,9 @@ const startServer = async () => {
   try {
     await connectDB();
     await ensureDriverSchema();
+    await deliverExpiredOrders();
+    const deliverySweep = setInterval(deliverExpiredOrders, 60 * 1000);
+    deliverySweep.unref?.();
 
     console.log(
       "JWT_SECRET configured:",

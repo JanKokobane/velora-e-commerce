@@ -26,17 +26,11 @@ function formatCurrency(amount) {
   return `R ${num.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
-/**
- * Calculate delivery date range (2-4 business days ahead)
- */
-function getEstimatedDeliveryRange(orderDate) {
-  const start = orderDate ? new Date(orderDate) : new Date();
-  start.setDate(start.getDate() + 2);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 2);
-
-  const options = { day: 'numeric', month: 'short' };
-  return `${start.toLocaleDateString('en-GB', options)} – ${end.toLocaleDateString('en-GB', options)} ${end.getFullYear()}`;
+function getEstimatedDelivery(order) {
+  const start = new Date(order.driverAssignedAt || order.acceptedAt || order.createdAt || Date.now());
+  if (Number.isNaN(start.getTime())) return 'Within 3 days of dispatch';
+  start.setDate(start.getDate() + 3);
+  return `By ${start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 }
 
 // ============================================================
@@ -127,6 +121,12 @@ export async function initAccountPage() {
 
   // Fetch and display orders from backend and local cache
   loadAndRenderOrders(currentUser);
+  if (window._accountOrderRefreshTimer) window.clearInterval(window._accountOrderRefreshTimer);
+  window._accountOrderRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState === 'visible') {
+      loadAndRenderOrders(currentUser, { silent: true });
+    }
+  }, 5 * 60 * 1000);
 }
 
 // ============================================================
@@ -412,7 +412,7 @@ function setupDeleteProfile(currentUser) {
 // ============================================================
 // FETCH & RENDER ORDERS (BACKEND & LOCAL CACHE)
 // ============================================================
-async function loadAndRenderOrders(currentUser) {
+async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
   const container = document.getElementById('ordersListContainer');
   const emptyState = document.getElementById('ordersEmptyState');
   const cardTemplate = document.getElementById('orderCardTemplate');
@@ -422,8 +422,11 @@ async function loadAndRenderOrders(currentUser) {
 
   if (!container || !cardTemplate || !itemRowTemplate) return;
 
-  // Show loading state
-  container.innerHTML = `
+  if (window._accountOrdersFetchInProgress) return;
+  window._accountOrdersFetchInProgress = true;
+
+  // Show loading state only for the initial user-requested load.
+  if (!silent) container.innerHTML = `
     <div style="padding: 40px; text-align: center; color: var(--muted); font-size: 14px;">
       <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
       <div>Loading your Velora orders & parcel updates...</div>
@@ -432,6 +435,7 @@ async function loadAndRenderOrders(currentUser) {
 
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
   if (!token) {
+    window._accountOrdersFetchInProgress = false;
     window.location.href = 'auth.html?return=account';
     return;
   }
@@ -464,15 +468,19 @@ async function loadAndRenderOrders(currentUser) {
     }
   } catch (error) {
     console.error('Backend orders fetch failed:', error);
-    container.replaceChildren();
-    const message = document.createElement('p');
-    message.className = 'orders-load-error';
-    message.textContent = error.message || 'Unable to load your orders. Please try again.';
-    container.appendChild(message);
-    if (badge) badge.textContent = '0';
-    if (summaryCount) summaryCount.textContent = 'Orders unavailable';
+    if (!silent) {
+      container.replaceChildren();
+      const message = document.createElement('p');
+      message.className = 'orders-load-error';
+      message.textContent = error.message || 'Unable to load your orders. Please try again.';
+      container.appendChild(message);
+      if (badge) badge.textContent = '0';
+      if (summaryCount) summaryCount.textContent = 'Orders unavailable';
+    }
+    window._accountOrdersFetchInProgress = false;
     return;
   }
+  window._accountOrdersFetchInProgress = false;
 
   // 4. Update badge and counts
   if (badge) badge.textContent = String(orders.length);
@@ -499,7 +507,9 @@ async function loadAndRenderOrders(currentUser) {
     const orderDateFormatted = order.createdAt
       ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
       : (order.date || 'Recent');
-    const estDelivery = order.estimatedDelivery || getEstimatedDeliveryRange(order.createdAt);
+    const estDelivery = String(order.status).toLowerCase() === 'delivered'
+      ? 'Delivered'
+      : getEstimatedDelivery(order);
     const totalAmount = Number(order.total) || 0;
 
     // Elements inside template
@@ -538,7 +548,7 @@ async function loadAndRenderOrders(currentUser) {
     const statusText = normalizedStatus === 'delivered'
       ? 'Delivered & Signed'
       : stage === 2
-        ? 'In transit with Velora Courier'
+        ? `In transit with ${order.driver?.fullName || order.driver?.full_name || 'Velora Courier'}`
         : stage === 1
           ? 'Accepted at Velora Logistics Hub'
           : order.paymentStatus === 'paid'
@@ -550,12 +560,12 @@ async function loadAndRenderOrders(currentUser) {
       statusBadgeEl.classList.toggle('in-transit', stage === 2);
     }
 
-    if (courierEl) courierEl.textContent = order.driver?.fullName || order.driver?.full_name || 'Velora Courier';
+    if (courierEl) courierEl.textContent = order.driver?.fullName || order.driver?.full_name || 'Driver assigned after hub acceptance';
     if (trackingLocationEl) {
       trackingLocationEl.textContent = order.trackingLocation || (stage === 1
         ? 'Velora Logistics Hub, Airport Industria'
         : stage === 2
-          ? 'En route from Velora Logistics Hub, Airport Industria'
+          ? 'Velora Logistics Hub, Airport Industria'
           : stage === 3
             ? `${order.shipping?.city || ''}, ${order.shipping?.province || ''}`.replace(/^, |, $/g, '')
             : 'Velora Fulfillment Centre');
@@ -591,6 +601,12 @@ async function loadAndRenderOrders(currentUser) {
       'With assigned Velora driver',
       'Customer delivery address'
     ];
+    const milestoneDates = [
+      order.createdAt,
+      order.acceptedAt || order.accepted_at,
+      order.driverAssignedAt || order.driver_assigned_at,
+      normalizedStatus === 'delivered' ? order.updatedAt || order.updated_at : null
+    ];
     trackingSteps.forEach((step, index) => {
       step.classList.remove('completed', 'current', 'pending');
       step.classList.add(index < stage || normalizedStatus === 'delivered' ? 'completed' : index === stage ? 'current' : 'pending');
@@ -598,7 +614,7 @@ async function loadAndRenderOrders(currentUser) {
       const time = step.querySelector('.step-time');
       if (title) title.textContent = stepTitles[index];
       if (time) time.textContent = index < stage || normalizedStatus === 'delivered'
-        ? stepLocations[index]
+        ? (milestoneDates[index] ? new Date(milestoneDates[index]).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : stepLocations[index])
         : index === stage
           ? (order.trackingLocation || stepLocations[index])
           : 'Awaiting update';

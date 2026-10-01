@@ -1,35 +1,4 @@
-const DEFAULT_DRIVERS = [
-  {
-    id: 1,
-    full_name: 'Sipho Dlamini',
-    email: 'sipho.driver@velora.co.za',
-    phone: '+27 82 555 1234',
-    province: 'Gauteng'
-  },
-  {
-    id: 2,
-    full_name: 'Tshepo Mashaba',
-    email: 'tshepo.limpopo@velora.co.za',
-    phone: '+27 83 912 3456',
-    province: 'Limpopo'
-  },
-  {
-    id: 3,
-    full_name: 'Anathi Khumalo',
-    email: 'anathi.kzn@velora.co.za',
-    phone: '+27 84 445 9876',
-    province: 'KwaZulu-Natal'
-  },
-  {
-    id: 4,
-    full_name: 'Liam Van Der Merwe',
-    email: 'liam.cape@velora.co.za',
-    phone: '+27 82 334 7788',
-    province: 'Western Cape'
-  }
-];
-
-window.driversData = Array.isArray(window.driversData) && window.driversData.length > 0 ? window.driversData : DEFAULT_DRIVERS;
+window.driversData = Array.isArray(window.driversData) ? window.driversData : [];
 window._isFetchingDrivers = false;
 let editingDriverId = null;
 
@@ -53,17 +22,15 @@ window.fetchDriversFromDb = async function() {
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) throw new Error(data?.message || `Drivers API returned HTTP ${response.status}.`);
-    const fetched = Array.isArray(data?.drivers) ? data.drivers : [];
-    window.driversData = fetched.length > 0 ? fetched : DEFAULT_DRIVERS;
+    window.driversLoadError = '';
+    window.driversData = Array.isArray(data?.drivers) ? data.drivers : [];
     window.renderDriversView();
     const activeOrder = (window.ordersData || []).find(order => order.id === window.currentActiveOrderId);
     if (activeOrder && typeof window.renderOrderDrawer === 'function') window.renderOrderDrawer(activeOrder);
     return window.driversData;
   } catch (error) {
     console.error('[Velora Admin] Error fetching drivers:', error);
-    if (!Array.isArray(window.driversData) || window.driversData.length === 0) {
-      window.driversData = DEFAULT_DRIVERS;
-    }
+    window.driversLoadError = error.message || 'Unable to load the driver roster.';
     window.renderDriversView();
     return window.driversData;
   } finally {
