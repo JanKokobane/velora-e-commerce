@@ -57,6 +57,8 @@ html, body {
 .dashboard-viewport {
   display: flex;
   height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   width: 100vw;
   overflow: hidden;
   background: var(--dash-main-bg);
@@ -76,6 +78,7 @@ html, body {
   display: flex;
   width: 100%;
   height: 100%;
+  min-height: 0;
   border-radius: 0;
   overflow: hidden;
   background: var(--dash-main-bg);
@@ -92,14 +95,21 @@ html, body {
    1. Left Sidebar
    -------------------------------------------------------------------------- */
 .dashboard-sidebar {
+  position: sticky;
+  top: 0;
   width: 230px;
   min-width: 230px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   background: var(--dash-sidebar-bg);
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 16px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 20;
   transition: transform 0.3s ease;
 }
@@ -230,8 +240,10 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--dash-main-bg);
   position: relative;
   min-width: 0;
@@ -247,6 +259,7 @@ html, body {
   background: var(--dash-main-bg);
   position: sticky;
   top: 0;
+  flex: 0 0 auto;
   z-index: 80;
   border-bottom: 1px solid var(--dash-border);
   margin-bottom: 24px;
@@ -307,6 +320,7 @@ html, body {
     box-shadow: 8px 0 32px rgba(0,0,0,0.5) !important;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
     overflow-y: auto !important;
+    touch-action: pan-y;
     -webkit-overflow-scrolling: touch !important;
   }
   .dashboard-sidebar.open,
@@ -533,6 +547,10 @@ html, body {
 .view-container {
   padding: 0 32px 32px;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* KPI Summary Cards Grid */
@@ -804,52 +822,505 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   5. Right Order Inspection Drawer (Slide-out Overlay, only opens when clicked)
+   5. Order Inspection Modal (Unified Studio Modal Theme)
    -------------------------------------------------------------------------- */
-.dashboard-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 440px;
-  max-width: 92vw;
-  background: var(--dash-card-bg);
-  border-left: 1px solid var(--dash-border);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.22);
-  transform: translateX(100%);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease;
-  z-index: 100;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.dashboard-drawer.open {
-  transform: translateX(0);
-  pointer-events: auto;
-  visibility: visible;
-}
-
-/* Backdrop for order inspection drawer */
-.drawer-backdrop {
+.drawer-backdrop,
+#drawerBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 18, 22, 0.45);
-  backdrop-filter: blur(3px);
-  z-index: 95;
+  background: rgba(15, 18, 22, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
   visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
 }
 
-.drawer-backdrop.active {
+.drawer-backdrop.open,
+.drawer-backdrop.active,
+#drawerBackdrop.open,
+#drawerBackdrop.active {
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
+}
+
+#orderDrawer.order-inspection-modal,
+.dashboard-drawer.order-inspection-modal {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  max-width: 960px !important;
+  max-height: 90vh !important;
+  height: auto !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(201, 165, 122, 0.28) !important;
+  box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(14px) scale(0.98) !important;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+.drawer-backdrop.open #orderDrawer,
+#drawerBackdrop.open #orderDrawer,
+#orderDrawer.open {
+  transform: translateY(0) scale(1) !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+.order-modal-header {
+  background: #14171a;
+  color: #ffffff;
+  padding: 20px 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(201, 165, 122, 0.35);
+  flex-shrink: 0;
+}
+
+.order-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.order-modal-header .studio-modal-heading {
+  font-size: 19px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.order-modal-header .studio-modal-subheading {
+  font-size: 12.5px;
+  color: #a8a29e;
+  margin: 0;
+}
+
+.order-modal-header .studio-modal-subheading strong {
+  color: #e5c69a;
+  letter-spacing: 0.04em;
+}
+
+.order-modal-body {
+  padding: 24px 28px;
+  background: #faf8f5;
+  overflow-y: auto;
+  max-height: calc(90vh - 150px);
+}
+
+.order-modal-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+}
+
+.order-modal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-modal-col .studio-form-card {
+  background: #ffffff;
+  border: 1px solid rgba(27, 27, 26, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.drawer-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.drawer-item-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #faf9f7;
+  border: 1px solid rgba(27, 27, 26, 0.06);
+  transition: background 0.15s ease;
+}
+
+.drawer-item-row:hover {
+  background: #f5f3ed;
+}
+
+.drawer-item-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #eee8dc;
+  border: 1px solid rgba(27, 27, 26, 0.08);
+  flex-shrink: 0;
+}
+
+.drawer-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-item-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-item-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.drawer-item-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.order-pricing-summary-card {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--dash-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.order-summary-line span:last-child {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.order-summary-total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 1px solid var(--dash-border);
+}
+
+.order-summary-total-line .drawer-total-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.order-summary-total-line .drawer-total-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.drawer-customer-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #faf9f7;
+  border: 1px solid rgba(27, 27, 26, 0.08);
+  border-radius: 10px;
+  margin-top: 14px;
+}
+
+.drawer-customer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #232030;
+  border: 1.5px solid #c9a57a;
+  flex-shrink: 0;
+}
+
+.drawer-customer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-customer-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.drawer-customer-meta {
+  font-size: 12px;
+  color: var(--accent-dark);
+  font-weight: 500;
+}
+
+.drawer-contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--dash-border);
+  background: #ffffff;
+  color: var(--ink);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.contact-action-btn:hover {
+  background: #14171a;
+  color: #ffffff;
+  border-color: #14171a;
+}
+
+.contact-action-btn.whatsapp:hover {
+  background: #25d366;
+  color: #ffffff;
+  border-color: #25d366;
+}
+
+.drawer-logistics-box {
+  background: #faf8f5;
+  border: 1px solid rgba(201, 165, 122, 0.35);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+.drawer-logistics-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8c6738;
+  margin-bottom: 4px;
+}
+
+.drawer-logistics-trk {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  font-family: monospace, sans-serif;
+}
+
+.dispatch-details-group {
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.dispatch-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dispatch-label {
+  color: var(--muted);
+}
+
+.dispatch-val {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.dispatch-province-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #faf5ed;
+  color: #8c6738;
+  border: 1px solid rgba(201, 165, 122, 0.4);
+  font-size: 12px;
+}
+
+.driver-assign-box {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(27, 27, 26, 0.08);
+}
+
+.driver-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.assigned-driver-status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.order-modal-footer {
+  background: #ffffff;
+  padding: 16px 28px;
+  border-top: 1px solid var(--dash-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.order-footer-left {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.order-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.order-footer-actions .drawer-btn {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.order-footer-actions .studio-btn-publish {
+  height: 38px;
+  padding: 0 18px;
+}
+
+/* Notifications Table Enhancements */
+#notificationsTableBody tr {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+#notificationsTableBody tr:hover {
+  background: #fbf9f4;
+}
+
+#notificationsTableBody tr.unread {
+  background: rgba(201, 165, 122, 0.05);
+}
+
+.notif-tag-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.notif-tag-badge.order {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.notif-tag-badge.inventory,
+.notif-tag-badge.stock {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.notif-tag-badge.finance,
+.notif-tag-badge.refund,
+.notif-tag-badge.payment {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.notif-tag-badge.customer {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.notif-tag-badge.system {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+@media (max-width: 860px) {
+  .order-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .order-modal-body {
+    padding: 16px;
+    max-height: calc(92vh - 140px);
+  }
+  .order-modal-header {
+    padding: 16px 18px;
+  }
+  .order-modal-footer {
+    padding: 14px 18px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .order-footer-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .order-footer-actions button {
+    flex: 1;
+  }
 }
 
 .drawer-header {
@@ -1249,7 +1720,6 @@ html, body {
    ========================================================================== */
 body.sidebar-drawer-active {
   overflow: hidden !important;
-  touch-action: none;
 }
 
 .mobile-sidebar-backdrop {
@@ -6856,7 +7326,8 @@ html.velora-authenticated #dashboardViewport {
   padding: 20px;
 }
 
-#newProductModal .dash-modal.studio-modal-container {
+#newProductModal .dash-modal.studio-modal-container,
+#driverModal .dash-modal.studio-modal-container {
   background: #ffffff;
   width: 100%;
   max-width: 640px;
@@ -6866,13 +7337,14 @@ html.velora-authenticated #dashboardViewport {
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.15);
-  border: none;
+  border: 1px solid rgba(201, 165, 122, 0.28);
   outline: none;
   transform: translateY(12px) scale(0.99);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
 }
 
-#newProductModal.open .dash-modal.studio-modal-container {
+#newProductModal.open .dash-modal.studio-modal-container,
+#driverModal.open .dash-modal.studio-modal-container {
   transform: translateY(0) scale(1);
 }
 

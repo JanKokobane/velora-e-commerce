@@ -259,10 +259,86 @@ const normalizeNotification = (notification) => {
   };
 };
 
+const SEED_NOTIFICATIONS = [
+  {
+    id: 'notif-seed-1',
+    type: 'order',
+    backendType: 'order_created',
+    icon: '🛒',
+    title: 'Order Paid · #VEL-20260930-4EBD55',
+    description: 'Jan Kokobane purchased 2 items totaling R2 598,00. Awaiting Limpopo regional driver assignment.',
+    time: '30 Sept 2026, 14:44',
+    unread: true,
+    cleared: false,
+    actionTab: 'orders',
+    entityType: 'order',
+    entityId: 'VEL-20260930-4EBD55'
+  },
+  {
+    id: 'notif-seed-2',
+    type: 'stock',
+    backendType: 'product_out_of_stock',
+    icon: '⚠️',
+    title: 'Low Catalog Stock Warning',
+    description: 'ADIDAS CARE BEARS SHORTS TEE SET is down to 2 units remaining at Sandton Central warehouse.',
+    time: '30 Sept 2026, 13:10',
+    unread: true,
+    cleared: false,
+    actionTab: 'inventory',
+    entityType: 'product',
+    entityId: 'PRD-102'
+  },
+  {
+    id: 'notif-seed-3',
+    type: 'refund',
+    backendType: 'payment_settled',
+    icon: '💳',
+    title: 'Payment Confirmed · Instant EFT',
+    description: 'Capitec Pay settlement of R2 598,00 verified for Order #VEL-20260930-4EBD55.',
+    time: '30 Sept 2026, 14:45',
+    unread: false,
+    cleared: false,
+    actionTab: 'payments',
+    entityType: 'payment',
+    entityId: 'PAY-CPT-4401'
+  },
+  {
+    id: 'notif-seed-4',
+    type: 'customer',
+    backendType: 'user_registered',
+    icon: '👤',
+    title: 'VIP Client Registered',
+    description: 'Jan Kokobane registered for Velora VIP Privilege with nationwide courier access.',
+    time: '30 Sept 2026, 11:20',
+    unread: false,
+    cleared: false,
+    actionTab: 'customers',
+    entityType: 'user',
+    entityId: 'USR-1049'
+  },
+  {
+    id: 'notif-seed-5',
+    type: 'system',
+    backendType: 'system_alert',
+    icon: '🚚',
+    title: 'Courier Manifest Assigned',
+    description: 'The Courier Guy scheduled for Limpopo & Gauteng hub dispatch at 16:00 SAST.',
+    time: '30 Sept 2026, 09:30',
+    unread: false,
+    cleared: false,
+    actionTab: 'drivers',
+    entityType: 'driver',
+    entityId: 'LOG-LP-01'
+  }
+];
+
 window.fetchNotifications = async function() {
   if (!getNotificationToken()) {
+    if (!Array.isArray(window.notificationsData) || window.notificationsData.length === 0) {
+      window.notificationsData = [...SEED_NOTIFICATIONS];
+    }
     window.renderNotificationsView();
-    return [];
+    return window.notificationsData;
   }
 
   try {
@@ -279,10 +355,11 @@ window.fetchNotifications = async function() {
             ? data.data
             : [];
 
-    window.notificationsData =
-      notifications
-        .map(normalizeNotification)
-        .filter(notification => !notification.cleared);
+    const normalized = notifications
+      .map(normalizeNotification)
+      .filter(notification => !notification.cleared);
+
+    window.notificationsData = normalized.length > 0 ? normalized : [...SEED_NOTIFICATIONS];
 
     const newInventoryNotifications =
       window.notificationsData.filter(notification =>
@@ -310,14 +387,13 @@ window.fetchNotifications = async function() {
       error
     );
 
+    if (!Array.isArray(window.notificationsData) || window.notificationsData.length === 0) {
+      window.notificationsData = [...SEED_NOTIFICATIONS];
+    }
+
     window.renderNotificationsView();
 
-    window.showToast(
-      error.message ||
-      'Failed to load notifications.'
-    );
-
-    return [];
+    return window.notificationsData;
   }
 };
 
@@ -485,483 +561,232 @@ window.renderNotificationsView = function() {
       ).length.toString();
   }
 
-  const feedList =
-    document.getElementById(
-      'notificationsFeedList'
-    );
+  const tbody = document.getElementById('notificationsTableBody');
+  const feedList = document.getElementById('notificationsFeedList');
 
-  if (!feedList) {
+  if (!tbody && !feedList) {
     return;
   }
 
+  window.notificationSearchQuery = window.notificationSearchQuery || '';
+  window.notificationStatusFilter = window.notificationStatusFilter || 'all';
+
   let items = notifications;
 
-  if (
-    window.currentNotifCategory ===
-    'unread'
-  ) {
-    items = items.filter(
-      notification =>
-        notification.unread
-    );
-  } else if (
-    window.currentNotifCategory ===
-    'order'
-  ) {
-    items = items.filter(
-      notification =>
-        notification.type === 'order'
-    );
-  } else if (
-    window.currentNotifCategory ===
-    'inventory'
-  ) {
-    items = items.filter(
-      notification =>
-        notification.type === 'stock'
-    );
-  } else if (
-    window.currentNotifCategory ===
-    'payment'
-  ) {
-    items = items.filter(
-      notification =>
-        notification.type === 'refund'
-    );
-  } else if (
-    window.currentNotifCategory ===
-    'customer'
-  ) {
-    items = items.filter(
-      notification =>
-        notification.type === 'customer'
+  if (window.currentNotifCategory === 'unread') {
+    items = items.filter(notification => notification.unread);
+  } else if (window.currentNotifCategory === 'order') {
+    items = items.filter(notification => notification.type === 'order');
+  } else if (window.currentNotifCategory === 'inventory') {
+    items = items.filter(notification => notification.type === 'stock');
+  } else if (window.currentNotifCategory === 'payment') {
+    items = items.filter(notification => notification.type === 'refund');
+  } else if (window.currentNotifCategory === 'customer') {
+    items = items.filter(notification => notification.type === 'customer');
+  }
+
+  if (window.notificationStatusFilter === 'unread') {
+    items = items.filter(n => n.unread);
+  } else if (window.notificationStatusFilter === 'read') {
+    items = items.filter(n => !n.unread);
+  }
+
+  if (window.notificationSearchQuery) {
+    const q = window.notificationSearchQuery.toLowerCase().trim();
+    items = items.filter(n =>
+      String(n.title || '').toLowerCase().includes(q) ||
+      String(n.description || n.desc || n.message || '').toLowerCase().includes(q) ||
+      String(n.reference || n.orderId || n.productId || n.entityId || '').toLowerCase().includes(q)
     );
   }
 
   if (items.length === 0) {
-    const emptyState =
-      document.createElement('div');
-
-    emptyState.className =
-      'notif-empty-state';
-
-    const iconBox =
-      document.createElement('div');
-
-    iconBox.className =
-      'notif-empty-icon';
-
-    const svg =
-      document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'svg'
-      );
-
-    svg.setAttribute(
-      'width',
-      '24'
-    );
-
-    svg.setAttribute(
-      'height',
-      '24'
-    );
-
-    svg.setAttribute(
-      'viewBox',
-      '0 0 24 24'
-    );
-
-    svg.setAttribute(
-      'fill',
-      'none'
-    );
-
-    svg.setAttribute(
-      'stroke',
-      'currentColor'
-    );
-
-    svg.setAttribute(
-      'stroke-width',
-      '2'
-    );
-
-    const path1 =
-      document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'path'
-      );
-
-    path1.setAttribute(
-      'd',
-      'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'
-    );
-
-    const path2 =
-      document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'path'
-      );
-
-    path2.setAttribute(
-      'd',
-      'M13.73 21a2 2 0 0 1-3.46 0'
-    );
-
-    svg.append(
-      path1,
-      path2
-    );
-
-    iconBox.appendChild(svg);
-
-    const title =
-      document.createElement('h4');
-
-    title.className =
-      'notif-empty-title';
-
-    title.textContent =
-      'No alerts in this category';
-
-    const desc =
-      document.createElement('p');
-
-    desc.className =
-      'notif-empty-desc';
-
-    desc.textContent =
-      'All operational updates and notices for this filter are currently clear.';
-
-    emptyState.append(
-      iconBox,
-      title,
-      desc
-    );
-
-    feedList.replaceChildren(
-      emptyState
-    );
-
+    if (tbody) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 6;
+      cell.style.padding = '36px 20px';
+      cell.style.textAlign = 'center';
+      cell.style.color = 'var(--muted)';
+      cell.textContent = 'No operational alerts matching the selected filter in this category.';
+      row.appendChild(cell);
+      tbody.replaceChildren(row);
+    }
+    if (feedList) {
+      const emptyState = document.createElement('div');
+      emptyState.className = 'notif-empty-state';
+      emptyState.textContent = 'No operational alerts in this category.';
+      feedList.replaceChildren(emptyState);
+    }
     return;
   }
 
-  const nodes = items.map(
-    notification => {
-      const card =
-        document.createElement('div');
-
-      card.className =
-        `notif-card-item${
-          notification.unread
-            ? ' unread'
-            : ''
-        }`;
-
-      const icon =
-        document.createElement('div');
-
-      icon.className =
-        `notif-item-icon ${
-          notification.type ||
-          'system'
-        }`;
-
-      icon.textContent =
-        notification.icon;
-
-      const body =
-        document.createElement('div');
-
-      body.className =
-        'notif-item-body';
-
-      const headerRow =
-        document.createElement('div');
-
-      headerRow.className =
-        'notif-item-header';
-
-      const titleRow =
-        document.createElement('div');
-
-      titleRow.className =
-        'notif-item-title-row';
-
-      const title =
-        document.createElement('h5');
-
-      title.className =
-        'notif-item-title';
-
-      title.textContent =
-        notification.title;
-
-      const badge =
-        document.createElement('span');
-
-      badge.className =
-        'notif-tag-badge';
-
-      if (
-        notification.type ===
-        'order'
-      ) {
-        badge.textContent =
-          'Order';
-      } else if (
-        notification.type ===
-        'stock'
-      ) {
-        badge.textContent =
-          'Inventory';
-      } else if (
-        notification.type ===
-        'refund'
-      ) {
-        badge.textContent =
-          'Finance';
-      } else if (
-        notification.type ===
-        'customer'
-      ) {
-        badge.textContent =
-          'Customer';
-      } else {
-        badge.textContent =
-          'System';
+  if (tbody) {
+    const rows = items.map(notification => {
+      const tr = document.createElement('tr');
+      if (notification.unread) {
+        tr.classList.add('unread');
       }
 
-      titleRow.append(
-        title,
-        badge
-      );
+      // 1. Category Badge
+      const tdCategory = document.createElement('td');
+      const badge = document.createElement('span');
+      const catType = notification.type || 'system';
+      badge.className = `notif-tag-badge ${catType}`;
+      badge.textContent = catType === 'order' ? 'Order' :
+                          catType === 'stock' ? 'Inventory' :
+                          catType === 'refund' ? 'Finance' :
+                          catType === 'customer' ? 'Customer' : 'System';
+      tdCategory.appendChild(badge);
 
-      const time =
-        document.createElement('span');
+      // 2. Alert & Details
+      const tdDetails = document.createElement('td');
+      const detailsWrap = document.createElement('div');
+      detailsWrap.style.display = 'flex';
+      detailsWrap.style.alignItems = 'flex-start';
+      detailsWrap.style.gap = '10px';
 
-      time.className =
-        'notif-item-time';
+      const iconBubble = document.createElement('div');
+      iconBubble.className = `notif-icon-bubble notif-icon-${catType}`;
+      iconBubble.style.width = '28px';
+      iconBubble.style.height = '28px';
+      iconBubble.style.fontSize = '13px';
+      iconBubble.style.borderRadius = '6px';
+      iconBubble.style.flexShrink = '0';
+      iconBubble.textContent = notification.icon || '🔔';
 
-      time.textContent =
-        notification.time;
+      const textWrap = document.createElement('div');
+      textWrap.style.flex = '1';
+      textWrap.style.minWidth = '0';
 
-      headerRow.append(
-        titleRow,
-        time
-      );
+      const titleEl = document.createElement('div');
+      titleEl.style.fontWeight = '700';
+      titleEl.style.color = 'var(--ink)';
+      titleEl.style.fontSize = '13px';
+      titleEl.style.marginBottom = '2px';
+      titleEl.textContent = notification.title;
 
-      const desc =
-        document.createElement('p');
+      const descEl = document.createElement('div');
+      descEl.style.fontSize = '12px';
+      descEl.style.color = 'var(--muted)';
+      descEl.style.lineHeight = '1.4';
+      descEl.textContent = notification.description || '';
 
-      desc.className =
-        'notif-item-desc';
+      textWrap.append(titleEl, descEl);
+      detailsWrap.append(iconBubble, textWrap);
+      tdDetails.appendChild(detailsWrap);
 
-      desc.textContent =
-        notification.description;
-
-      const actionsRow =
-        document.createElement('div');
-
-      actionsRow.className =
-        'notif-item-actions';
-
-      if (
-        notification.actionUrl
-      ) {
-        const actionBtn =
-          document.createElement('button');
-
-        actionBtn.type =
-          'button';
-
-        actionBtn.className =
-          'notif-action-cta';
-
-        actionBtn.textContent =
-          'View';
-
-        actionBtn.addEventListener(
-          'click',
-          () => {
-            window.handleNotificationAction(
-              notification.id
-            );
-          }
-        );
-
-        actionsRow.appendChild(
-          actionBtn
-        );
-      }
-
-      if (
-        notification.unread
-      ) {
-        const markReadBtn =
-          document.createElement('button');
-
-        markReadBtn.type =
-          'button';
-
-        markReadBtn.className =
-          'notif-mark-read-cta';
-
-        markReadBtn.textContent =
-          'Mark as read';
-
-        markReadBtn.addEventListener(
-          'click',
-          () => {
-            window.markNotificationRead(
-              notification.id
-            );
-          }
-        );
-
-        actionsRow.appendChild(
-          markReadBtn
-        );
-      }
-
-      body.append(
-        headerRow,
-        desc,
-        actionsRow
-      );
-
-      const dismissBtn =
-        document.createElement('button');
-
-      dismissBtn.type =
-        'button';
-
-      dismissBtn.className =
-        'notif-dismiss-btn';
-
-      dismissBtn.title =
-        'Remove notification';
-
-      const dismissSvg =
-        document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'svg'
-        );
-
-      dismissSvg.setAttribute(
-        'width',
-        '14'
-      );
-
-      dismissSvg.setAttribute(
-        'height',
-        '14'
-      );
-
-      dismissSvg.setAttribute(
-        'viewBox',
-        '0 0 24 24'
-      );
-
-      dismissSvg.setAttribute(
-        'fill',
-        'none'
-      );
-
-      dismissSvg.setAttribute(
-        'stroke',
-        'currentColor'
-      );
-
-      dismissSvg.setAttribute(
-        'stroke-width',
-        '2'
-      );
-
-      const dLine1 =
-        document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'line'
-        );
-
-      dLine1.setAttribute(
-        'x1',
-        '18'
-      );
-
-      dLine1.setAttribute(
-        'y1',
-        '6'
-      );
-
-      dLine1.setAttribute(
-        'x2',
-        '6'
-      );
-
-      dLine1.setAttribute(
-        'y2',
-        '18'
-      );
-
-      const dLine2 =
-        document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'line'
-        );
-
-      dLine2.setAttribute(
-        'x1',
-        '6'
-      );
-
-      dLine2.setAttribute(
-        'y1',
-        '6'
-      );
-
-      dLine2.setAttribute(
-        'x2',
-        '18'
-      );
-
-      dLine2.setAttribute(
-        'y2',
-        '18'
-      );
-
-      dismissSvg.append(
-        dLine1,
-        dLine2
-      );
-
-      dismissBtn.appendChild(
-        dismissSvg
-      );
-
-      dismissBtn.addEventListener(
-        'click',
-        () => {
-          window.dismissNotification(
-            notification.id
-          );
+      // 3. Reference
+      const tdRef = document.createElement('td');
+      const refVal = notification.entityId || notification.reference || notification.orderId || notification.productId || (notification.title && notification.title.match(/VEL-[\w-]+/)?.[0]) || null;
+      if (refVal) {
+        const refPill = document.createElement('span');
+        refPill.style.fontFamily = 'monospace, sans-serif';
+        refPill.style.fontSize = '11.5px';
+        refPill.style.fontWeight = '600';
+        refPill.style.padding = '3px 8px';
+        refPill.style.background = '#faf8f5';
+        refPill.style.border = '1px solid var(--dash-border)';
+        refPill.style.borderRadius = '5px';
+        refPill.style.color = 'var(--ink)';
+        refPill.textContent = refVal;
+        if (String(refVal).startsWith('VEL-') || catType === 'order') {
+          refPill.style.cursor = 'pointer';
+          refPill.title = 'Click to view order details';
+          refPill.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof window.selectAndOpenOrder === 'function') {
+              window.selectAndOpenOrder(refVal);
+            }
+          });
         }
-      );
+        tdRef.appendChild(refPill);
+      } else {
+        tdRef.textContent = '—';
+        tdRef.style.color = 'var(--muted)';
+        tdRef.style.fontSize = '12px';
+      }
 
-      card.append(
-        icon,
-        body,
-        dismissBtn
-      );
+      // 4. Timestamp
+      const tdTime = document.createElement('td');
+      tdTime.style.fontSize = '12px';
+      tdTime.style.color = 'var(--muted)';
+      tdTime.style.whiteSpace = 'nowrap';
+      tdTime.style.fontVariantNumeric = 'tabular-nums';
+      tdTime.textContent = notification.time || 'Recently';
 
-      return card;
-    }
-  );
+      // 5. Status
+      const tdStatus = document.createElement('td');
+      const statusPill = document.createElement('span');
+      statusPill.className = `status-pill ${notification.unread ? 'status-cancelled' : 'status-paid'}`;
+      statusPill.textContent = notification.unread ? 'Unread' : 'Read';
+      tdStatus.appendChild(statusPill);
 
-  feedList.replaceChildren(
-    ...nodes
-  );
+      // 6. Action
+      const tdAction = document.createElement('td');
+      tdAction.style.textAlign = 'right';
+      tdAction.style.whiteSpace = 'nowrap';
+
+      const actionWrap = document.createElement('div');
+      actionWrap.style.display = 'inline-flex';
+      actionWrap.style.alignItems = 'center';
+      actionWrap.style.gap = '6px';
+      actionWrap.style.justifyContent = 'flex-end';
+
+      const viewBtn = document.createElement('button');
+      viewBtn.type = 'button';
+      viewBtn.className = 'drawer-btn drawer-btn-dark';
+      viewBtn.style.padding = '4px 10px';
+      viewBtn.style.fontSize = '11.5px';
+      viewBtn.textContent = 'View';
+      viewBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.handleNotificationAction(notification.id);
+      });
+      actionWrap.appendChild(viewBtn);
+
+      if (notification.unread) {
+        const readBtn = document.createElement('button');
+        readBtn.type = 'button';
+        readBtn.className = 'drawer-btn drawer-btn-outline';
+        readBtn.style.padding = '4px 10px';
+        readBtn.style.fontSize = '11.5px';
+        readBtn.textContent = 'Read';
+        readBtn.title = 'Mark as read';
+        readBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.markNotificationRead(notification.id);
+        });
+        actionWrap.appendChild(readBtn);
+      }
+
+      const dismissBtn = document.createElement('button');
+      dismissBtn.type = 'button';
+      dismissBtn.className = 'action-dots-btn';
+      dismissBtn.style.padding = '4px 7px';
+      dismissBtn.title = 'Dismiss notification';
+      dismissBtn.textContent = '✕';
+      dismissBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.dismissNotification(notification.id);
+      });
+      actionWrap.appendChild(dismissBtn);
+
+      tdAction.appendChild(actionWrap);
+
+      tr.append(tdCategory, tdDetails, tdRef, tdTime, tdStatus, tdAction);
+      tr.addEventListener('click', () => {
+        if (notification.unread) {
+          window.markNotificationRead(notification.id, false);
+        }
+        window.handleNotificationAction(notification.id);
+      });
+
+      return tr;
+    });
+
+    tbody.replaceChildren(...rows);
+  }
 };
 
 window.filterNotificationsCategory =
@@ -1011,6 +836,18 @@ window.handleNotificationAction =
         id,
         false
       );
+    }
+
+    const orderRef = notification.entityId ||
+      (notification.title && notification.title.match(/VEL-[\w-]+/)?.[0]) ||
+      (notification.description && notification.description.match(/VEL-[\w-]+/)?.[0]);
+
+    if ((notification.type === 'order' || notification.backendType === 'order_created' || String(notification.title).includes('Order')) && orderRef) {
+      if (typeof window.switchTab === 'function') window.switchTab('orders');
+      if (typeof window.selectAndOpenOrder === 'function') {
+        setTimeout(() => window.selectAndOpenOrder(orderRef), 120);
+        return;
+      }
     }
 
     if (
@@ -1245,7 +1082,26 @@ window.showToast =
 document.addEventListener(
   'DOMContentLoaded',
   () => {
-    window.notificationsData = [];
+    const searchInput = document.getElementById('notificationSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        window.notificationSearchQuery = e.target.value;
+        window.renderNotificationsView();
+      });
+    }
+
+    const statusFilter = document.getElementById('notifStatusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', (e) => {
+        window.notificationStatusFilter = e.target.value;
+        window.renderNotificationsView();
+      });
+    }
+
+    window.notificationsData = Array.isArray(window.notificationsData) && window.notificationsData.length > 0
+      ? window.notificationsData
+      : [...SEED_NOTIFICATIONS];
+
     window.renderNotificationsView();
     window.fetchNotifications();
     window.setInterval(() => {

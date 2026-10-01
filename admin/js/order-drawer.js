@@ -46,7 +46,21 @@ window.renderOrderDrawer = function(order) {
   if (emailLink) emailLink.href = `mailto:${order.customer.email}`;
   if (phoneLink) phoneLink.href = `tel:${order.customer.phone}`;
   if (trkEl) trkEl.textContent = order.waybill || 'TRK-ZA-PENDING';
+  const trkHeader = document.getElementById('drawerTrackingNumberHeader');
+  if (trkHeader) trkHeader.textContent = order.waybill || 'TRK-ZA-PENDING';
   if (totalEl) totalEl.textContent = window.fmtPrice(order.total);
+
+  const subtotalEl = document.getElementById('orderSubtotalAmount');
+  const deliveryFeeEl = document.getElementById('orderDeliveryFee');
+  if (subtotalEl) {
+    const itemsTotal = (order.items || []).reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 1), 0);
+    subtotalEl.textContent = window.fmtPrice(itemsTotal || order.total);
+  }
+  if (deliveryFeeEl) {
+    deliveryFeeEl.textContent = (order.shipping && order.shipping.fee > 0)
+      ? window.fmtPrice(order.shipping.fee)
+      : 'Complimentary';
+  }
 
   const normalizedStatus = String(order.status || '').toLowerCase();
   const province = String(order.shipping?.province || '').trim().toLowerCase();
@@ -154,7 +168,12 @@ window.renderOrderDrawer = function(order) {
 };
 
 window.selectAndOpenOrder = function(orderId) {
-  const order = window.ordersData.find(o => o.id === orderId);
+  const order = (window.ordersData || []).find(o =>
+    o.id === orderId ||
+    o.orderNumber === orderId ||
+    String(o.id) === String(orderId) ||
+    String(o.orderNumber) === String(orderId)
+  );
   if (!order) return;
 
   window.renderOrderDrawer(order);
@@ -168,12 +187,22 @@ window.selectAndOpenOrder = function(orderId) {
   }
 };
 
+window.openOrderDrawer = function(orderId) {
+  window.selectAndOpenOrder(orderId);
+};
+
 window.closeOrderDrawer = function() {
   const drawer = document.getElementById('orderDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
   if (drawer) drawer.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
 };
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    window.closeOrderDrawer();
+  }
+});
 
 async function submitDispatchAction(order, action, body = {}) {
   const token = window.adminAuthApi?.getToken?.() ||
@@ -207,7 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const backdrop = document.getElementById('drawerBackdrop');
 
   if (closeBtn) closeBtn.addEventListener('click', window.closeOrderDrawer);
-  if (backdrop) backdrop.addEventListener('click', window.closeOrderDrawer);
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) window.closeOrderDrawer();
+    });
+  }
 
   const btnTrack = document.getElementById('btnTrackOrder');
   if (btnTrack) {

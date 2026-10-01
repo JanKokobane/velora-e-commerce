@@ -1115,47 +1115,52 @@
                 <div class="kpi-value" id="driversCount">0</div>
               </div>
             </div>
-            <div class="orders-table-card" style="padding: 24px; margin-bottom: 20px;">
-              <h3 id="driverFormTitle" style="margin: 0 0 16px; font-size: 16px;">Add Driver</h3>
-              <form id="driverCreateForm" class="studio-grid-2">
-                <div class="studio-input-group">
-                  <label class="studio-label" for="driverFullName">Full Name</label>
-                  <input class="studio-input" id="driverFullName" name="fullName" type="text" required maxlength="150">
+
+            <!-- Drivers Table Card (Matches Dashboard Tables UI Theme) -->
+            <div class="orders-table-card">
+              <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Regional Courier Fleet</h3>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Authorized delivery drivers assigned to South African provinces</p>
                 </div>
-                <div class="studio-input-group">
-                  <label class="studio-label" for="driverEmail">Email Address</label>
-                  <input class="studio-input" id="driverEmail" name="email" type="email" required maxlength="254">
-                </div>
-                <div class="studio-input-group">
-                  <label class="studio-label" for="driverPhone">Phone Number</label>
-                  <input class="studio-input" id="driverPhone" name="phone" type="tel" required maxlength="30">
-                </div>
-                <div class="studio-input-group">
-                  <label class="studio-label" for="driverProvince">Service Province</label>
-                  <select class="studio-select" id="driverProvince" name="province" required>
-                    <option value="">Select province</option>
-                    <option>Eastern Cape</option>
-                    <option>Free State</option>
-                    <option>Gauteng</option>
-                    <option>KwaZulu-Natal</option>
-                    <option>Limpopo</option>
-                    <option>Mpumalanga</option>
-                    <option>Northern Cape</option>
-                    <option>North West</option>
-                    <option>Western Cape</option>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <button type="button" class="drawer-btn drawer-btn-dark" onclick="window.openDriverModal()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 12.5px; border-radius: 8px;">
+                    <span>＋ Add Courier Driver</span>
+                  </button>
+                  <div class="quick-search-input" style="width: 200px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="driverSearchInput" placeholder="Search drivers...">
+                  </div>
+                  <select class="filter-select" id="driverProvinceFilter">
+                    <option value="all">All Provinces</option>
+                    <option value="Eastern Cape">Eastern Cape</option>
+                    <option value="Free State">Free State</option>
+                    <option value="Gauteng">Gauteng</option>
+                    <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+                    <option value="Limpopo">Limpopo</option>
+                    <option value="Mpumalanga">Mpumalanga</option>
+                    <option value="Northern Cape">Northern Cape</option>
+                    <option value="North West">North West</option>
+                    <option value="Western Cape">Western Cape</option>
                   </select>
                 </div>
-                <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                  <button class="drawer-btn drawer-btn-dark" type="submit">Add Driver</button>
-                  <button class="drawer-btn drawer-btn-outline" id="cancelDriverEditBtn" type="button" hidden>Cancel Edit</button>
-                  <span id="driverFormMessage" role="status" aria-live="polite"></span>
-                </div>
-              </form>
-            </div>
-            <div class="orders-table-card">
+              </div>
               <div class="table-responsive">
                 <table class="dash-table">
-                  <thead><tr><th>Driver</th><th>Email</th><th>Phone</th><th>Province</th><th>Actions</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Province</th>
+                      <th>Assigned Orders</th>
+                      <th>Status</th>
+                      <th style="width: 140px; text-align: right;">Actions</th>
+                    </tr>
+                  </thead>
                   <tbody id="driversTableBody"></tbody>
                 </table>
               </div>
@@ -1517,7 +1522,29 @@
                 </div>
               </div>
 
-              <div class="notifications-filter-card">
+              <!-- Notifications Table Card (Matches Dashboard Tables UI Theme) -->
+              <div class="orders-table-card">
+                <div style="padding: 18px 24px; border-bottom: 1px solid var(--dash-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                  <div>
+                    <h3 style="margin: 0 0 4px; font-size: 16px; font-weight: 700;">Operational Activity & Alerts</h3>
+                    <p style="margin: 0; font-size: 12.5px; color: var(--muted);">Real-time log of customer purchases, stock alerts, returns, and payment settlements</p>
+                  </div>
+                  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div class="quick-search-input" style="width: 200px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input type="text" id="notificationSearchInput" placeholder="Search alerts...">
+                    </div>
+                    <select class="filter-select" id="notifStatusFilter">
+                      <option value="all">All Statuses</option>
+                      <option value="unread">Unread Only</option>
+                      <option value="read">Read Only</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div class="notif-filter-pills" id="notifCategoryFilterGroup">
                   <button type="button" class="notif-pill active" data-category="all"
                     onclick="window.filterNotificationsCategory('all')">
@@ -1545,7 +1572,22 @@
                   </button>
                 </div>
 
-                <div class="notifications-feed-list" id="notificationsFeedList"></div>
+                <div class="table-responsive">
+                  <table class="dash-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 120px;">Category</th>
+                        <th>Alert &amp; Details</th>
+                        <th>Reference</th>
+                        <th>Timestamp</th>
+                        <th>Status</th>
+                        <th style="width: 120px; text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="notificationsTableBody"></tbody>
+                  </table>
+                </div>
+                <div class="notifications-feed-list" id="notificationsFeedList" style="display: none;"></div>
               </div>
             </section>
           </div>
@@ -1854,92 +1896,154 @@
         </div>
       </main>
 
-      <!-- 11. Order Drawer Component -->
-      <div class="drawer-backdrop" id="drawerBackdrop"></div>
-      <aside class="dashboard-drawer" id="orderDrawer" aria-label="Order Details Drawer" data-component="order-drawer">
-        <div class="drawer-content-wrapper" id="orderDrawerContent">
-          <div class="drawer-header">
-            <div class="drawer-title-group">
-              <h2 class="drawer-order-id" id="drawerOrderId">Order #000000</h2>
-              <div class="drawer-status-line">
-                <span class="status-pill status-paid" id="drawerStatusPill">Paid</span>
-                <span id="drawerOrderDate">Jan 1, 00:00</span>
-              </div>
-            </div>
-            <button type="button" class="drawer-close-btn" id="closeDrawerBtn" title="Close Panel">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
+      <!-- 11. Order Inspection Modal (Unified Studio Modal Theme) -->
+      <div class="dash-modal-backdrop" id="drawerBackdrop" role="dialog" aria-modal="true" aria-labelledby="drawerOrderId">
+        <div class="dash-modal studio-modal-container order-inspection-modal" id="orderDrawer" aria-label="Order Details Modal" data-component="order-drawer">
 
-          <div class="drawer-customer-card">
-            <img class="drawer-customer-avatar" id="drawerCustomerAvatar"
-              src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=150&w=150"
-              alt="Customer"
-              onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Ccircle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
-            <div class="drawer-customer-name" id="drawerCustomerName">Customer Name</div>
-            <div class="drawer-contact-actions">
-              <a href="mailto:client@example.com" class="contact-action-btn" id="drawerEmailLink" title="Send Email">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                </svg>
-              </a>
-              <a href="tel:+27820000000" class="contact-action-btn" id="drawerPhoneLink" title="Call Customer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path
-                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                  </path>
-                </svg>
-              </a>
-              <button type="button" class="contact-action-btn" id="drawerWhatsappBtn" title="Message via WhatsApp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path
-                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-                  </path>
-                </svg>
+          <!-- 1. Header (Studio Modal Header) -->
+          <div class="studio-modal-header order-modal-header">
+            <div class="studio-modal-title-group">
+              <div class="order-modal-title-row">
+                <h3 class="studio-modal-heading" id="drawerOrderId">Order #000000</h3>
+                <span class="status-pill status-paid" id="drawerStatusPill">Paid</span>
+              </div>
+              <p class="studio-modal-subheading">
+                Placed on <span id="drawerOrderDate">Jan 1, 00:00</span> · Logistics waybill <strong id="drawerTrackingNumberHeader">TRK-ZA-PENDING</strong>
+              </p>
+            </div>
+
+            <div class="studio-modal-header-actions">
+              <button type="button" class="studio-modal-close-btn" id="closeDrawerBtn" aria-label="Close dialog">
+                ✕
               </button>
             </div>
           </div>
 
-          <div class="drawer-items-section">
-            <h3 class="drawer-section-heading">Order items</h3>
-            <div class="drawer-items-list" id="drawerItemsList"></div>
+          <!-- 2. Scrollable Body (2 Responsive Columns) -->
+          <div class="studio-modal-scrollable-body order-modal-body">
+            <div class="order-modal-grid">
 
-            <div class="drawer-logistics-box">
-              <div class="drawer-logistics-title">Velora Logistics Waybill</div>
-              <div class="drawer-logistics-trk" id="drawerTrackingNumber">TRK-ZA-000000</div>
+              <!-- Left Column: Order Items & Pricing Breakdown -->
+              <div class="order-modal-col">
+                <section class="studio-form-card">
+                  <div class="studio-card-simple-title">
+                    <h4>Order Items</h4>
+                    <p>Purchased pieces, quantities and atelier catalog records</p>
+                  </div>
+                  <div class="drawer-items-list" id="drawerItemsList"></div>
+
+                  <div class="order-pricing-summary-card">
+                    <div class="order-summary-line">
+                      <span>Items Subtotal</span>
+                      <span id="orderSubtotalAmount">R0.00</span>
+                    </div>
+                    <div class="order-summary-line">
+                      <span>Logistics &amp; Delivery</span>
+                      <span id="orderDeliveryFee">Complimentary</span>
+                    </div>
+                    <div class="order-summary-total-line">
+                      <span class="drawer-total-label">Total Amount</span>
+                      <span class="drawer-total-val" id="drawerTotalAmount">R0.00</span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <!-- Right Column: Customer Details & Logistics / Driver Dispatch -->
+              <div class="order-modal-col">
+                <!-- Customer Concierge Card -->
+                <section class="studio-form-card">
+                  <div class="studio-card-simple-title">
+                    <h4>Customer Concierge</h4>
+                    <p>Verified purchaser contact details and dispatch communications</p>
+                  </div>
+                  <div class="drawer-customer-card">
+                    <img class="drawer-customer-avatar" id="drawerCustomerAvatar"
+                      src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=150&w=150"
+                      alt="Customer"
+                      onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 48 48\'%3E%3Ccircle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%23232030\'/%3E%3Ctext x=\'24\' y=\'29\' fill=\'%23c9a57a\' font-size=\'16\' text-anchor=\'middle\' font-family=\'sans-serif\'%3EV%3C/text%3E%3C/svg%3E'">
+                    <div class="drawer-customer-info">
+                      <div class="drawer-customer-name" id="drawerCustomerName">Customer Name</div>
+                      <div class="drawer-customer-meta">Velora Registered Client</div>
+                    </div>
+                    <div class="drawer-contact-actions">
+                      <a href="mailto:client@example.com" class="contact-action-btn" id="drawerEmailLink" title="Send Email">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                      </a>
+                      <a href="tel:+27820000000" class="contact-action-btn" id="drawerPhoneLink" title="Call Customer">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                      </a>
+                      <button type="button" class="contact-action-btn whatsapp" id="drawerWhatsappBtn" title="Message via WhatsApp">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Logistics & Driver Dispatch Card -->
+                <section class="studio-form-card">
+                  <div class="studio-card-simple-title">
+                    <h4>Logistics &amp; Driver Dispatch</h4>
+                    <p>Courier tracking, regional hub routing and assigned driver</p>
+                  </div>
+
+                  <div class="drawer-logistics-box">
+                    <div class="drawer-logistics-title">Velora Logistics Waybill</div>
+                    <div class="drawer-logistics-trk" id="drawerTrackingNumber">TRK-ZA-000000</div>
+                  </div>
+
+                  <div class="dispatch-details-group">
+                    <div class="dispatch-info-row">
+                      <span class="dispatch-label">Fulfillment Hub:</span>
+                      <span class="dispatch-val" id="drawerTrackingLocation">Velora Fulfillment Centre</span>
+                    </div>
+                    <div class="dispatch-info-row">
+                      <span class="dispatch-label">Delivery Province:</span>
+                      <strong class="dispatch-province-badge" id="drawerDeliveryProvince">Not recorded</strong>
+                    </div>
+                  </div>
+
+                  <div class="driver-assign-box">
+                    <label for="drawerDriverSelect" class="studio-label">Select a driver serving this province</label>
+                    <div class="driver-select-row">
+                      <div class="studio-select-wrapper" style="flex: 1;">
+                        <select id="drawerDriverSelect" class="studio-select"></select>
+                      </div>
+                      <button type="button" class="drawer-btn drawer-btn-dark" id="btnAssignDriver">Assign Driver</button>
+                    </div>
+                    <div id="drawerAssignedDriver" class="assigned-driver-status">No driver assigned</div>
+                  </div>
+                </section>
+              </div>
+
             </div>
           </div>
 
-          <div class="drawer-items-section" style="border-top: 1px solid var(--dash-border);">
-            <h3 class="drawer-section-heading">Dispatch</h3>
-            <p id="drawerTrackingLocation" style="font-size: 13px; color: var(--muted); margin: 0 0 12px;">Velora Fulfillment Centre</p>
-            <label style="display: block; font-size: 12px; margin-bottom: 8px;">Delivery province: <strong id="drawerDeliveryProvince">Not recorded</strong></label>
-            <label for="drawerDriverSelect" style="display: block; font-size: 12px; margin-bottom: 8px;">Select a driver serving this province</label>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <select id="drawerDriverSelect" class="studio-select" style="flex: 1; min-width: 170px;"></select>
-              <button type="button" class="drawer-btn drawer-btn-outline" id="btnAssignDriver">Assign Driver</button>
+          <!-- 3. Footer Bar (Studio Modal Footer) -->
+          <div class="studio-modal-footer order-modal-footer">
+            <div class="order-footer-left">
+              <span class="order-footer-hint">Status actions apply in real time</span>
             </div>
-            <div id="drawerAssignedDriver" style="font-size: 12px; color: var(--muted); margin-top: 8px;"></div>
-          </div>
-
-          <div class="drawer-footer">
-            <div class="drawer-total-row">
-              <span class="drawer-total-label">Total Amount</span>
-              <span class="drawer-total-val" id="drawerTotalAmount">R0.00</span>
-            </div>
-            <div class="drawer-actions-row">
-              <button type="button" class="drawer-btn drawer-btn-dark" id="btnTrackOrder">Fulfill / Advance</button>
+            <div class="order-footer-actions">
+              <button type="button" class="drawer-btn drawer-btn-outline is-danger" id="btnDeleteOrder" style="color: #b91c1c;">Delete Order</button>
+              <button type="button" class="drawer-btn drawer-btn-outline" id="btnRefundOrder">Cancel &amp; Refund</button>
               <button type="button" class="drawer-btn drawer-btn-outline" id="btnDeliverOrder" hidden>Mark Delivered</button>
-              <button type="button" class="drawer-btn drawer-btn-outline" id="btnRefundOrder">Cancel & Refund</button>
-              <button type="button" class="drawer-btn drawer-btn-outline" id="btnDeleteOrder" style="color: #b91c1c;">Delete Order</button>
+              <button type="button" class="studio-btn-publish" id="btnTrackOrder">
+                <span>Accept Paid Order</span>
+                <span class="studio-btn-arrow">↗</span>
+              </button>
             </div>
           </div>
+
         </div>
-      </aside>
+      </div>
 
     </div>
   </div>
@@ -2354,6 +2458,87 @@
     </form>
   </div>
 </div>
+
+  <!-- Modal: Add / Edit Courier Driver (Unified Studio Modal Theme) -->
+  <div class="dash-modal-backdrop" id="driverModal" role="dialog" aria-modal="true" aria-labelledby="driverModalHeading">
+    <div class="dash-modal studio-modal-container driver-modal-container" style="max-width: 580px;">
+
+      <!-- 1. Header -->
+      <div class="studio-modal-header">
+        <div class="studio-modal-title-group">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+            <h3 class="studio-modal-heading" id="driverModalHeading">Add Courier Driver</h3>
+            <span class="status-pill status-paid" id="driverModalBadge" style="font-size: 11px;">Fleet Operations</span>
+          </div>
+          <p class="studio-modal-subheading" id="driverModalSubheading">
+            Register regional logistics drivers for automated province order fulfillment and dispatch.
+          </p>
+        </div>
+
+        <div class="studio-modal-header-actions">
+          <button type="button" class="studio-modal-close-btn" onclick="window.closeDriverModal()" aria-label="Close dialog">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Form Body -->
+      <form id="driverCreateForm" class="studio-modal-form" novalidate>
+        <div class="studio-modal-scrollable-body" style="padding: 24px;">
+          <div id="driverFormMessage" role="status" aria-live="polite" style="margin-bottom: 16px; font-size: 13px; font-weight: 500;"></div>
+
+          <section class="studio-form-card" style="border: none; padding: 0; background: transparent; box-shadow: none;">
+            <div class="studio-input-group">
+              <label class="studio-label" for="driverFullName">Full Name <span class="studio-req">*</span></label>
+              <input class="studio-input" id="driverFullName" name="fullName" type="text" placeholder="e.g. Sipho Dlamini" required maxlength="150">
+            </div>
+
+            <div class="studio-input-group">
+              <label class="studio-label" for="driverEmail">Email Address <span class="studio-req">*</span></label>
+              <input class="studio-input" id="driverEmail" name="email" type="email" placeholder="e.g. sipho.driver@velora.co.za" required maxlength="254">
+            </div>
+
+            <div class="studio-grid-2">
+              <div class="studio-input-group">
+                <label class="studio-label" for="driverPhone">Phone Number <span class="studio-req">*</span></label>
+                <input class="studio-input" id="driverPhone" name="phone" type="tel" placeholder="e.g. +27 82 555 1234" required maxlength="30">
+              </div>
+
+              <div class="studio-input-group">
+                <label class="studio-label" for="driverProvince">Service Province <span class="studio-req">*</span></label>
+                <div class="studio-select-wrapper">
+                  <select class="studio-select" id="driverProvince" name="province" required>
+                    <option value="">Select service province</option>
+                    <option>Eastern Cape</option>
+                    <option>Free State</option>
+                    <option>Gauteng</option>
+                    <option>KwaZulu-Natal</option>
+                    <option>Limpopo</option>
+                    <option>Mpumalanga</option>
+                    <option>Northern Cape</option>
+                    <option>North West</option>
+                    <option>Western Cape</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 3. Footer -->
+        <div class="studio-modal-footer" style="padding: 16px 24px; background: #ffffff; border-top: 1px solid var(--dash-border); display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+          <button type="button" class="studio-btn-discard" onclick="window.closeDriverModal()">
+            Cancel
+          </button>
+          <button type="submit" class="studio-btn-publish" id="driverSubmitBtn">
+            <span class="studio-btn-text" id="driverSubmitBtnText">Add Driver</span>
+            <span class="studio-btn-arrow">↗</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
 
   <!-- Product Detail & Customer Presentation Modal (Unified Studio Modal) -->
   <div class="dash-modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true"
