@@ -17,6 +17,8 @@ const API_BASE_URL = resolveBackendBaseUrl();
 const AUTH_TOKEN_KEY = 'velora_auth_token';
 const CURRENT_USER_KEY = 'velora_current_user';
 const SHIPPING_STORAGE_KEY = 'velora_shipping_details';
+let accountNotificationRecords = [];
+let accountNotificationOrderRecords = [];
 
 /**
  * Format currency
@@ -92,6 +94,7 @@ export async function initAccountPage() {
 
   // Tab Switching
   setupTabs();
+  setupAccountNotificationControls();
 
   // Profile Form Submission (PUT /api/users/:id)
   setupProfileForm(currentUser);
@@ -127,6 +130,10 @@ export async function initAccountPage() {
       loadAndRenderOrders(currentUser, { silent: true });
     }
   }, 5 * 60 * 1000);
+  if (window._accountNotificationRefreshTimer) window.clearInterval(window._accountNotificationRefreshTimer);
+  window._accountNotificationRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState === 'visible') refreshAccountNotifications();
+  }, 30 * 1000);
 }
 
 // ============================================================
@@ -232,64 +239,98 @@ function setupTabs() {
   activateTab(requestedTab);
 }
 
-function renderAccountNotifications(returns) {
+function renderAccountNotifications(notifications, orders) {
   const container = document.getElementById('accountNotificationsList');
   if (!container) return;
 
-  const notificationDetails = {
-    pending: { title: 'Return request received', label: 'Under review' },
-    approved: { title: 'Return approved', label: 'Approved' },
-    refunded: { title: 'Return refunded', label: 'Refunded' },
-    rejected: { title: 'Return request update', label: 'Closed' }
-  };
-  const notifications = (Array.isArray(returns) ? returns : [])
-    .map(returnRequest => ({
-      ...returnRequest,
-      normalizedStatus: String(returnRequest.status || '').toLowerCase()
-    }))
-    .filter(returnRequest => notificationDetails[returnRequest.normalizedStatus])
-    .sort((left, right) => new Date(right.updated_at || right.created_at) - new Date(left.updated_at || left.created_at));
+  accountNotificationRecords = Array.isArray(notifications) ? notifications : [];
+  accountNotificationOrderRecords = Array.isArray(orders) ? orders : [];
+  const expandedNotificationIds = new Set(
+    Array.from(container.querySelectorAll('.account-notification-card[open]'), card => card.dataset.notificationId).filter(Boolean)
+  );
+  const visibleNotifications = accountNotificationRecords
+    .filter(notification => notification.is_cleared !== true)
+    .sort((left, right) => new Date(right.created_at || 0) - new Date(left.created_at || 0));
+  const unreadCount = visibleNotifications.filter(notification => notification.is_read !== true).length;
+  const badge = document.getElementById('navNotificationsBadge');
+  if (badge) {
+    badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    badge.hidden = unreadCount === 0;
+    badge.setAttribute('aria-label', `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`);
+  }
+  const count = document.getElementById('accountNotificationCount');
+  if (count) count.textContent = `${visibleNotifications.length} notification${visibleNotifications.length === 1 ? '' : 's'}`;
+  const markAllBtn = document.getElementById('markAllUserNotificationsRead');
+  if (markAllBtn) markAllBtn.disabled = unreadCount === 0;
+  const clearAllBtn = document.getElementById('clearAllUserNotifications');
+  if (clearAllBtn) clearAllBtn.disabled = visibleNotifications.length === 0;
 
-  if (notifications.length === 0) {
+  if (visibleNotifications.length === 0) {
     const emptyState = document.createElement('div');
     emptyState.className = 'account-notifications-empty';
-    emptyState.textContent = 'Return updates will appear here when your order status changes.';
+    emptyState.textContent = 'New order and return updates will appear here.';
     container.replaceChildren(emptyState);
     return;
   }
 
-  const cards = notifications.map(returnRequest => {
-    const details = notificationDetails[returnRequest.normalizedStatus];
-    const card = document.createElement('article');
-    card.className = `account-notification-card is-${returnRequest.normalizedStatus}`;
+  const cards = visibleNotifications.map(notification => {
+    const type = String(notification.type || '').toLowerCase();
+    const isReturn = type.startsWith('return_');
+    const details = type === 'return_pending'
+      ? { title: 'Return request received', label: 'Under review' }
+      : type === 'return_approved'
+        ? { title: 'Return approved', label: 'Approved' }
+        : type === 'return_refunded'
+          ? { title: 'Return refunded', label: 'Refunded' }
+          : type === 'return_rejected'
+            ? { title: 'Return request update', label: 'Closed' }
+            : { title: notification.title || 'Account update', label: 'Update' };
+    const orderNumber = notification.order_number || (notification.entity_type === 'order' ? notification.entity_id : '');
+    const matchingOrder = (Array.isArray(orders) ? orders : []).find(item =>
+      String(item.orderNumber || item.order_number || item.id) === String(orderNumber)
+    );
+    const card = document.createElement('details');
+    card.className = `account-notification-card${type === 'return_refunded' ? ' is-refunded' : ''}${notification.is_read === true ? '' : ' is-unread'}`;
+    card.dataset.notificationId = String(notification.id);
+    card.open = expandedNotificationIds.has(String(notification.id));
 
+    const trigger = document.createElement('summary');
+    trigger.className = 'account-notification-trigger';
     const icon = document.createElement('span');
     icon.className = 'account-notification-icon';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = returnRequest.normalizedStatus === 'refunded' ? '↶' : '↻';
+    icon.textContent = type === 'return_refunded' ? '↶' : isReturn ? '↻' : '•';
 
     const content = document.createElement('div');
     content.className = 'account-notification-content';
     const heading = document.createElement('div');
     heading.className = 'account-notification-heading';
     const title = document.createElement('h3');
-    title.textContent = details.title;
+    title.textContent = notification.title || details.title;
     const status = document.createElement('span');
     status.className = 'account-notification-status';
     status.textContent = details.label;
     heading.append(title, status);
+    if (notification.is_read !== true) {
+      const unreadDot = document.createElement('span');
+      unreadDot.className = 'account-notification-unread-dot';
+      unreadDot.setAttribute('aria-hidden', 'true');
+      heading.prepend(unreadDot);
+    }
 
-    const order = document.createElement('p');
-    order.className = 'account-notification-order';
-    order.textContent = `Order ${returnRequest.order_number || ''}`.trim();
-    const reason = document.createElement('p');
-    reason.className = 'account-notification-reason';
-    reason.textContent = `Reason: ${returnRequest.reason || 'No reason provided.'}`;
-    content.append(heading, order, reason);
+    const orderReference = document.createElement('p');
+    orderReference.className = 'account-notification-order';
+    orderReference.textContent = orderNumber ? `Order ${orderNumber}` : '';
+    const message = document.createElement('p');
+    message.className = 'account-notification-reason';
+    message.textContent = notification.message || '';
+    content.append(heading);
+    if (orderNumber) content.appendChild(orderReference);
+    if (notification.message) content.appendChild(message);
 
     const time = document.createElement('time');
     time.className = 'account-notification-time';
-    const timestamp = returnRequest.updated_at || returnRequest.created_at;
+    const timestamp = notification.created_at;
     if (timestamp) {
       const date = new Date(timestamp);
       if (!Number.isNaN(date.getTime())) {
@@ -297,11 +338,286 @@ function renderAccountNotifications(returns) {
         time.textContent = date.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' });
       }
     }
+    const clock = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    clock.setAttribute('viewBox', '0 0 24 24');
+    clock.setAttribute('aria-hidden', 'true');
+    clock.classList.add('account-notification-clock');
+    const clockFace = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    clockFace.setAttribute('cx', '12');
+    clockFace.setAttribute('cy', '12');
+    clockFace.setAttribute('r', '9');
+    const clockHands = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    clockHands.setAttribute('d', 'M12 7v5l3 2');
+    clock.append(clockFace, clockHands);
+    time.prepend(clock);
+    const chevron = document.createElement('span');
+    chevron.className = 'account-notification-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.textContent = '⌄';
+    trigger.append(icon, content, time, chevron);
 
-    card.append(icon, content, time);
+    const expanded = document.createElement('div');
+    expanded.className = 'account-notification-expanded';
+    if (matchingOrder) {
+      const orderHeading = document.createElement('h4');
+      orderHeading.className = 'account-notification-section-title';
+      orderHeading.textContent = 'Order details';
+      expanded.appendChild(orderHeading);
+
+      const orderGrid = document.createElement('div');
+      orderGrid.className = 'account-notification-order-grid';
+      const addOrderField = (label, value) => {
+        const field = document.createElement('div');
+        field.className = 'account-notification-order-field';
+        const fieldLabel = document.createElement('span');
+        fieldLabel.textContent = label;
+        const fieldValue = document.createElement('strong');
+        fieldValue.textContent = value || 'Not recorded';
+        field.append(fieldLabel, fieldValue);
+        orderGrid.appendChild(field);
+      };
+      const placedOn = matchingOrder.createdAt || matchingOrder.created_at;
+      const placedDate = placedOn && !Number.isNaN(new Date(placedOn).getTime())
+        ? new Date(placedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        : 'Not recorded';
+      const trackingNumber = matchingOrder.trackingNumber || matchingOrder.tracking_number || 'Not assigned';
+      const paymentStatus = String(matchingOrder.paymentStatus || matchingOrder.payment_status || 'pending');
+      const normalizedPaymentStatus = paymentStatus.toLowerCase();
+      addOrderField('Order Reference', orderNumber);
+      addOrderField('Placed On', placedDate);
+      addOrderField('Tracking Number', trackingNumber);
+      addOrderField('Payment Status', normalizedPaymentStatus === 'refunded'
+        ? 'Refunded'
+        : paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1));
+      expanded.appendChild(orderGrid);
+
+      const orderStatus = String(matchingOrder.status || '').toLowerCase();
+      const deliveryState = document.createElement('p');
+      deliveryState.className = 'account-notification-delivery-state';
+      deliveryState.textContent = orderStatus === 'delivered' ? 'Delivered & Signed' : paymentStatus;
+      expanded.appendChild(deliveryState);
+
+      const items = Array.isArray(matchingOrder.items) ? matchingOrder.items : [];
+      if (items.length > 0) {
+        const itemsList = document.createElement('div');
+        itemsList.className = 'account-notification-items';
+        items.forEach(item => {
+          const itemRow = document.createElement('div');
+          itemRow.className = 'account-notification-item';
+          const imageUrl = item.image || item.image_url;
+          if (imageUrl) {
+            const image = document.createElement('img');
+            image.src = imageUrl;
+            image.alt = item.productName || item.title || item.name || 'Order item';
+            image.loading = 'lazy';
+            itemRow.appendChild(image);
+          }
+          const itemInfo = document.createElement('div');
+          itemInfo.className = 'account-notification-item-info';
+          const itemName = document.createElement('strong');
+          itemName.textContent = item.productName || item.title || item.name || 'Order item';
+          const itemMeta = document.createElement('span');
+          itemMeta.textContent = `Size: ${item.size || 'Standard'} • Qty: ${Number(item.quantity) || 1}`;
+          const itemPrice = document.createElement('span');
+          itemPrice.textContent = formatCurrency((Number(item.unitPrice || item.price) || 0) * (Number(item.quantity) || 1));
+          itemInfo.append(itemName, itemMeta, itemPrice);
+          itemRow.appendChild(itemInfo);
+          itemsList.appendChild(itemRow);
+        });
+        expanded.appendChild(itemsList);
+      }
+
+      const courier = matchingOrder.driver?.fullName || matchingOrder.driver?.full_name || 'Not assigned';
+      const currentLocation = matchingOrder.trackingLocation || matchingOrder.tracking_location ||
+        [matchingOrder.shipping?.street || matchingOrder.street, matchingOrder.shipping?.city || matchingOrder.city]
+          .filter(Boolean).join(', ') || 'Not recorded';
+      const deliveryInfo = document.createElement('div');
+      deliveryInfo.className = 'account-notification-delivery-info';
+      [
+        ['Courier Partner', courier],
+        ['Current Location', currentLocation],
+        ['Estimated Delivery', orderStatus === 'delivered' ? 'Delivered' : getEstimatedDelivery(matchingOrder)]
+      ].forEach(([label, value]) => {
+        const field = document.createElement('p');
+        const fieldLabel = document.createElement('span');
+        fieldLabel.textContent = `${label}: `;
+        const fieldValue = document.createElement('strong');
+        fieldValue.textContent = value;
+        field.append(fieldLabel, fieldValue);
+        deliveryInfo.appendChild(field);
+      });
+      expanded.appendChild(deliveryInfo);
+
+      const milestones = [
+        ['Order placed', matchingOrder.createdAt || matchingOrder.created_at],
+        ['Accepted at logistics hub', matchingOrder.acceptedAt || matchingOrder.accepted_at],
+        ['In transit', matchingOrder.driverAssignedAt || matchingOrder.driver_assigned_at],
+        ['Delivered', orderStatus === 'delivered' ? matchingOrder.updatedAt || matchingOrder.updated_at : null]
+      ];
+      const milestoneList = document.createElement('ol');
+      milestoneList.className = 'account-notification-milestones';
+      milestones.forEach(([label, value]) => {
+        const step = document.createElement('li');
+        const stepLabel = document.createElement('strong');
+        stepLabel.textContent = label;
+        const stepTime = document.createElement('time');
+        stepTime.textContent = value && !Number.isNaN(new Date(value).getTime())
+          ? new Date(value).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+          : 'Awaiting update';
+        step.append(stepLabel, stepTime);
+        milestoneList.appendChild(step);
+      });
+      expanded.appendChild(milestoneList);
+
+      const orderFooter = document.createElement('div');
+      orderFooter.className = 'account-notification-order-footer';
+      const total = document.createElement('strong');
+      total.textContent = `Total: ${formatCurrency(Number(matchingOrder.total) || 0)}`;
+      const trackLink = document.createElement('a');
+      trackLink.href = `orders.html?orderId=${encodeURIComponent(orderNumber)}`;
+      trackLink.className = 'order-btn-outline';
+      trackLink.textContent = 'Track in Velora Logistics ↗';
+      orderFooter.append(total, trackLink);
+      expanded.appendChild(orderFooter);
+    } else {
+      const missingOrder = document.createElement('p');
+      missingOrder.className = 'account-notification-reason';
+      missingOrder.textContent = notification.message || 'Order details are currently unavailable.';
+      expanded.appendChild(missingOrder);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'account-notification-actions';
+    if (notification.is_read !== true) {
+      const readBtn = document.createElement('button');
+      readBtn.type = 'button';
+      readBtn.className = 'account-notification-read-action';
+      readBtn.textContent = 'Mark as read';
+      readBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        markAccountNotificationRead(notification.id);
+      });
+      actions.appendChild(readBtn);
+    }
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'account-notification-clear-action';
+    clearBtn.textContent = 'Clear notification';
+    clearBtn.addEventListener('click', event => {
+      event.stopPropagation();
+      clearAccountNotification(notification.id);
+    });
+    actions.appendChild(clearBtn);
+    expanded.appendChild(actions);
+
+    card.addEventListener('toggle', () => {
+      if (card.open && notification.is_read !== true) {
+        markAccountNotificationRead(notification.id);
+      }
+    });
+
+    card.append(trigger, expanded);
     return card;
   });
   container.replaceChildren(...cards);
+}
+
+async function accountNotificationRequest(path) {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const response = await fetch(`${API_BASE_URL}/api/notifications/${path}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(data?.message || `Notification request failed (${response.status}).`);
+  return data;
+}
+
+async function refreshAccountNotifications() {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (!token || window._accountNotificationFetchInProgress) return;
+  window._accountNotificationFetchInProgress = true;
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/notifications/mine`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.message || `Unable to load notifications (${response.status}).`);
+    renderAccountNotifications(Array.isArray(data?.notifications) ? data.notifications : [], accountNotificationOrderRecords);
+  } catch (error) {
+    console.warn('Unable to refresh account notifications:', error);
+  } finally {
+    window._accountNotificationFetchInProgress = false;
+  }
+}
+
+function setAccountNotificationFeedback(message = '') {
+  const feedback = document.getElementById('accountNotificationFeedback');
+  if (feedback) feedback.textContent = message;
+}
+
+async function markAccountNotificationRead(id) {
+  const notification = accountNotificationRecords.find(item => String(item.id) === String(id));
+  if (!notification || notification.is_read === true || notification.readPending) return;
+  notification.readPending = true;
+  try {
+    await accountNotificationRequest(`mine/${encodeURIComponent(id)}/read`);
+    notification.is_read = true;
+    notification.readPending = false;
+    setAccountNotificationFeedback('Notification marked as read.');
+    renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+  } catch (error) {
+    notification.readPending = false;
+    setAccountNotificationFeedback(error.message || 'Unable to mark notification as read.');
+  }
+}
+
+async function clearAccountNotification(id) {
+  try {
+    await accountNotificationRequest(`mine/${encodeURIComponent(id)}/clear`);
+    accountNotificationRecords = accountNotificationRecords.filter(item => String(item.id) !== String(id));
+    setAccountNotificationFeedback('Notification cleared.');
+    renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+  } catch (error) {
+    setAccountNotificationFeedback(error.message || 'Unable to clear notification.');
+  }
+}
+
+function setupAccountNotificationControls() {
+  const markAllBtn = document.getElementById('markAllUserNotificationsRead');
+  if (markAllBtn) {
+    markAllBtn.onclick = async () => {
+      markAllBtn.disabled = true;
+      try {
+        await accountNotificationRequest('mine/read-all');
+        accountNotificationRecords.forEach(notification => {
+          notification.is_read = true;
+        });
+        setAccountNotificationFeedback('All notifications marked as read.');
+        renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+      } catch (error) {
+        setAccountNotificationFeedback(error.message || 'Unable to mark notifications as read.');
+        renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+      }
+    };
+  }
+
+  const clearAllBtn = document.getElementById('clearAllUserNotifications');
+  if (clearAllBtn) {
+    clearAllBtn.onclick = async () => {
+      if (accountNotificationRecords.length === 0 || !window.confirm('Clear all notifications? This cannot be undone.')) return;
+      clearAllBtn.disabled = true;
+      try {
+        await accountNotificationRequest('mine/clear-all');
+        accountNotificationRecords = [];
+        setAccountNotificationFeedback('All notifications cleared.');
+        renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+      } catch (error) {
+        setAccountNotificationFeedback(error.message || 'Unable to clear notifications.');
+        renderAccountNotifications(accountNotificationRecords, accountNotificationOrderRecords);
+      }
+    };
+  }
 }
 
 // ============================================================
@@ -499,6 +815,9 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
   const summaryCount = document.getElementById('ordersSummaryCount');
 
   if (!container || !cardTemplate || !itemRowTemplate) return;
+  const expandedOrderIds = new Set(
+    Array.from(container.querySelectorAll('.order-card[open]'), card => card.dataset.orderId).filter(Boolean)
+  );
 
   if (window._accountOrdersFetchInProgress) return;
   window._accountOrdersFetchInProgress = true;
@@ -520,6 +839,7 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
 
   let orders = [];
   let userReturns = [];
+  let userNotifications = accountNotificationRecords;
   try {
     const response = await fetch(`${API_BASE_URL}/api/orders`, {
       headers: {
@@ -544,7 +864,21 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
     } catch (returnError) {
       console.warn('Unable to load your return requests:', returnError);
     }
-    renderAccountNotifications(userReturns);
+
+    try {
+      const notificationsResponse = await fetch(`${API_BASE_URL}/api/notifications/mine`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const notificationsData = await notificationsResponse.json().catch(() => null);
+      if (notificationsResponse.ok && Array.isArray(notificationsData?.notifications)) {
+        userNotifications = notificationsData.notifications;
+      } else if (!notificationsResponse.ok) {
+        throw new Error(notificationsData?.message || `Unable to load notifications (${notificationsResponse.status}).`);
+      }
+    } catch (notificationError) {
+      console.warn('Unable to load account notifications:', notificationError);
+    }
+    renderAccountNotifications(userNotifications, orders);
   } catch (error) {
     console.error('Backend orders fetch failed:', error);
     if (!silent) {
@@ -582,6 +916,11 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
     const cardClone = cardTemplate.content.cloneNode(true);
 
     const orderId = order.orderNumber || order.id || 'VEL-84920';
+    const orderCard = cardClone.querySelector('.order-card');
+    if (orderCard) {
+      orderCard.dataset.orderId = String(orderId);
+      orderCard.open = expandedOrderIds.has(String(orderId));
+    }
     const trackingNumber = order.trackingNumber || 'Assigned after acceptance';
     const orderDateFormatted = order.createdAt
       ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -707,7 +1046,7 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
       const returnAlreadyFiled = existingReturn && existingReturn.status !== 'rejected';
       returnBtnEl.hidden = normalizedStatus !== 'delivered' || Boolean(returnAlreadyFiled);
       if (returnAlreadyFiled && actionMessageEl) {
-        actionMessageEl.textContent = `Return ${existingReturn.status}: ${existingReturn.reason}`;
+        actionMessageEl.textContent = '';
       }
       returnBtnEl.addEventListener('click', () => {
         if (returnFormEl) returnFormEl.hidden = false;
@@ -728,7 +1067,7 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
         if (submitReturnBtn) submitReturnBtn.disabled = true;
         try {
           const result = await submitOrderAction(`/api/orders/${encodeURIComponent(orderId)}/returns`, 'POST', { reason });
-          if (actionMessageEl) actionMessageEl.textContent = 'Return request sent for review.';
+          if (actionMessageEl) actionMessageEl.textContent = '';
           if (returnFormEl) returnFormEl.hidden = true;
           returnBtnEl.hidden = true;
           if (returnReasonEl) returnReasonEl.value = '';

@@ -152,6 +152,11 @@
   background: var(--ink);
   color: #fff;
 }
+.account-nav-item .notifications-unread-badge,
+.account-nav-item.active .notifications-unread-badge {
+  background: var(--danger, #b33a3a);
+  color: #fff;
+}
 
 .account-nav-item.logout {
   color: var(--danger, #b33a3a);
@@ -194,9 +199,42 @@
   color: var(--ink);
 }
 
-.account-notification-summary,
-.account-notification-time {
+.account-notification-caption {
   color: var(--muted);
+  font-size: 12px;
+}
+.account-notification-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.account-notification-control {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.account-notification-control:hover:not(:disabled) {
+  background: var(--cream);
+}
+.account-notification-control.is-clear {
+  color: var(--danger, #b33a3a);
+}
+.account-notification-control:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.account-notification-feedback {
+  min-height: 18px;
+  margin: -16px 0 12px;
+  color: var(--danger, #b33a3a);
   font-size: 12px;
 }
 .account-notification-list {
@@ -204,18 +242,24 @@
   gap: 12px;
 }
 .account-notification-card {
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 14px;
-  padding: 18px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: 5px;
   background: var(--paper, #fff);
+  overflow: hidden;
 }
 .account-notification-card.is-refunded {
   border-left-color: #498263;
+}
+.account-notification-card.is-unread {
+  border-left-color: var(--danger, #b33a3a);
+}
+.account-notification-unread-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--danger, #b33a3a);
 }
 .account-notification-icon {
   display: grid;
@@ -243,6 +287,207 @@
   color: var(--ink);
   font-size: 14px;
   font-weight: 700;
+}
+.account-notification-trigger {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+}
+.account-notification-trigger::-webkit-details-marker {
+  display: none;
+}
+.account-notification-trigger::marker {
+  content: '';
+}
+.account-notification-trigger:focus-visible {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: -3px;
+}
+.account-notification-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--danger, #b33a3a);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.account-notification-clock {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.account-notification-chevron {
+  color: var(--muted);
+  transition: transform .18s ease;
+}
+.account-notification-card[open] .account-notification-chevron {
+  transform: rotate(180deg);
+}
+.account-notification-expanded {
+  padding: 18px;
+  border-top: 1px solid var(--line);
+  background: var(--paper, #fff);
+}
+.account-notification-section-title {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.account-notification-order-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.account-notification-order-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.account-notification-order-field span {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.account-notification-order-field strong {
+  color: var(--ink);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.account-notification-delivery-state {
+  display: inline-block;
+  margin: 12px 0;
+  padding: 5px 9px;
+  border-radius: 3px;
+  background: rgba(73, 130, 99, .12);
+  color: #35664b;
+  font-size: 11px;
+  font-weight: 700;
+}
+.account-notification-items {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.account-notification-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.account-notification-item img {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--cream);
+}
+.account-notification-item-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.account-notification-item-info strong {
+  color: var(--ink);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.account-notification-delivery-info {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.account-notification-delivery-info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.account-notification-delivery-info strong {
+  color: var(--ink);
+}
+.account-notification-milestones {
+  display: grid;
+  gap: 0;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+.account-notification-milestones li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0 7px 12px;
+  color: var(--ink);
+  font-size: 11px;
+}
+.account-notification-milestones time {
+  color: var(--muted);
+  text-align: right;
+}
+.account-notification-order-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13px;
+}
+.account-notification-order-footer .order-btn-outline {
+  text-decoration: none;
+}
+.account-notification-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+}
+.account-notification-read-action,
+.account-notification-clear-action {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.account-notification-clear-action {
+  color: var(--danger, #b33a3a);
+}
+.account-notification-read-action:hover,
+.account-notification-clear-action:hover {
+  background: var(--cream);
 }
 .account-notification-status {
   padding: 3px 8px;
@@ -279,9 +524,21 @@
   text-align: center;
 }
 @media (max-width: 600px) {
-  .account-notification-card {
-    grid-template-columns: 34px minmax(0, 1fr);
+  .account-notification-pane-header {
+    align-items: flex-start;
+    flex-direction: column;
     gap: 12px;
+  }
+  .account-notification-toolbar {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .account-notification-caption {
+    flex: 1 0 100%;
+  }
+  .account-notification-trigger {
+    grid-template-columns: 32px minmax(0, 1fr) 16px;
+    gap: 10px;
     padding: 14px;
   }
   .account-notification-icon {
@@ -290,6 +547,18 @@
   }
   .account-notification-time {
     grid-column: 2;
+    grid-row: 2;
+  }
+  .account-notification-chevron {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .account-notification-order-grid,
+  .account-notification-delivery-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .account-notification-expanded {
+    padding: 14px;
   }
 }
 
@@ -321,6 +590,27 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.order-card-header::-webkit-details-marker {
+  display: none;
+}
+.order-card-header::marker {
+  content: '';
+}
+.order-card-header:focus-visible {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: -3px;
+}
+.order-card-chevron {
+  color: var(--muted);
+  font-size: 18px;
+  transition: transform .18s ease;
+}
+.order-card[open] > .order-card-header .order-card-chevron {
+  transform: rotate(180deg);
 }
 
 .order-meta-group {

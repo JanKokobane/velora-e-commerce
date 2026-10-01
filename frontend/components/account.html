@@ -114,6 +114,7 @@
                     </button>
                     <button type="button" class="account-nav-item" id="navNotificationsTab">
                         <span>Notifications</span>
+                        <span class="badge notifications-unread-badge" id="navNotificationsBadge" aria-label="Unread notifications" hidden></span>
                     </button>
                     <button type="button" class="account-nav-item" id="navProfileTab">
                         <span>Delivery Address</span>
@@ -167,10 +168,15 @@
                 </div>
 
                 <div id="paneNotifications" style="display: none;">
-                    <div class="tab-pane-title">
+                    <div class="tab-pane-title account-notification-pane-header">
                         <h2>Notifications</h2>
-                        <span class="account-notification-summary">Return updates</span>
+                        <div class="account-notification-toolbar">
+                            <span class="account-notification-caption" id="accountNotificationCount">Notifications</span>
+                            <button type="button" class="account-notification-control" id="markAllUserNotificationsRead" disabled>Mark all read</button>
+                            <button type="button" class="account-notification-control is-clear" id="clearAllUserNotifications" disabled>Clear all</button>
+                        </div>
                     </div>
+                    <p class="account-notification-feedback" id="accountNotificationFeedback" role="status" aria-live="polite"></p>
                     <div class="account-notification-list" id="accountNotificationsList" aria-live="polite"></div>
                 </div>
 
@@ -227,8 +233,8 @@
 
         <!-- Template for Order Cards: allows cloning cleanly without innerHTML -->
         <template id="orderCardTemplate">
-            <article class="order-card">
-                <header class="order-card-header">
+            <details class="order-card">
+                <summary class="order-card-header">
                     <div class="order-meta-group">
                         <div class="order-meta-item">
                             <span>Order Reference</span>
@@ -251,7 +257,8 @@
                         <span class="status-dot"></span>
                         <span class="card-status-text">In Transit</span>
                     </div>
-                </header>
+                    <span class="order-card-chevron" aria-hidden="true">⌄</span>
+                </summary>
 
                 <div class="order-card-body">
                     <div class="order-items-grid card-items-list">
@@ -320,7 +327,7 @@
                         </div>
                     </form>
                 </footer>
-            </article>
+            </details>
         </template>
 
         <!-- Template for Order Item Row -->

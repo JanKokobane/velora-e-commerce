@@ -1,5 +1,22 @@
 const returnService = require('../services/returnService');
 const { createNotification } = require('../services/notificationService');
+const { createUserNotification } = require('../services/userNotificationService');
+
+const notifyReturnOwner = async (returnRequest, type, title, message) => {
+  try {
+    await createUserNotification({
+      userId: returnRequest.user_id,
+      type,
+      title,
+      message,
+      entityType: 'return',
+      entityId: returnRequest.id,
+      orderNumber: returnRequest.order_number
+    });
+  } catch (notificationError) {
+    console.warn('Customer return notification warning:', notificationError.message);
+  }
+};
 
 const createMyReturn = async (req, res) => {
   try {
@@ -14,6 +31,12 @@ const createMyReturn = async (req, res) => {
     }
 
     const returnRequest = await returnService.createReturnRequest(orderNumber, userId, reason);
+    await notifyReturnOwner(
+      returnRequest,
+      'return_pending',
+      'Return request received',
+      `Reason: ${returnRequest.reason}`
+    );
     try {
       await createNotification({
         type: 'return_requested',
@@ -86,6 +109,13 @@ const updateReturn = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Pending return request not found.' });
     }
 
+    await notifyReturnOwner(
+      returnRequest,
+      `return_${status}`,
+      status === 'approved' ? 'Return approved' : 'Return request update',
+      `Reason: ${returnRequest.reason}`
+    );
+
     try {
       await createNotification({
         type: status === 'approved' ? 'return_approved' : 'return_rejected',
@@ -118,6 +148,12 @@ const refundReturn = async (req, res) => {
 
   try {
     const returnRequest = await returnService.refundReturn(req.params.id);
+    await notifyReturnOwner(
+      returnRequest,
+      'return_refunded',
+      'Return refunded',
+      `Reason: ${returnRequest.reason}`
+    );
     try {
       await createNotification({
         type: 'return_refunded',
