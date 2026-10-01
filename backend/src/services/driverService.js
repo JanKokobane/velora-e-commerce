@@ -40,10 +40,13 @@ const ensureDriverSchema = async () => {
           AND conname = 'orders_status_check'
           AND contype = 'c';
 
-        IF status_check IS NOT NULL AND POSITION('accepted' IN LOWER(status_check)) = 0 THEN
+        IF status_check IS NOT NULL AND (
+          POSITION('accepted' IN LOWER(status_check)) = 0 OR
+          POSITION('in-transit' IN LOWER(status_check)) = 0
+        ) THEN
           ALTER TABLE orders DROP CONSTRAINT orders_status_check;
           EXECUTE FORMAT(
-            'ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK ((status = ''accepted'') OR (%s))',
+            'ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK ((status IN (''accepted'', ''in-transit'')) OR (%s))',
             status_check
           );
         END IF;
