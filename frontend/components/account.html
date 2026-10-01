@@ -112,6 +112,9 @@
                         <span>Orders & Deliveries</span>
                         <span class="badge" id="navOrdersBadge"></span>
                     </button>
+                    <button type="button" class="account-nav-item" id="navNotificationsTab">
+                        <span>Notifications</span>
+                    </button>
                     <button type="button" class="account-nav-item" id="navProfileTab">
                         <span>Delivery Address</span>
                     </button>
@@ -161,6 +164,14 @@
                     <div class="orders-list-container" id="ordersListContainer">
                         <!-- Cloned cleanly from templates via account.js -->
                     </div>
+                </div>
+
+                <div id="paneNotifications" style="display: none;">
+                    <div class="tab-pane-title">
+                        <h2>Notifications</h2>
+                        <span class="account-notification-summary">Return updates</span>
+                    </div>
+                    <div class="account-notification-list" id="accountNotificationsList" aria-live="polite"></div>
                 </div>
 
                 <!-- Address Tab Pane -->

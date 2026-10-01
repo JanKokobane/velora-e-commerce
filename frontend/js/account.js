@@ -200,30 +200,108 @@ function populateProfileForm(user) {
 // ============================================================
 function setupTabs() {
   const navOrdersTab = document.getElementById('navOrdersTab');
+  const navNotificationsTab = document.getElementById('navNotificationsTab');
   const navProfileTab = document.getElementById('navProfileTab');
   const paneOrders = document.getElementById('paneOrders');
+  const paneNotifications = document.getElementById('paneNotifications');
   const paneProfile = document.getElementById('paneProfile');
 
-  if (navOrdersTab && navProfileTab && paneOrders && paneProfile) {
-    navOrdersTab.onclick = () => {
-      navOrdersTab.classList.add('active');
-      navProfileTab.classList.remove('active');
-      paneOrders.style.display = 'block';
-      paneProfile.style.display = 'none';
-    };
+  const tabs = [
+    { button: navOrdersTab, pane: paneOrders },
+    { button: navNotificationsTab, pane: paneNotifications },
+    { button: navProfileTab, pane: paneProfile }
+  ].filter(tab => tab.button && tab.pane);
+  if (tabs.length !== 3) return;
 
-    navProfileTab.onclick = () => {
-      navProfileTab.classList.add('active');
-      navOrdersTab.classList.remove('active');
-      paneProfile.style.display = 'block';
-      paneOrders.style.display = 'none';
-    };
+  const activateTab = (activeTab) => {
+    tabs.forEach(tab => {
+      const isActive = tab === activeTab;
+      tab.button.classList.toggle('active', isActive);
+      tab.pane.style.display = isActive ? 'block' : 'none';
+    });
+  };
+  tabs.forEach(tab => {
+    tab.button.onclick = () => activateTab(tab);
+  });
 
-    // Check URL hash (#profile or #orders)
-    if (window.location.hash === '#profile' || window.location.hash === '#address') {
-      navProfileTab.click();
-    }
+  const requestedTab = window.location.hash === '#notifications'
+    ? tabs[1]
+    : ['#profile', '#address'].includes(window.location.hash)
+      ? tabs[2]
+      : tabs[0];
+  activateTab(requestedTab);
+}
+
+function renderAccountNotifications(returns) {
+  const container = document.getElementById('accountNotificationsList');
+  if (!container) return;
+
+  const notificationDetails = {
+    pending: { title: 'Return request received', label: 'Under review' },
+    approved: { title: 'Return approved', label: 'Approved' },
+    refunded: { title: 'Return refunded', label: 'Refunded' },
+    rejected: { title: 'Return request update', label: 'Closed' }
+  };
+  const notifications = (Array.isArray(returns) ? returns : [])
+    .map(returnRequest => ({
+      ...returnRequest,
+      normalizedStatus: String(returnRequest.status || '').toLowerCase()
+    }))
+    .filter(returnRequest => notificationDetails[returnRequest.normalizedStatus])
+    .sort((left, right) => new Date(right.updated_at || right.created_at) - new Date(left.updated_at || left.created_at));
+
+  if (notifications.length === 0) {
+    const emptyState = document.createElement('div');
+    emptyState.className = 'account-notifications-empty';
+    emptyState.textContent = 'Return updates will appear here when your order status changes.';
+    container.replaceChildren(emptyState);
+    return;
   }
+
+  const cards = notifications.map(returnRequest => {
+    const details = notificationDetails[returnRequest.normalizedStatus];
+    const card = document.createElement('article');
+    card.className = `account-notification-card is-${returnRequest.normalizedStatus}`;
+
+    const icon = document.createElement('span');
+    icon.className = 'account-notification-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = returnRequest.normalizedStatus === 'refunded' ? '↶' : '↻';
+
+    const content = document.createElement('div');
+    content.className = 'account-notification-content';
+    const heading = document.createElement('div');
+    heading.className = 'account-notification-heading';
+    const title = document.createElement('h3');
+    title.textContent = details.title;
+    const status = document.createElement('span');
+    status.className = 'account-notification-status';
+    status.textContent = details.label;
+    heading.append(title, status);
+
+    const order = document.createElement('p');
+    order.className = 'account-notification-order';
+    order.textContent = `Order ${returnRequest.order_number || ''}`.trim();
+    const reason = document.createElement('p');
+    reason.className = 'account-notification-reason';
+    reason.textContent = `Reason: ${returnRequest.reason || 'No reason provided.'}`;
+    content.append(heading, order, reason);
+
+    const time = document.createElement('time');
+    time.className = 'account-notification-time';
+    const timestamp = returnRequest.updated_at || returnRequest.created_at;
+    if (timestamp) {
+      const date = new Date(timestamp);
+      if (!Number.isNaN(date.getTime())) {
+        time.dateTime = date.toISOString();
+        time.textContent = date.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+    }
+
+    card.append(icon, content, time);
+    return card;
+  });
+  container.replaceChildren(...cards);
 }
 
 // ============================================================
@@ -466,6 +544,7 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
     } catch (returnError) {
       console.warn('Unable to load your return requests:', returnError);
     }
+    renderAccountNotifications(userReturns);
   } catch (error) {
     console.error('Backend orders fetch failed:', error);
     if (!silent) {

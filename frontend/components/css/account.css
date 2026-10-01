@@ -194,6 +194,105 @@
   color: var(--ink);
 }
 
+.account-notification-summary,
+.account-notification-time {
+  color: var(--muted);
+  font-size: 12px;
+}
+.account-notification-list {
+  display: grid;
+  gap: 12px;
+}
+.account-notification-card {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 5px;
+  background: var(--paper, #fff);
+}
+.account-notification-card.is-refunded {
+  border-left-color: #498263;
+}
+.account-notification-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(201, 165, 122, .18);
+  color: var(--accent-dark);
+  font-size: 20px;
+  font-weight: 700;
+}
+.is-refunded .account-notification-icon {
+  background: rgba(73, 130, 99, .12);
+  color: #35664b;
+}
+.account-notification-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.account-notification-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+.account-notification-status {
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--cream);
+  color: var(--accent-dark);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.is-refunded .account-notification-status {
+  background: rgba(73, 130, 99, .12);
+  color: #35664b;
+}
+.account-notification-order,
+.account-notification-reason {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.account-notification-order {
+  color: var(--ink);
+  font-weight: 600;
+}
+.account-notifications-empty {
+  padding: 32px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .account-notification-card {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+  .account-notification-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .account-notification-time {
+    grid-column: 2;
+  }
+}
+
 /* Order Cards */
 .orders-list-container {
   display: flex;
