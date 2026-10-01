@@ -30,7 +30,9 @@ window.fetchReturnsFromDb = async function() {
         ? 'Under Review'
         : item.status === 'approved'
           ? 'Approved'
-          : 'Rejected',
+          : item.status === 'refunded'
+            ? 'Refunded'
+            : 'Rejected',
       apiStatus: item.status
     }));
     window.renderReturnsView();
@@ -124,7 +126,7 @@ window.renderReturnsView = function() {
     // 6. Status
     const tdStatus = document.createElement('td');
     const pill = document.createElement('span');
-    pill.className = `status-pill ${ret.status === 'Approved' ? 'status-delivered' : 'status-paid'}`;
+    pill.className = `status-pill ${['Approved', 'Refunded'].includes(ret.status) ? 'status-delivered' : 'status-paid'}`;
     pill.textContent = ret.status;
     tdStatus.appendChild(pill);
 
@@ -146,6 +148,16 @@ window.renderReturnsView = function() {
         actionBtn.addEventListener('click', () => window.processReturnRequest(ret.id, status));
         actionWrap.appendChild(actionBtn);
       });
+    } else if (ret.apiStatus === 'approved') {
+      const refundBtn = document.createElement('button');
+      refundBtn.type = 'button';
+      refundBtn.className = 'drawer-btn drawer-btn-accent';
+      refundBtn.style.flex = 'initial';
+      refundBtn.style.padding = '5px 10px';
+      refundBtn.style.fontSize = '11.5px';
+      refundBtn.textContent = 'Refund';
+      refundBtn.addEventListener('click', () => window.processReturnRefund(ret));
+      actionWrap.appendChild(refundBtn);
     }
     tdAction.appendChild(actionWrap);
 
@@ -154,6 +166,39 @@ window.renderReturnsView = function() {
   });
 
   tbody.replaceChildren(...rows);
+};
+
+window.processReturnRefund = async function(returnRequest) {
+  const confirmed = typeof window.showConfirmModal === 'function'
+    ? await window.showConfirmModal({
+        title: 'Record Return Refund',
+        subtitle: returnRequest.orderId,
+        message: `Record a refund of ${window.fmtPrice(returnRequest.refundAmount)} for ${returnRequest.customer}?`,
+        confirmText: 'Refund',
+        cancelText: 'Keep Return',
+        danger: false
+      })
+    : window.confirm(`Record a refund of ${window.fmtPrice(returnRequest.refundAmount)} for order ${returnRequest.orderId}?`);
+  if (!confirmed) return;
+
+  const token = window.adminAuthApi?.getToken?.() ||
+    localStorage.getItem('velora_admin_token') ||
+    localStorage.getItem('token') || '';
+  try {
+    const response = await fetch(`${getReturnsApiUrl()}/${encodeURIComponent(returnRequest.id)}/refund`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(data?.message || `Refund failed (${response.status}).`);
+    }
+    window.showToast('Refund recorded in the payment ledger.');
+    await window.fetchReturnsFromDb();
+    if (typeof window.fetchOrdersFromDb === 'function') await window.fetchOrdersFromDb();
+  } catch (error) {
+    window.showToast(error.message || 'Unable to refund return.');
+  }
 };
 
 window.processReturnRequest = async function(returnId, status = 'approved') {

@@ -301,7 +301,11 @@ const deleteOrder = async (req, res) => {
       order
     });
   } catch (error) {
-    const status = error.code === 'ORDER_NOT_FOUND' ? 404 : 500;
+    const status = error.code === 'ORDER_NOT_FOUND'
+      ? 404
+      : error.code === 'ORDER_NOT_DELETABLE'
+        ? 409
+        : 500;
     return res.status(status).json({
       success: false,
       message: error.message || 'Unable to delete order.'

@@ -35,7 +35,7 @@ const createMyReturn = async (req, res) => {
       ? 404
       : error.code === 'ORDER_NOT_RETURNABLE'
         ? 409
-        : error.code === '23505'
+        : ['RETURN_ALREADY_EXISTS', '23505'].includes(error.code)
           ? 409
           : 500;
     return res.status(status).json({ success: false, message: error.message || 'Unable to create return request.' });
@@ -108,4 +108,39 @@ const updateReturn = async (req, res) => {
   }
 };
 
-module.exports = { createMyReturn, getMyReturns, getAllReturns, updateReturn };
+const refundReturn = async (req, res) => {
+  if (!/^\d+$/.test(String(req.params.id || ''))) {
+    return res.status(400).json({ success: false, message: 'Invalid return request ID.' });
+  }
+  if (!req.admin?.admin_id && req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Administrator access is required.' });
+  }
+
+  try {
+    const returnRequest = await returnService.refundReturn(req.params.id);
+    try {
+      await createNotification({
+        type: 'return_refunded',
+        category: 'payments',
+        title: 'Return Refund Recorded',
+        message: `A refund of R ${Number(returnRequest.amount).toFixed(2)} was recorded for order #${returnRequest.order_number}.`,
+        entityType: 'return',
+        entityId: returnRequest.id,
+        actionUrl: '/admin#returns',
+        isActionable: false
+      });
+    } catch (notificationError) {
+      console.warn('Return refund notification warning:', notificationError.message);
+    }
+    return res.status(200).json({ success: true, returnRequest });
+  } catch (error) {
+    const status = error.code === 'RETURN_NOT_FOUND'
+      ? 404
+      : ['RETURN_NOT_APPROVED', 'PAYMENT_NOT_REFUNDABLE'].includes(error.code)
+        ? 409
+        : 500;
+    return res.status(status).json({ success: false, message: error.message || 'Unable to refund return.' });
+  }
+};
+
+module.exports = { createMyReturn, getMyReturns, getAllReturns, updateReturn, refundReturn };

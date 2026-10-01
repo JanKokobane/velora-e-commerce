@@ -880,6 +880,12 @@ const deleteOrder = async (orderNumber) => {
       throw error;
     }
 
+    if (String(order.status).toLowerCase() !== 'cancelled') {
+      const error = new Error('Only cancelled orders can be deleted.');
+      error.code = 'ORDER_NOT_DELETABLE';
+      throw error;
+    }
+
     const itemsResult = await client.query(
       `
       SELECT product_id, quantity

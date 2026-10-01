@@ -526,6 +526,10 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
     const trackBtnEl = cardClone.querySelector('.card-track-btn');
     const cancelBtnEl = cardClone.querySelector('.card-cancel-btn');
     const returnBtnEl = cardClone.querySelector('.card-return-btn');
+    const returnFormEl = cardClone.querySelector('.return-request-form');
+    const returnReasonEl = cardClone.querySelector('.return-reason-input');
+    const cancelReturnFormBtn = cardClone.querySelector('.cancel-return-form-btn');
+    const submitReturnBtn = cardClone.querySelector('.submit-return-btn');
     const actionMessageEl = cardClone.querySelector('.card-order-action-message');
     const itemsListEl = cardClone.querySelector('.card-items-list');
 
@@ -621,22 +625,41 @@ async function loadAndRenderOrders(currentUser, { silent = false } = {}) {
     });
     if (returnBtnEl) {
       const existingReturn = userReturns.find(item => item.order_number === orderId);
-      const returnIsActive = existingReturn && ['pending', 'approved'].includes(existingReturn.status);
-      returnBtnEl.hidden = normalizedStatus !== 'delivered' || Boolean(returnIsActive);
-      if (returnIsActive && actionMessageEl) {
+      const returnAlreadyFiled = existingReturn && existingReturn.status !== 'rejected';
+      returnBtnEl.hidden = normalizedStatus !== 'delivered' || Boolean(returnAlreadyFiled);
+      if (returnAlreadyFiled && actionMessageEl) {
         actionMessageEl.textContent = `Return ${existingReturn.status}: ${existingReturn.reason}`;
       }
-      returnBtnEl.addEventListener('click', async () => {
-        const reason = window.prompt('Why are you requesting a return?');
-        if (!reason || !reason.trim()) return;
-        returnBtnEl.disabled = true;
+      returnBtnEl.addEventListener('click', () => {
+        if (returnFormEl) returnFormEl.hidden = false;
+        returnBtnEl.hidden = true;
+        returnReasonEl?.focus();
+      });
+      cancelReturnFormBtn?.addEventListener('click', () => {
+        if (returnFormEl) returnFormEl.hidden = true;
+        returnBtnEl.hidden = false;
+      });
+      returnFormEl?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const reason = String(returnReasonEl?.value || '').trim();
+        if (reason.length < 3) {
+          if (actionMessageEl) actionMessageEl.textContent = 'Please enter at least 3 characters.';
+          return;
+        }
+        if (submitReturnBtn) submitReturnBtn.disabled = true;
         try {
-          await submitOrderAction(`/api/orders/${encodeURIComponent(orderId)}/returns`, 'POST', { reason: reason.trim() });
+          const result = await submitOrderAction(`/api/orders/${encodeURIComponent(orderId)}/returns`, 'POST', { reason });
           if (actionMessageEl) actionMessageEl.textContent = 'Return request sent for review.';
+          if (returnFormEl) returnFormEl.hidden = true;
           returnBtnEl.hidden = true;
+          if (returnReasonEl) returnReasonEl.value = '';
+          if (result?.returnRequest) userReturns.unshift(result.returnRequest);
         } catch (error) {
           if (actionMessageEl) actionMessageEl.textContent = error.message;
-          returnBtnEl.disabled = false;
+          if (returnFormEl) returnFormEl.hidden = false;
+          returnBtnEl.hidden = true;
+        } finally {
+          if (submitReturnBtn) submitReturnBtn.disabled = false;
         }
       });
     }

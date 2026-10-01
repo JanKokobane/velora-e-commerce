@@ -25,6 +25,7 @@ window.renderOrderDrawer = function(order) {
   const acceptBtn = document.getElementById('btnTrackOrder');
   const assignBtn = document.getElementById('btnAssignDriver');
   const deliveredBtn = document.getElementById('btnDeliverOrder');
+  const deleteBtn = document.getElementById('btnDeleteOrder');
 
   if (orderIdEl) orderIdEl.textContent = `Order ${order.id}`;
   if (statusPill) {
@@ -63,6 +64,7 @@ window.renderOrderDrawer = function(order) {
   }
 
   const normalizedStatus = String(order.status || '').toLowerCase();
+  if (deleteBtn) deleteBtn.hidden = normalizedStatus !== 'cancelled';
   const canAssignDriver = ['paid', 'accepted at hub'].includes(normalizedStatus);
   const province = String(order.shipping?.province || '').trim().toLowerCase();
   const eligibleDrivers = (Array.isArray(window.driversData) ? window.driversData : [])
@@ -318,44 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } finally {
         btnDelivered.disabled = false;
       }
-    });
-  }
-
-  const btnRefund = document.getElementById('btnRefundOrder');
-  if (btnRefund) {
-    btnRefund.addEventListener('click', () => {
-      if (!window.currentActiveOrderId) return;
-      const order = window.ordersData.find(o => o.id === window.currentActiveOrderId);
-      if (!order) return;
-
-      if (order.status === 'Cancelled') {
-        window.showToast(`Order ${order.id} has already been cancelled and refunded.`);
-        return;
-      }
-
-      order.status = 'Cancelled';
-      window.saveOrders();
-
-      // Check if return record exists, else add
-      const existingRet = window.returnsData.find(r => r.orderId === order.id);
-      if (!existingRet) {
-        window.returnsData.unshift({
-          id: `RET-09${Math.floor(Math.random() * 90 + 10)}`,
-          orderId: order.id,
-          customer: order.customer.fullName,
-          reason: 'Client requested cancellation & full refund',
-          refundAmount: order.total,
-          status: 'Authorised'
-        });
-        window.saveReturns();
-      }
-
-      window.showToast(`Order ${order.id} cancelled. Refund of ${window.fmtPrice(order.total)} queued.`);
-      window.renderOrderDrawer(order);
-      if (typeof window.renderOrdersTable === 'function') window.renderOrdersTable();
-      if (typeof window.renderKPICards === 'function') window.renderKPICards();
-      if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
-      if (typeof window.renderReturnsView === 'function') window.renderReturnsView();
     });
   }
 

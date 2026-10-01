@@ -1324,6 +1324,7 @@ window.renderOrdersTable =
           deleteButton.style.fontSize = '12px';
           deleteButton.style.color = '#b91c1c';
           deleteButton.textContent = 'Delete';
+          deleteButton.hidden = String(order.status || '').toLowerCase() !== 'cancelled';
           deleteButton.addEventListener('click', async event => {
             event.stopPropagation();
             deleteButton.disabled = true;

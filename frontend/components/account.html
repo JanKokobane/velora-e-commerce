@@ -299,6 +299,15 @@
                         <button type="button" class="order-btn-outline card-return-btn">Request return</button>
                         <span class="card-order-action-message" role="status" aria-live="polite"></span>
                     </div>
+                    <form class="return-request-form" hidden>
+                        <label class="return-request-label">Reason for return
+                            <textarea class="return-reason-input" minlength="3" maxlength="1000" required rows="3" placeholder="Tell us why you are returning this order."></textarea>
+                        </label>
+                        <div class="return-request-actions">
+                            <button type="button" class="order-btn-outline cancel-return-form-btn">Keep order</button>
+                            <button type="submit" class="order-btn-outline submit-return-btn">Send return request</button>
+                        </div>
+                    </form>
                 </footer>
             </article>
         </template>

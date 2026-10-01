@@ -390,6 +390,57 @@
   border-color: var(--ink);
 }
 
+.return-request-form {
+  flex: 1 0 100%;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.return-request-form[hidden] {
+  display: none;
+}
+.return-request-label {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.return-reason-input {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.return-request-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.submit-return-btn {
+  background: var(--ink);
+  color: #fff;
+}
+.submit-return-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.return-request-actions button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
 /* Live Courier Tracking Drawer in Card */
 .order-tracking-collapse {
   padding: 24px;
