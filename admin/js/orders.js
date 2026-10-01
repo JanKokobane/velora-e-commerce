@@ -117,6 +117,10 @@ function normalizeOrderStatus(order) {
       ''
     ).toLowerCase();
 
+  if (paymentStatus === 'refunded' || orderStatus === 'refunded') {
+    return 'Refunded';
+  }
+
   if (
     orderStatus ===
     'delivered'
@@ -130,9 +134,7 @@ function normalizeOrderStatus(order) {
 
   if (
     orderStatus ===
-      'cancelled' ||
-    orderStatus ===
-      'refunded'
+      'cancelled'
   ) {
     return 'Cancelled';
   }
@@ -761,6 +763,10 @@ window.getStatusClass =
       return 'status-cancelled';
     }
 
+    if (value === 'refunded') {
+      return 'status-cancelled';
+    }
+
     if (
       value ===
       'pending'
@@ -780,25 +786,15 @@ window.renderKPICards =
         ? window.ordersData
         : [];
 
-    const totalRevenue =
-      orders.reduce(
-        (total, order) => {
-          if (
-            order.status ===
-            'Cancelled'
-          ) {
-            return total;
-          }
-
-          return (
-            total +
-            Number(
-              order.total || 0
-            )
-          );
-        },
-        0
-      );
+    const revenueOrders = orders.filter(order => {
+      const orderStatus = String(order.status || '').toLowerCase();
+      const paymentStatus = String(order.paymentStatus || order.payment_status || '').toLowerCase();
+      return !['cancelled', 'canceled', 'refunded'].includes(orderStatus) && paymentStatus !== 'refunded';
+    });
+    const totalRevenue = revenueOrders.reduce(
+      (total, order) => total + (Number(order.total) || 0),
+      0
+    );
 
     const totalOrders =
       orders.length;
@@ -813,9 +809,9 @@ window.renderKPICards =
       ).length;
 
     const averageOrder =
-      totalOrders > 0
+      revenueOrders.length > 0
         ? totalRevenue /
-          totalOrders
+          revenueOrders.length
         : 0;
 
     const revenueElement =

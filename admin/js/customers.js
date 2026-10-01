@@ -142,18 +142,22 @@
             (o?.user_id && String(o.user_id) === rawId)
           );
         });
+        const revenueOrders = userOrders.filter(order => {
+          const orderStatus = String(order.status || '').toLowerCase();
+          const paymentStatus = String(order.paymentStatus || order.payment_status || '').toLowerCase();
+          return !['cancelled', 'canceled', 'refunded'].includes(orderStatus) && paymentStatus !== 'refunded';
+        });
 
         const totalOrders = Number(
           u.total_orders || u.totalOrders || userOrders.length || 0
         );
-        const lifetimeSpend = Number(
-          u.lifetime_spend ||
-            u.lifetimeSpend ||
-            userOrders.reduce(
-              (sum, o) => sum + (parseFloat(o.total) || 0),
-              0
-            )
+        const calculatedLifetimeSpend = revenueOrders.reduce(
+          (sum, order) => sum + (parseFloat(order.total) || 0),
+          0
         );
+        const lifetimeSpend = userOrders.length > 0
+          ? calculatedLifetimeSpend
+          : Number(u.lifetime_spend || u.lifetimeSpend || 0);
 
         const locationParts = [u.street, u.city, u.province].filter(Boolean);
         const location =

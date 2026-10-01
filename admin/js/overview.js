@@ -128,9 +128,14 @@ function renderOverviewTrendingGoods(orders) {
 window.renderOverviewView = function() {
   const orders = Array.isArray(window.ordersData) ? window.ordersData : [];
   const returns = Array.isArray(window.returnsData) ? window.returnsData : [];
-  const totalRev = orders.reduce((acc, order) => acc + (order.status !== 'Cancelled' ? Number(order.total) || 0 : 0), 0);
+  const revenueOrders = orders.filter(order => {
+    const orderStatus = String(order.status || '').toLowerCase();
+    const paymentStatus = String(order.paymentStatus || order.payment_status || '').toLowerCase();
+    return !['cancelled', 'canceled', 'refunded'].includes(orderStatus) && paymentStatus !== 'refunded';
+  });
+  const totalRev = revenueOrders.reduce((acc, order) => acc + (Number(order.total) || 0), 0);
   const totalOrders = orders.length;
-  const avgOrderVal = totalOrders ? totalRev / totalOrders : 0;
+  const avgOrderVal = revenueOrders.length ? totalRev / revenueOrders.length : 0;
   const activeReturns = returns.filter(item => ['pending', 'approved'].includes(String(item.apiStatus || item.status || '').toLowerCase())).length;
 
   renderOverviewOperations(orders, returns);

@@ -24,6 +24,7 @@ window.renderOrderDrawer = function(order) {
   const driverSelect = document.getElementById('drawerDriverSelect');
   const acceptBtn = document.getElementById('btnTrackOrder');
   const assignBtn = document.getElementById('btnAssignDriver');
+  const addDriverBtn = document.getElementById('btnAddDriverForOrder');
   const deliveredBtn = document.getElementById('btnDeliverOrder');
   const deleteBtn = document.getElementById('btnDeleteOrder');
 
@@ -69,6 +70,7 @@ window.renderOrderDrawer = function(order) {
   const province = String(order.shipping?.province || '').trim().toLowerCase();
   const eligibleDrivers = (Array.isArray(window.driversData) ? window.driversData : [])
     .filter(driver => String(driver.province || '').trim().toLowerCase() === province);
+  const noEligibleDriver = canAssignDriver && Boolean(province) && eligibleDrivers.length === 0 && !window.driversLoadError;
   if (trackingLocationEl) {
     trackingLocationEl.textContent = order.trackingLocation ||
       (normalizedStatus === 'accepted at hub'
@@ -116,6 +118,7 @@ window.renderOrderDrawer = function(order) {
     assignBtn.disabled = eligibleDrivers.length === 0;
     assignBtn.textContent = 'Assign Driver';
   }
+  if (addDriverBtn) addDriverBtn.hidden = !noEligibleDriver;
   if (deliveredBtn) {
     if (window.orderDeliveryTimerId) clearTimeout(window.orderDeliveryTimerId);
     window.orderDeliveryTimerId = null;
@@ -313,6 +316,35 @@ document.addEventListener('DOMContentLoaded', () => {
       } finally {
         btnAssignDriver.disabled = false;
       }
+    });
+  }
+
+  const btnAddDriverForOrder = document.getElementById('btnAddDriverForOrder');
+  if (btnAddDriverForOrder) {
+    btnAddDriverForOrder.addEventListener('click', async () => {
+      const order = (window.ordersData || []).find(item => item.id === window.currentActiveOrderId);
+      const province = order?.shipping?.province || 'this province';
+      const confirmed = typeof window.showConfirmModal === 'function'
+        ? await window.showConfirmModal({
+            title: 'No driver available',
+            subtitle: province,
+            message: `There are no drivers serving ${province}. Add a driver for this province before assigning this order.`,
+            confirmText: 'Add Driver',
+            cancelText: 'Not Now',
+            danger: false
+          })
+        : window.confirm(`There are no drivers serving ${province}. Add a driver now?`);
+      if (!confirmed) return;
+
+      window.closeOrderDrawer();
+      if (typeof window.switchTab === 'function') window.switchTab('drivers');
+      window.setTimeout(() => {
+        if (typeof window.openDriverModal === 'function') {
+          window.openDriverModal();
+        } else if (typeof window.showToast === 'function') {
+          window.showToast('Open the Drivers section to add a driver.');
+        }
+      }, 150);
     });
   }
 

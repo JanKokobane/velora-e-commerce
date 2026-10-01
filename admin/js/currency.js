@@ -172,7 +172,18 @@ window.applyCountryCurrency = function(country, showToastAlert = true) {
     window.refreshCurrentView();
   }
 
-  // Re-render open side drawers if active
+  // Re-render the active order drawer with the selected currency.
+  const activeOrderDrawer = document.getElementById('orderDrawer');
+  if (activeOrderDrawer?.classList.contains('open') && window.currentActiveOrderId != null) {
+    const activeOrder = (Array.isArray(window.ordersData) ? window.ordersData : []).find(order =>
+      String(order.id) === String(window.currentActiveOrderId)
+    );
+    if (activeOrder && typeof window.renderOrderDrawer === 'function') {
+      window.renderOrderDrawer(activeOrder);
+    }
+  }
+
+  // Re-render legacy side drawers if active.
   const orderDrawer = document.getElementById('orderDetailsDrawer');
   if (orderDrawer && (orderDrawer.classList.contains('open') || orderDrawer.style.display === 'block')) {
     if (window.currentOrder && typeof window.renderOrderDrawerDetails === 'function') {
