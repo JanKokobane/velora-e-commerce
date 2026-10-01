@@ -71,6 +71,9 @@ window.refreshCurrentView = function() {
     if (typeof window.fetchOrdersFromDb === 'function') {
       window.fetchOrdersFromDb();
     }
+    if (typeof window.fetchDriversFromDb === 'function') {
+      window.fetchDriversFromDb();
+    }
     if (typeof window.fetchReturnsFromDb === 'function') {
       window.fetchReturnsFromDb();
     }

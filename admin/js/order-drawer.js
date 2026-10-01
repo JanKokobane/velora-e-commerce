@@ -19,6 +19,7 @@ window.renderOrderDrawer = function(order) {
   const trkEl = document.getElementById('drawerTrackingNumber');
   const totalEl = document.getElementById('drawerTotalAmount');
   const trackingLocationEl = document.getElementById('drawerTrackingLocation');
+  const deliveryProvinceEl = document.getElementById('drawerDeliveryProvince');
   const assignedDriverEl = document.getElementById('drawerAssignedDriver');
   const driverSelect = document.getElementById('drawerDriverSelect');
   const acceptBtn = document.getElementById('btnTrackOrder');
@@ -57,6 +58,7 @@ window.renderOrderDrawer = function(order) {
         ? 'Velora Logistics Hub, Airport Industria'
         : 'Velora Fulfillment Centre');
   }
+  if (deliveryProvinceEl) deliveryProvinceEl.textContent = order.shipping?.province || 'Not recorded';
   if (assignedDriverEl) {
     assignedDriverEl.textContent = order.driver
       ? `Assigned driver: ${order.driver.fullName || order.driver.full_name} · ${order.driver.phone || ''}`
@@ -161,6 +163,9 @@ window.selectAndOpenOrder = function(orderId) {
   const backdrop = document.getElementById('drawerBackdrop');
   if (drawer) drawer.classList.add('open');
   if (backdrop) backdrop.classList.add('open');
+  if ((!Array.isArray(window.driversData) || window.driversData.length === 0) && typeof window.fetchDriversFromDb === 'function') {
+    window.fetchDriversFromDb();
+  }
 };
 
 window.closeOrderDrawer = function() {
