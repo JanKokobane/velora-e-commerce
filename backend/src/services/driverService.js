@@ -51,4 +51,100 @@ const createDriver = async ({ fullName, email, phone, province }) => {
   return result.rows[0];
 };
 
-module.exports = { ensureDriverSchema, getDrivers, createDriver };
+const updateDriver = async (id, { fullName, email, phone, province }) => {
+  await ensureDriverSchema();
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+    const currentResult = await client.query(`
+      SELECT id, province
+      FROM drivers
+      WHERE id = $1
+      LIMIT 1
+      FOR UPDATE
+    `, [id]);
+    const current = currentResult.rows[0];
+    if (!current) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+
+    if (String(current.province).toLowerCase() !== province.toLowerCase()) {
+      const assignmentResult = await client.query(`
+        SELECT 1
+        FROM orders
+        WHERE driver_id = $1
+          AND status = 'in-transit'
+          AND LOWER(province) <> LOWER($2)
+        LIMIT 1
+      `, [id, province]);
+      if (assignmentResult.rows.length > 0) {
+        const error = new Error('This driver has active deliveries outside the selected province. Complete or reassign them before changing province.');
+        error.code = 'DRIVER_ACTIVE_PROVINCE_MISMATCH';
+        throw error;
+      }
+    }
+
+    const result = await client.query(`
+      UPDATE drivers
+      SET full_name = $1,
+          email = $2,
+          phone = $3,
+          province = $4,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $5
+      RETURNING id, full_name, email, phone, province, created_at, updated_at
+    `, [fullName, email, phone, province, id]);
+    await client.query('COMMIT');
+    return result.rows[0] || null;
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const deleteDriver = async (id) => {
+  await ensureDriverSchema();
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+    const driverResult = await client.query(`
+      SELECT id, full_name
+      FROM drivers
+      WHERE id = $1
+      LIMIT 1
+      FOR UPDATE
+    `, [id]);
+    const driver = driverResult.rows[0];
+    if (!driver) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+
+    await client.query(`
+      UPDATE orders
+      SET driver_id = NULL,
+          status = CASE WHEN status = 'in-transit' THEN 'accepted' ELSE status END,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE driver_id = $1
+    `, [id]);
+    const result = await client.query(`
+      DELETE FROM drivers
+      WHERE id = $1
+      RETURNING id, full_name
+    `, [id]);
+    await client.query('COMMIT');
+    return result.rows[0] || null;
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { ensureDriverSchema, getDrivers, createDriver, updateDriver, deleteDriver };

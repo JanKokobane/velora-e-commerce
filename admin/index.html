@@ -589,7 +589,6 @@
                 <path d="M10 18h5"></path>
               </svg>
               <span>Drivers</span>
-              <span class="nav-badge" id="sidebarDriversBadge">0</span>
             </button>
 
             <button type="button" class="nav-item" data-tab="returns">
@@ -1117,7 +1116,7 @@
               </div>
             </div>
             <div class="orders-table-card" style="padding: 24px; margin-bottom: 20px;">
-              <h3 style="margin: 0 0 16px; font-size: 16px;">Add Driver</h3>
+              <h3 id="driverFormTitle" style="margin: 0 0 16px; font-size: 16px;">Add Driver</h3>
               <form id="driverCreateForm" class="studio-grid-2">
                 <div class="studio-input-group">
                   <label class="studio-label" for="driverFullName">Full Name</label>
@@ -1148,6 +1147,7 @@
                 </div>
                 <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                   <button class="drawer-btn drawer-btn-dark" type="submit">Add Driver</button>
+                  <button class="drawer-btn drawer-btn-outline" id="cancelDriverEditBtn" type="button" hidden>Cancel Edit</button>
                   <span id="driverFormMessage" role="status" aria-live="polite"></span>
                 </div>
               </form>
@@ -1155,7 +1155,7 @@
             <div class="orders-table-card">
               <div class="table-responsive">
                 <table class="dash-table">
-                  <thead><tr><th>Driver</th><th>Email</th><th>Phone</th><th>Province</th></tr></thead>
+                  <thead><tr><th>Driver</th><th>Email</th><th>Phone</th><th>Province</th><th>Actions</th></tr></thead>
                   <tbody id="driversTableBody"></tbody>
                 </table>
               </div>
