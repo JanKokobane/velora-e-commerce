@@ -6,6 +6,12 @@ const NOTIFICATIONS_API = (() => {
   return `${baseUrl.replace(/\/+$/, '')}/api/notifications`;
 })();
 
+const isSeedNotification = (id) => String(id).startsWith('notif-seed-');
+const isSeedNotificationFeed = () =>
+  Array.isArray(window.notificationsData) &&
+  window.notificationsData.length > 0 &&
+  window.notificationsData.every(notification => isSeedNotification(notification.id));
+
 const getNotificationToken = () => {
   if (
     window.adminAuthApi &&
@@ -359,7 +365,7 @@ window.fetchNotifications = async function() {
       .map(normalizeNotification)
       .filter(notification => !notification.cleared);
 
-    window.notificationsData = normalized.length > 0 ? normalized : [...SEED_NOTIFICATIONS];
+    window.notificationsData = normalized;
 
     const newInventoryNotifications =
       window.notificationsData.filter(notification =>
@@ -871,6 +877,14 @@ window.markNotificationRead =
     id,
     showToast = true
   ) {
+    if (isSeedNotification(id)) {
+      const notification = window.notificationsData.find(item => item.id === id);
+      if (notification) notification.unread = false;
+      window.renderNotificationsView();
+      if (showToast) window.showToast('Notification marked as read');
+      return;
+    }
+
     try {
       await notificationRequest(
         `${NOTIFICATIONS_API}/${id}/read`,
@@ -910,6 +924,13 @@ window.markNotificationRead =
 
 window.dismissNotification =
   async function(id) {
+    if (isSeedNotification(id)) {
+      window.notificationsData = window.notificationsData.filter(notification => notification.id !== id);
+      window.renderNotificationsView();
+      window.showToast('Notification cleared');
+      return;
+    }
+
     try {
       await notificationRequest(
         `${NOTIFICATIONS_API}/${id}/clear`,
@@ -944,6 +965,15 @@ window.dismissNotification =
 
 window.markAllNotificationsRead =
   async function() {
+    if (isSeedNotificationFeed()) {
+      window.notificationsData.forEach(notification => {
+        notification.unread = false;
+      });
+      window.renderNotificationsView();
+      window.showToast('All notifications marked as read');
+      return;
+    }
+
     try {
       await notificationRequest(
         `${NOTIFICATIONS_API}/read-all`,
@@ -978,6 +1008,30 @@ window.markAllNotificationsRead =
 
 window.clearAllNotifications =
   async function() {
+    const notificationCount = Array.isArray(window.notificationsData)
+      ? window.notificationsData.length
+      : 0;
+    if (notificationCount === 0) return;
+
+    const confirmed = typeof window.showConfirmModal === 'function'
+      ? await window.showConfirmModal({
+          title: 'Clear all notifications?',
+          subtitle: `${notificationCount} alert${notificationCount === 1 ? '' : 's'}`,
+          message: 'This will remove all notifications from the admin feed. This action cannot be undone.',
+          confirmText: 'Clear notifications',
+          cancelText: 'Keep notifications',
+          danger: true
+        })
+      : window.confirm(`Clear all ${notificationCount} notifications? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    if (isSeedNotificationFeed()) {
+      window.notificationsData = [];
+      window.renderNotificationsView();
+      window.showToast('All notification alerts cleared');
+      return;
+    }
+
     try {
       await notificationRequest(
         `${NOTIFICATIONS_API}/clear-all`,

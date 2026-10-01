@@ -137,17 +137,15 @@ window.renderReturnsView = function() {
     actionWrap.style.gap = '8px';
 
     if (ret.apiStatus === 'pending') {
-      ['approved', 'rejected'].forEach(status => {
-        const actionBtn = document.createElement('button');
-        actionBtn.type = 'button';
-        actionBtn.className = status === 'approved' ? 'drawer-btn drawer-btn-accent' : 'drawer-btn';
-        actionBtn.style.flex = 'initial';
-        actionBtn.style.padding = '5px 10px';
-        actionBtn.style.fontSize = '11.5px';
-        actionBtn.textContent = status === 'approved' ? 'Approve' : 'Reject';
-        actionBtn.addEventListener('click', () => window.processReturnRequest(ret.id, status));
-        actionWrap.appendChild(actionBtn);
-      });
+      const approveBtn = document.createElement('button');
+      approveBtn.type = 'button';
+      approveBtn.className = 'drawer-btn drawer-btn-accent';
+      approveBtn.style.flex = 'initial';
+      approveBtn.style.padding = '5px 10px';
+      approveBtn.style.fontSize = '11.5px';
+      approveBtn.textContent = 'Approve';
+      approveBtn.addEventListener('click', () => window.processReturnRequest(ret.id, 'approved'));
+      actionWrap.appendChild(approveBtn);
     } else if (ret.apiStatus === 'approved') {
       const refundBtn = document.createElement('button');
       refundBtn.type = 'button';
