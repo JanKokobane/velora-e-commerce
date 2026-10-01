@@ -404,6 +404,25 @@ window.fetchOrdersFromDb =
     window._isFetchingOrders =
       true;
 
+  window.refreshOrderByNumberFromDb = async function(orderNumber) {
+    const rawOrder = await window.fetchOrderByNumberFromDb(orderNumber);
+    if (!rawOrder) return null;
+
+    const updatedOrder = mapDbOrder(rawOrder);
+    const orders = Array.isArray(window.ordersData) ? window.ordersData : [];
+    const existingIndex = orders.findIndex(order =>
+      String(order.orderNumber) === String(updatedOrder.orderNumber)
+    );
+    if (existingIndex >= 0) orders[existingIndex] = updatedOrder;
+    else orders.unshift(updatedOrder);
+    window.ordersData = orders;
+
+    window.renderOrdersTable();
+    window.renderKPICards();
+    if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
+    return updatedOrder;
+  };
+
     const refreshBtn =
       document.getElementById(
         'refreshOrdersBtn'

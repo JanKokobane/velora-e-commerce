@@ -32,6 +32,8 @@ window.fetchDriversFromDb = async function() {
     console.error('[Velora Admin] Error fetching drivers:', error);
     window.driversLoadError = error.message || 'Unable to load the driver roster.';
     window.renderDriversView();
+    const activeOrder = (window.ordersData || []).find(order => order.id === window.currentActiveOrderId);
+    if (activeOrder && typeof window.renderOrderDrawer === 'function') window.renderOrderDrawer(activeOrder);
     return window.driversData;
   } finally {
     window._isFetchingDrivers = false;

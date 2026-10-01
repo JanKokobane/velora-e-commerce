@@ -76,14 +76,24 @@ window.renderOrderDrawer = function(order) {
   if (assignedDriverEl) {
     assignedDriverEl.textContent = order.driver
       ? `Assigned driver: ${order.driver.fullName || order.driver.full_name} · ${order.driver.phone || ''}`
-      : 'No driver assigned';
+      : window.driversLoadError
+        ? `Driver list unavailable: ${window.driversLoadError}`
+        : eligibleDrivers.length === 0
+          ? province
+            ? `No drivers serve ${order.shipping.province} yet. Add one in the Drivers section.`
+            : 'The order has no delivery province, so a driver cannot be matched.'
+          : 'No driver assigned';
   }
   if (driverSelect) {
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = province
-      ? `Select driver (${order.shipping.province})`
-      : 'Customer province unavailable';
+    placeholder.textContent = window.driversLoadError
+      ? 'Driver roster unavailable'
+      : province
+        ? eligibleDrivers.length > 0
+          ? `Select driver (${order.shipping.province})`
+          : `No drivers for ${order.shipping.province}`
+        : 'Customer province unavailable';
     const options = eligibleDrivers.map(driver => {
       const option = document.createElement('option');
       option.value = String(driver.id);
@@ -223,12 +233,14 @@ async function submitDispatchAction(order, action, body = {}) {
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.message || `Order update failed (${response.status}).`);
 
-  const refreshedOrders = await window.fetchOrdersFromDb();
-  const updatedOrder = (Array.isArray(refreshedOrders) ? refreshedOrders : window.ordersData || [])
-    .find(item => String(item.orderNumber) === String(order.orderNumber));
+  const updatedOrder = typeof window.refreshOrderByNumberFromDb === 'function'
+    ? await window.refreshOrderByNumberFromDb(order.orderNumber)
+    : null;
   if (updatedOrder) {
     window.renderOrderDrawer(updatedOrder);
     if (typeof window.renderOverviewView === 'function') window.renderOverviewView();
+  } else if (typeof window.fetchOrdersFromDb === 'function') {
+    await window.fetchOrdersFromDb();
   }
   return data.order;
 }
